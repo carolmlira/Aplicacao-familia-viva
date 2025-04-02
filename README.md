@@ -54,9 +54,4 @@ Aplicacao-familia-viva/
 │-- README.md          # Documentação
 ```
 
-## 🔧 Possíveis Erros e Soluções
-### 1️⃣ Erro:`touch: command not found`
-**Solução:** Crie o arquivo manualmente`.
-
----
 
