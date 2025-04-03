@@ -1,14 +1,24 @@
 const express = require("express");
-const app = express();
+const next = require("next");
 const path = require("path");
 
-app.use(express.static(path.join(__dirname, "public")));
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "static", "templates", "index.html"));
-});
+app.prepare().then(() => {
+    const server = express();
 
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    // Servir arquivos estáticos da pasta "public"
+    server.use(express.static(path.join(__dirname, "public")));
+
+    // Rota principal para servir o Next.js
+    server.all("*", (req, res) => {
+        return handle(req, res);
+    });
+
+    const PORT = 3000;
+    server.listen(PORT, () => {
+        console.log(`Servidor rodando em http://localhost:${PORT}`);
+    });
 });
