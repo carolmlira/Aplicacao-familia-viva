@@ -23,6 +23,9 @@ cd Aplicacao-familia-viva
 ## 2️⃣ Instalar dependências
 
 ### 🔧 Firebase (na raiz do projeto)
+```bash
+npm install
+```
 
 ### 🔧 Backend (NestJS)
 ```bash
