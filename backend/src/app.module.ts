@@ -1,20 +1,27 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
+import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
-import { ScheduleController } from './schedule/schedule.controller';
-import { ScheduleService } from './schedule/schedule.service';
-import { ScheduleModule } from './schedule/schedule.module';
-import { EventsController } from './events/events.controller';
-import { EventsService } from './events/events.service';
+import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
+import { MinistriesController } from './ministries/ministries.controller';
+import { MinistriesModule } from './ministries/ministries.module';
+import { FirebaseService } from './firebase/firebase.service';
+import { FirebaseModule } from './firebase/firebase.module';
 
 @Module({
-  imports: [UsersModule, ScheduleModule, EventsModule],
-  controllers: [AppController, AuthController, UsersController, ScheduleController, EventsController],
-  providers: [AppService, UsersService, ScheduleService, EventsService],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env.local', //  aqui você especifica o caminho
+      isGlobal: true, // permite usar em todos os módulos sem reimportar
+    }),
+    UsersModule,
+    AuthModule,
+    EventsModule,
+    MinistriesModule,
+    FirebaseModule,
+  ],
+  controllers: [MinistriesController],
+  providers: [FirebaseService],
 })
 export class AppModule {}
+
