@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Patch } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-events.dto/create-events.dto';
 
@@ -21,12 +21,18 @@ export class EventsController {
   // Buscar evento específico
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(Number(id));
+    return this.eventsService.findOne(id);
+  }
+
+  // Atualizar evento
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateEventDto: Partial<CreateEventDto>) {
+    return this.eventsService.update(id, updateEventDto);
   }
 
   // Remover evento por ID
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.eventsService.remove(Number(id));
+    return this.eventsService.remove(id);
   }
 }

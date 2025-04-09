@@ -1,10 +1,12 @@
-export class UserEntity {
+export interface UserEntity {
+    id: string;
     name: string;
     email: string;
     password: string;
-    level: string; // Pode ser validado como enum depois, se desejar
+    level: string;
     active: boolean;
-    photo?: string; // Pode ser uma URL
+    photo?: string;
     phone?: string;
-    whatsappOptIn: boolean;  
-}
+    whatsappOptIn: boolean;
+  }
+  

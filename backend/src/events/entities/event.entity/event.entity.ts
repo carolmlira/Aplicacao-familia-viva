@@ -1,4 +1,5 @@
-export class EventEntity {
+export interface EventEntity {
+    id: string;
     title: string;
     description?: string;
     days: string[]; // Ex: ["Tuesday", "Sunday"]
@@ -7,4 +8,5 @@ export class EventEntity {
     hasSchedule: boolean;
     ministry?: string;
     recurrenceRule?: string; 
+    createdAt: Date;
 }

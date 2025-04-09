@@ -1,7 +1,7 @@
 // src/pages/pages.service.ts
 import { Injectable } from '@nestjs/common';
 import { CreatePageDto } from './dto/create-page.dto/create-page.dto'
-import { UpdatePageDto } from './dto/create-page.dto/update-page.dto';
+import { UpdatePageDto } from './dto/update-page.dto/update-page.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()

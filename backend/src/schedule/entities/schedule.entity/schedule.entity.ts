@@ -1,5 +1,6 @@
 // schedule.entity.ts
-export class Schedule {
+export class ScheduleEntity {
+    id: string;
     ministryId: string; // referência ao ministério
     date: string; // ISO format: YYYY-MM-DD
     members: string[]; // nomes ou IDs de pessoas escaladas

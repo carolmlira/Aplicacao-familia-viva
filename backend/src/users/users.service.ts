@@ -1,53 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
+import { UserEntity } from './entities/user.entity/user.entity';
 
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    password: string;
-    level: string;
-    active: boolean;
-    photo?: string;
-    phone?: string;
-    whatsappOptIn?: boolean;
+@Injectable()
+export class UsersService {
+  private users: UserEntity[] = [];
+
+  create(createUserDto: CreateUserDto): UserEntity {
+    const newUser: UserEntity = {
+      id: uuidv4(),
+      ...createUserDto,
+    };
+
+    this.users.push(newUser);
+    return newUser;
   }
-  
-  @Injectable()
-  export class UsersService {
-    private users: User[] = [];
-  
-    create(userDto: CreateUserDto): User {
-      const newUser: User = {
-        id: this.users.length + 1,
-        name: userDto.name,
-        email: userDto.email,
-        password: userDto.password,
-        level: userDto.level,
-        active: userDto.active,        
-        photo: userDto.photo,
-        phone: userDto.phone,
-        whatsappOptIn: userDto.whatsappOptIn,
-      };
-  
-      this.users.push(newUser);
-      return newUser;
-    }
-  
-    findAll(): User[] {
-      return this.users;
-    }
-  
-    findOne(id: number): User | undefined {
-      return this.users.find((user) => user.id === id);
-    }
-    
-    findByEmail(email: string): User | undefined {
-      return this.users.find((user) => user.email === email);
-    }
-  
-    remove(id: number): { deleted: boolean } {
-      this.users = this.users.filter((user) => user.id !== id);
-      return { deleted: true };
-    }
+
+  findAll(): UserEntity[] {
+    return this.users;
   }
+
+  findOne(id: string): UserEntity | undefined {
+    return this.users.find((user) => user.id === id);
+  }
+
+  findByEmail(email: string): UserEntity | undefined {
+    return this.users.find((user) => user.email === email);
+  }
+
+  update(id: string, updateUserDto: Partial<CreateUserDto>): UserEntity {
+    const userIndex = this.users.findIndex((user) => user.id === id);
+    if (userIndex === -1) {
+      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
+    }
+
+    const updatedUser = {
+      ...this.users[userIndex],
+      ...updateUserDto,
+    };
+
+    this.users[userIndex] = updatedUser;
+    return updatedUser;
+  }
+
+  remove(id: string): { deleted: boolean } {
+    const originalLength = this.users.length;
+    this.users = this.users.filter((user) => user.id !== id);
+    return { deleted: this.users.length < originalLength };
+  }
+}
