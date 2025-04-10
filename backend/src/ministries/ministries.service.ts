@@ -1,52 +1,52 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMinistriesDto } from './dto/create-ministry.dto/create-ministry.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { MinistryEntity } from './entities/ministry.entity/ministry.entity';
+import { firestore } from '../config/firebase.config';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MinistriesService {
-  private ministries: MinistryEntity[] = []; // Temporário até integrar com Firebase
+  private collection = firestore.collection('ministries');
 
-  // Criar um novo ministério
-  create(createMinistriesDto: CreateMinistriesDto): MinistryEntity{
+  async create(createMinistriesDto: CreateMinistriesDto): Promise<MinistryEntity> {
     const newMinistry = {
       id: uuidv4(),
       ...createMinistriesDto,
     };
-    this.ministries.push(newMinistry);
+    await this.collection.doc(newMinistry.id).set(newMinistry);
     return newMinistry;
   }
 
-  // Retornar todos os ministérios
-  findAll() {
-    return this.ministries;
+  async findAll(): Promise<MinistryEntity[]> {
+    const snapshot = await this.collection.get();
+    return snapshot.docs.map((doc) => doc.data() as MinistryEntity);
   }
 
-  // Retornar um ministério por ID
-  findOne(id: string) {
-    const ministry = this.ministries.find((m) => m.id === id);
-    if (!ministry) {
+  async findOne(id: string): Promise<MinistryEntity> {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) {
       throw new NotFoundException('Ministério não encontrado');
     }
-    return ministry;
+    return doc.data() as MinistryEntity;
   }
 
-  // Atualizar ministério
-  update(id: string, updateData: Partial<CreateMinistriesDto>) {
-    const ministry = this.findOne(id);
-    const updated = { ...ministry, ...updateData };
-    const index = this.ministries.findIndex((m) => m.id === id);
-    this.ministries[index] = updated;
-    return updated;
-  }
-
-  // Remover ministério
-  remove(id: string) {
-    const index = this.ministries.findIndex((m) => m.id === id);
-    if (index === -1) {
+  async update(id: string, updateData: Partial<CreateMinistriesDto>): Promise<MinistryEntity> {
+    const docRef = this.collection.doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
       throw new NotFoundException('Ministério não encontrado');
     }
-    this.ministries.splice(index, 1);
+    const updated = { ...doc.data(), ...updateData };
+    await docRef.set(updated);
+    return updated as MinistryEntity;
+  }
+
+  async remove(id: string): Promise<{ message: string }> {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) {
+      throw new NotFoundException('Ministério não encontrado');
+    }
+    await this.collection.doc(id).delete();
     return { message: 'Ministério removido com sucesso' };
   }
 }

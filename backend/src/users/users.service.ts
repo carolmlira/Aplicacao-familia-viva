@@ -1,52 +1,59 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
 import { UserEntity } from './entities/user.entity/user.entity';
+import { firestore } from '../config/firebase.config';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UsersService {
-  private users: UserEntity[] = [];
+  private collection = firestore.collection('users');
 
-  create(createUserDto: CreateUserDto): UserEntity {
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const newUser: UserEntity = {
       id: uuidv4(),
       ...createUserDto,
     };
-
-    this.users.push(newUser);
+    await this.collection.doc(newUser.id).set(newUser);
     return newUser;
   }
 
-  findAll(): UserEntity[] {
-    return this.users;
+  async findAll(): Promise<UserEntity[]> {
+    const snapshot = await this.collection.get();
+    return snapshot.docs.map(doc => doc.data() as UserEntity);
   }
 
-  findOne(id: string): UserEntity | undefined {
-    return this.users.find((user) => user.id === id);
-  }
-
-  findByEmail(email: string): UserEntity | undefined {
-    return this.users.find((user) => user.email === email);
-  }
-
-  update(id: string, updateUserDto: Partial<CreateUserDto>): UserEntity {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    if (userIndex === -1) {
+  async findOne(id: string): Promise<UserEntity> {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
-
-    const updatedUser = {
-      ...this.users[userIndex],
-      ...updateUserDto,
-    };
-
-    this.users[userIndex] = updatedUser;
-    return updatedUser;
+    return doc.data() as UserEntity;
   }
 
-  remove(id: string): { deleted: boolean } {
-    const originalLength = this.users.length;
-    this.users = this.users.filter((user) => user.id !== id);
-    return { deleted: this.users.length < originalLength };
+  async findByEmail(email: string): Promise<UserEntity | undefined> {
+    const snapshot = await this.collection.where('email', '==', email).get();
+    if (snapshot.empty) return undefined;
+    return snapshot.docs[0].data() as UserEntity;
+  }
+
+  async update(id: string, updateUserDto: Partial<CreateUserDto>): Promise<UserEntity> {
+    const docRef = this.collection.doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
+    }
+    const updatedData = {
+      ...doc.data(),
+      ...updateUserDto,
+    };
+    await docRef.set(updatedData);
+    return updatedData as UserEntity;
+  }
+
+  async remove(id: string): Promise<{ deleted: boolean }> {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) return { deleted: false };
+    await this.collection.doc(id).delete();
+    return { deleted: true };
   }
 }

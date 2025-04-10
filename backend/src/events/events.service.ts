@@ -2,60 +2,62 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateEventDto } from './dto/create-events.dto/create-events.dto';
 import { EventEntity } from './entities/event.entity/event.entity';
+import { firestore } from '../config/firebase.config';
 
 @Injectable()
 export class EventsService {
-  private events: EventEntity[] = [];
+  private collection = firestore.collection('events');
 
   // Criar novo evento
-  create(event: CreateEventDto): EventEntity {
+  async create(event: CreateEventDto): Promise<EventEntity> {
     const newEvent: EventEntity = {
       id: uuidv4(),
       ...event,
       createdAt: new Date(),
     };
-    this.events.push(newEvent);
+    await this.collection.doc(newEvent.id).set(newEvent);
     return newEvent;
   }
 
   // Listar todos os eventos
-  findAll(): EventEntity[] {
-    return this.events;
+  async findAll(): Promise<EventEntity[]> {
+    const snapshot = await this.collection.get();
+    return snapshot.docs.map((doc) => doc.data() as EventEntity);
   }
 
   // Buscar evento por ID
-  findOne(id: string): EventEntity {
-    const event = this.events.find(e => e.id === id);
-    if (!event) {
+  async findOne(id: string): Promise<EventEntity> {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) {
       throw new NotFoundException(`Evento com ID ${id} não encontrado`);
     }
-    return event;
+    return doc.data() as EventEntity;
   }
 
   // Atualizar evento por ID
-  update(id: string, updateEventDto: Partial<CreateEventDto>): EventEntity {
-    const eventIndex = this.events.findIndex(e => e.id === id);
-    if (eventIndex === -1) {
+  async update(id: string, updateEventDto: Partial<CreateEventDto>): Promise<EventEntity> {
+    const docRef = this.collection.doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
       throw new NotFoundException(`Evento com ID ${id} não encontrado`);
     }
-
-    const existingEvent = this.events[eventIndex];
     const updatedEvent = {
-      ...existingEvent,
+      ...doc.data(),
       ...updateEventDto,
     };
-
-    this.events[eventIndex] = updatedEvent;
-    return updatedEvent;
+    await docRef.set(updatedEvent);
+    return updatedEvent as EventEntity;
   }
 
   // Deletar evento
-  remove(id: string): { message: string; deleted: EventEntity } {
-    const index = this.events.findIndex(e => e.id === id);
-    if (index === -1) {
+  async remove(id: string): Promise<{ message: string; deleted: EventEntity }> {
+    const docRef = this.collection.doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
       throw new NotFoundException(`Evento com ID ${id} não encontrado`);
     }
-    const [deleted] = this.events.splice(index, 1);
+    const deleted = doc.data() as EventEntity;
+    await docRef.delete();
     return { message: 'Evento removido com sucesso', deleted };
   }
 }

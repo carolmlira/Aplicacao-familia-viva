@@ -1,43 +1,50 @@
-// src/pages/pages.service.ts
-import { Injectable } from '@nestjs/common';
-import { CreatePageDto } from './dto/create-page.dto/create-page.dto'
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreatePageDto } from './dto/create-page.dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto/update-page.dto';
+import { firestore } from '../config/firebase.config';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PagesService {
-  private pages: any[] = [];
+  private collection = firestore.collection('pages');
 
-  create(createPageDto: CreatePageDto) {
+  async create(createPageDto: CreatePageDto) {
     const newPage = {
       id: uuidv4(),
       ...createPageDto,
     };
-    this.pages.push(newPage);
+    await this.collection.doc(newPage.id).set(newPage);
     return newPage;
   }
 
-  findAll() {
-    return this.pages;
+  async findAll() {
+    const snapshot = await this.collection.get();
+    return snapshot.docs.map(doc => doc.data());
   }
 
-  findOne(id: string) {
-    return this.pages.find((page) => page.id === id);
+  async findOne(id: string) {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) {
+      throw new NotFoundException(`Página com ID ${id} não encontrada`);
+    }
+    return doc.data();
   }
 
-  update(id: string, updatePageDto: UpdatePageDto) {
-    const index = this.pages.findIndex((page) => page.id === id);
-    if (index === -1) return null;
-
-    this.pages[index] = { ...this.pages[index], ...updatePageDto };
-    return this.pages[index];
+  async update(id: string, updatePageDto: UpdatePageDto) {
+    const docRef = this.collection.doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) {
+      throw new NotFoundException(`Página com ID ${id} não encontrada`);
+    }
+    const updated = { ...doc.data(), ...updatePageDto };
+    await docRef.set(updated);
+    return updated;
   }
 
-  remove(id: string) {
-    const index = this.pages.findIndex((page) => page.id === id);
-    if (index === -1) return null;
-
-    const deleted = this.pages.splice(index, 1);
-    return deleted[0];
+  async remove(id: string) {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) return null;
+    await this.collection.doc(id).delete();
+    return { deleted: true };
   }
 }

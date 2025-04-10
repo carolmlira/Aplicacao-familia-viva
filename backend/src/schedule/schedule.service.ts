@@ -1,55 +1,37 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { firestore } from '../config/firebase.config';
 import { CreateScheduleDto } from './dto/create-schedule.dto/create-schedule.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { ScheduleEntity } from './entities/schedule.entity/schedule.entity';
 
 @Injectable()
 export class ScheduleService {
-  private schedules: ScheduleEntity[] = [];
+  private collection = firestore.collection('schedules');
 
-  create(createScheduleDto: CreateScheduleDto): ScheduleEntity {
-    const newSchedule: ScheduleEntity = {
-      id: uuidv4(),
-      ...createScheduleDto,
-    };
-    this.schedules.push(newSchedule);
+  async create(createScheduleDto: CreateScheduleDto) {
+    const id = uuidv4();
+    const newSchedule = { id, ...createScheduleDto };
+    await this.collection.doc(id).set(newSchedule);
     return newSchedule;
   }
 
-  findAll(): ScheduleEntity[] {
-    return this.schedules;
+  async findAll() {
+    const snapshot = await this.collection.get();
+    return snapshot.docs.map(doc => doc.data());
   }
 
-  findOne(id: string): ScheduleEntity {
-    const schedule = this.schedules.find((s) => s.id === id);
-    if (!schedule) {
-      throw new NotFoundException(`Agendamento com ID ${id} não encontrado`);
-    }
-    return schedule;
+  async findOne(id: string) {
+    const doc = await this.collection.doc(id).get();
+    return doc.exists ? doc.data() : null;
   }
 
-  update(id: string, dto: Partial<CreateScheduleDto>): ScheduleEntity {
-    const index = this.schedules.findIndex((s) => s.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Agendamento com ID ${id} não encontrado`);
-    }
-
-    const updated = {
-      ...this.schedules[index],
-      ...dto,
-    };
-
-    this.schedules[index] = updated;
-    return updated;
+  async update(id: string, updateDto: Partial<CreateScheduleDto>) {
+    await this.collection.doc(id).update(updateDto);
+    const updatedDoc = await this.collection.doc(id).get();
+    return updatedDoc.data();
   }
 
-  remove(id: string): { message: string } {
-    const index = this.schedules.findIndex((s) => s.id === id);
-    if (index === -1) {
-      throw new NotFoundException(`Agendamento com ID ${id} não encontrado`);
-    }
-
-    this.schedules.splice(index, 1);
-    return { message: 'Agendamento removido com sucesso' };
+  async remove(id: string) {
+    await this.collection.doc(id).delete();
+    return { deleted: true };
   }
 }
