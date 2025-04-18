@@ -9,6 +9,7 @@ import { PagesController } from './pages/pages.controller';
 import { PagesModule } from './pages/pages.module';
 import { FirebaseService } from './firebase/firebase.service';
 import { FirebaseModule } from './firebase/firebase.module';
+import { FirebaseController } from './firebase/firebase.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { FirebaseModule } from './firebase/firebase.module';
     PagesModule,
     FirebaseModule,
   ],
-  controllers: [PagesController],
+  controllers: [PagesController, FirebaseController],
   providers: [FirebaseService],
 })
 export class AppModule {}
