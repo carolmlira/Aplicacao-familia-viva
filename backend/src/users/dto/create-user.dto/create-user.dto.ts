@@ -7,10 +7,14 @@ import {
   MinLength,
   Matches,
   IsEnum,
+<<<<<<< HEAD
   Length,
   IsEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+=======
+} from 'class-validator';
+>>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
 import { Role } from 'src/auth/role.enum';
 
 export class CreateUserDto {
@@ -29,6 +33,13 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'A senha é obrigatória' })
   @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
   password: string; // Senha do usuário (mínimo de 6 caracteres)
+<<<<<<< HEAD
+=======
+
+  @IsNotEmpty()
+  @IsEnum(Role, { message: 'Nível de acesso inválido' })
+  level: Role; // O Enum está em Auth.
+>>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
 
   @ApiProperty({ description: 'A role do Usuario' })
   @IsNotEmpty()
@@ -54,12 +65,14 @@ export class CreateUserDto {
   @ApiProperty({ description: 'Notificao wpp do Usuario' })
   @IsBoolean()
   whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
+<<<<<<< HEAD
 
   @ApiProperty({ description: 'id do ministerio' })
   @IsString()
   @Length(3, 100)
   ministryId: string;
 
+<<<<<<< HEAD
   //Tokens para usuario alterar sua senha.
   @ApiProperty({ description: 'Token de reset' })
   @IsOptional()
@@ -71,3 +84,8 @@ export class CreateUserDto {
   @IsString()
   resetExpires?: string | null;
 }
+=======
+=======
+>>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
+}
+>>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)

@@ -113,7 +113,8 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 60,
   },
 
-  secret: "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
+
+  secret: 'c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=',
 
   pages: {
     signIn: "/login", // ou a página que você usa
@@ -122,3 +123,4 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
+
