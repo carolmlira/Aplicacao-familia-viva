@@ -3,18 +3,21 @@ import {
     IsNotEmpty,
     IsOptional,
     IsString,
-} from 'class-validator';
-export class CreateMinistriesDto {
-
+    Length,
+  } from 'class-validator';
+  
+  export class CreateMinistriesDto {
     @IsString()
     @IsNotEmpty()
-    name: string;
+    @Length(3, 100)
+    name: string; // Nome do ministério
   
     @IsOptional()
     @IsString()
-    description?: string;
-
+    @Length(0, 1000) 
+    description?: string; // Descrição dos ministérios
+  
     @IsBoolean()
-    active: boolean;
+    active: boolean; //Indica se o ministério está ativo/publicado.
   }
   
