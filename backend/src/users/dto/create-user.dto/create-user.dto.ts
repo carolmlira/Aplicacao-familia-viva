@@ -6,7 +6,9 @@ import {
   IsString,
   MinLength,
   Matches,
+  IsEnum,
 } from 'class-validator';
+import { Role } from 'src/auth/role.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -14,15 +16,17 @@ export class CreateUserDto {
   name: string; // Nome completo do usuário
 
   @IsEmail()
+  @IsNotEmpty()
   email: string; // E-mail do usuário (deve ser válido)
 
   @IsString()
+  @IsNotEmpty()
   @MinLength(6)
   password: string; // Senha do usuário (mínimo de 6 caracteres)
 
-  @IsString()
   @IsNotEmpty()
-  level: string; // Nível de acesso (ex: "admin", "comunicacao", "voluntario") — pode ser enum futuramente
+  @IsEnum(Role, { message: 'Nível de acesso inválido' })
+  level: Role; // O Enum está em Auth.
 
   @IsBoolean()
   active: boolean; // Indica se o usuário está ativo no sistema
