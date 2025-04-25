@@ -7,40 +7,56 @@ import {
   MinLength,
   Matches,
   IsEnum,
+  Length,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/auth/role.enum';
 
 export class CreateUserDto {
+  @ApiProperty({description: "O nome do Usuario"})
   @IsString()
   @IsNotEmpty()
   name: string; // Nome completo do usuário
 
+  @ApiProperty({description: "O Email do Usuario"})
   @IsEmail()
   @IsNotEmpty()
   email: string; // E-mail do usuário (deve ser válido)
 
+  @ApiProperty({description: "A senha do do Usuario"})
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   password: string; // Senha do usuário (mínimo de 6 caracteres)
 
+  @ApiProperty({description: "A role do Usuario"})
   @IsNotEmpty()
   @IsEnum(Role, { message: 'Nível de acesso inválido' })
   level: Role; // O Enum está em Auth.
 
+  @ApiProperty({description: "Se está ativo do Usuario"})
   @IsBoolean()
   active: boolean; // Indica se o usuário está ativo no sistema
 
+  @ApiProperty({description: "Photo do Usuario"})
   @IsOptional()
   @IsString()
   photo?: string; // URL da foto de perfil do usuário (opcional)
 
+  @ApiProperty({description: "O Numero do Usuario"})
   @IsOptional()
   @Matches(/^\+\d{1,3}\d{7,14}$/, {
     message: 'O número de telefone deve estar no formato internacional, exemplo: +5511999999999',
   })
   phone?: string; // Telefone no formato internacional, com DDI e DDD (opcional)
 
+  @ApiProperty({description: "Notificao wpp do Usuario"})
   @IsBoolean()
   whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
+
+  @ApiProperty({description: "id do ministerio"})
+  @IsString()
+  @Length(3, 100)
+  ministryId: string; 
+
 }
