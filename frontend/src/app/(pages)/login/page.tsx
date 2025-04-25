@@ -1,17 +1,21 @@
 "use client";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useState } from "react";
 import Image from "next/image";
 =======
 =======
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 
 import React, { useState } from "react";
 import Image from "next/image";
 // import { Input } from "@/components/ui/input";
 // import { Button } from "@/components/ui/button";
 // import { Label } from "@/components/ui/label";
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 8dea4da (Front parcialmente feito)
 =======
@@ -20,6 +24,8 @@ import React, { useState } from "react";
 import Image from "next/image";
 >>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -44,6 +50,7 @@ export default function LoginPage() {
     } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       setError("Login inválido");
 =======
       setError("Login inválido, Calabrezo");
@@ -54,11 +61,15 @@ export default function LoginPage() {
       setError("Login inválido");
 >>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+      setError("Login inválido, Calabrezo");
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4">
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       {/* Logos */}
@@ -87,6 +98,8 @@ export default function LoginPage() {
 =======
 =======
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
       <Link href="/home">
       <Image
         src="/logo_viva.jpg"
@@ -108,6 +121,7 @@ export default function LoginPage() {
           <div>
             {/* <Label htmlFor="email">Email</Label> */}
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 8dea4da (Front parcialmente feito)
 =======
 =======
@@ -136,10 +150,13 @@ export default function LoginPage() {
           <div>
 >>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
             <input
               id="email"
               type="email"
               placeholder="Digite seu email"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
               className="w-full px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition"
@@ -162,10 +179,16 @@ export default function LoginPage() {
               required
 >>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+              className="mt-1 bg-zinc-800 border-zinc-700 text-white"
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
             />
           </div>
 
           <div>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             <input
@@ -209,6 +232,9 @@ export default function LoginPage() {
 =======
 =======
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
             {/* <Label htmlFor="password">Senha</Label> */}
             <input
              
@@ -227,8 +253,8 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center text-sm">
-            <a href="#" className="text-zinc-400 hover:text-white underline">
-=======
+            <a href="#" className="text-zinc-400 hover:text-white underline"></a>
+
             <input
               id="password"
               type="password"
@@ -252,28 +278,28 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-<<<<<<< HEAD
+
             <a
               href="#"
               className="text-sm text-zinc-400 hover:text-white underline transition"
             >
->>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
+
               Esqueceu a senha?
             </a>
-=======
+
           <Link href="/esqueceu-senha" className="text-sm text-zinc-400 hover:text-white underline transition"> 
           Esqueceu a senha?
           </Link>
->>>>>>> 5c615ca (Finalização das pages Admin, inserção da page 'Esqueceu a senha', e ajustes em algumas pages)
+
           </div>
         </div>
       </form>
-<<<<<<< HEAD
       <Link href="/">
           <button className="bg-blue-600 text-white px-4 py-2 rounded">
             Voltar
           </button>
         </Link>
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 8dea4da (Front parcialmente feito)
 =======
@@ -289,6 +315,8 @@ export default function LoginPage() {
       </div>
 >>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
 >>>>>>> c713450 (Finalização das redes e galeria. Ajuste na tela de login.)
+=======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
     </div>
   );
 }

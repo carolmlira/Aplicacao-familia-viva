@@ -8,6 +8,7 @@ import {
   Matches,
   IsEnum,
 <<<<<<< HEAD
+<<<<<<< HEAD
   Length,
   IsEmpty,
 } from 'class-validator';
@@ -15,6 +16,11 @@ import { ApiProperty } from '@nestjs/swagger';
 =======
 } from 'class-validator';
 >>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
+=======
+  Length,
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+>>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 import { Role } from 'src/auth/role.enum';
 
 export class CreateUserDto {
@@ -36,17 +42,29 @@ export class CreateUserDto {
 <<<<<<< HEAD
 =======
 
+  @ApiProperty({description: "A role do Usuario"})
   @IsNotEmpty()
   @IsEnum(Role, { message: 'Nível de acesso inválido' })
   level: Role; // O Enum está em Auth.
 >>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
 
+<<<<<<< HEAD
   @ApiProperty({ description: 'A role do Usuario' })
+=======
+<<<<<<< HEAD
+  @ApiProperty({description: "A role do Usuario"})
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
   @IsNotEmpty()
   @IsEnum(Role, { message: 'Nível de acesso inválido' })
   level: Role; // O Enum está em Auth.
 
+<<<<<<< HEAD
   @ApiProperty({ description: 'Se está ativo do Usuario' })
+=======
+=======
+>>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+  @ApiProperty({description: "Se está ativo do Usuario"})
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
   @IsBoolean()
   active: boolean; // Indica se o usuário está ativo no sistema
 
@@ -66,12 +84,16 @@ export class CreateUserDto {
   @IsBoolean()
   whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 
   @ApiProperty({ description: 'id do ministerio' })
   @IsString()
   @Length(3, 100)
   ministryId: string;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   //Tokens para usuario alterar sua senha.
   @ApiProperty({ description: 'Token de reset' })
@@ -86,6 +108,10 @@ export class CreateUserDto {
 }
 =======
 =======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+=======
 >>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
+=======
+>>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 }
 >>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)

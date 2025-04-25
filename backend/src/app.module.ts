@@ -26,7 +26,10 @@ import { EmailModule } from './email/email.module';
     MinistriesModule,
     ScheduleModule,
     PagesModule,
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
   ],
   controllers: [PagesController, FirebaseController,],
   providers: [FirebaseService],

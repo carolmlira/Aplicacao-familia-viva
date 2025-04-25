@@ -28,6 +28,7 @@ export class AuthService {
 
   async login(user: any) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const payload = {
       email: user.email,
       sub: user.id,
@@ -37,13 +38,22 @@ export class AuthService {
     };
 
 =======
+=======
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 <<<<<<< HEAD
     const payload = { email: user.email, sub: user.id, role: user.level, name: user.name };
    
 =======
     const payload = { email: user.email, sub: user.id, role: user.role };
 >>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
+<<<<<<< HEAD
 >>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)
+=======
+=======
+    const payload = { email: user.email, sub: user.id, role: user.level, name: user.name };
+   
+>>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+>>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
     return {
       access_token: this.jwtService.sign(payload),
     };

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image"; 
 import styles from "../galeria/galeria.module.css";
 
+
 export default function FirebaseGallery() {
   const { data: session, status } = useSession(); 
   const router = useRouter();
@@ -285,4 +286,5 @@ export default function FirebaseGallery() {
     </>
   );
 }
+
 
