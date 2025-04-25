@@ -26,7 +26,7 @@ export default function Home() {
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded"
                 onClick={() =>
-                  signOut({ callbackUrl: 'http://localhost:3000' })
+                  signOut({ callbackUrl: 'http://localhost:3001' })
                 }
               >
                 Logout
@@ -38,7 +38,7 @@ export default function Home() {
               >
                 Escala
               </Link>
-              {(session.user as any).role === "admin" && (
+              {(session.user as any).role === "ADMIN" && (
               <Link
                href="/usuarios"
                className="bg-green-600 text-white px-4 py-2 rounded text-center"

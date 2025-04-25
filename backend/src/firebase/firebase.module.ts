@@ -14,4 +14,8 @@ import * as multer from 'multer';
   controllers: [FirebaseController],
   providers: [FirebaseService],
 })
-export class FirebaseModule {}
+export class FirebaseModule {
+  static forRoot(): import("@nestjs/common").Type<any> | import("@nestjs/common").DynamicModule | Promise<import("@nestjs/common").DynamicModule> | import("@nestjs/common").ForwardReference<any> {
+    throw new Error('Method not implemented.');
+  }
+}

@@ -21,52 +21,63 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Usuário de teste Admin
-        if (
-          credentials?.email === "admin@example.com" &&
-          credentials?.password === "123"
-        ) {
-          const user: CustomUser = {
-            id: "1",
-            email: "admin@example.com",
-            role: "admin",
-            access_token: "dummyAccessToken123",
-            name: "Milena Daniel",
-          };
+        try {
+          const res = await fetch('http://localhost:3000/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+            }),
+          });
+        
+  
+
+          let data;
+          try {
+             data = await res.json(); // Protege caso o backend não retorne nada
+          } catch (err) {
+            console.error("Resposta da API não é JSON:", err);
+            return null;
+          }
+
+          if (!res.ok || !data.access_token) {
+            console.error("Erro ao autenticar:", data);
+            return null;
+          }
+
+          const accessToken = data.access_token;
+          if (!accessToken || accessToken.split('.').length !== 3) {
+            console.error("Token mal formado:", accessToken);
+            return null;
+          }
+
+          const payload: any = JSON.parse(atob(accessToken.split('.')[1]));
+          // console.log("Payload decodificado do token:", payload);
+          // const user: CustomUser = {
+          //   id: payload.sub,
+          //   email: payload.email,
+          //   role: payload.role,
+          //   access_token: accessToken,
+          //   name: payload.name,
+          // };
+          
+          // console.log('Usuário autenticado:', user.name);
+          // console.log('Role do Usuário autenticado:', user.role);
 
           return {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            token: user.access_token,
-            name: user.name,
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role,
+            token: accessToken,
+            name: payload.name,
           };
+        } catch (error) {
+          console.error('Erro na autenticação com Nest:', error);
+          return null;
         }
-
-        if (
-          credentials?.email === "user@example.com" &&
-          credentials?.password === "123"
-        ) {
-          const user: CustomUser = {
-            id: "2",
-            email: "user@example.com",
-            role: "user",
-            access_token: "dummyAccessTokenUser",
-            name: "Julia Kaylane",
-          };
-
-          return {
-            id: user.id,
-            email: user.email,
-            role: user.role,
-            token: user.access_token,
-            name: user.name,
-          };
-        }
-
-        // Simulação de erro caso o email ou senha não sejam corretos
-        console.error("Falha na autenticação");
-        return null;
       },
     }),
   ],
@@ -99,11 +110,12 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
 
+  secret: 'c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=',
+
+
   pages: {
     signIn: "/login", // ou a página que você usa
   },
-
-  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
