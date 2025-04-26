@@ -10,5 +10,6 @@ export interface UserEntity {
     photo?: string;
     phone?: string;
     whatsappOptIn: boolean;
+    ministryId: string; 
   }
   
