@@ -53,4 +53,10 @@ export class CreateUserDto {
   @ApiProperty({description: "Notificao wpp do Usuario"})
   @IsBoolean()
   whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
+
+  @ApiProperty({description: "id do ministerio"})
+  @IsString()
+  @Length(3, 100)
+  ministryId: string; 
+
 }
