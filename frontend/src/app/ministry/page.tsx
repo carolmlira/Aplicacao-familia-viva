@@ -31,8 +31,9 @@ export default function Ministries() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session?.user || session.user.level !== "ADMIN") {
+    if (!session || (session.user as any).role !== "ADMIN") {
       router.push("/");
+      return;
     }
 
     const fetchMinistries = async () => {
@@ -119,7 +120,7 @@ export default function Ministries() {
     setShowEditModal(true);
   };
   
-  if (status === "loading" || !session || (session.user as any).level !== "ADMIN") {
+  if (status === "loading" || !session || (session.user as any).role !== "ADMIN") {
     return <p className="text-center mt-10">404 Not Found, Voltando para Página inicial...</p>;
   }
 
