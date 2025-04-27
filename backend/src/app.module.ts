@@ -10,6 +10,8 @@ import { PagesModule } from './pages/pages.module';
 import { FirebaseService } from './firebase/firebase.service';
 import { FirebaseModule } from './firebase/firebase.module';
 import { FirebaseController } from './firebase/firebase.controller';
+import { GalleryModule } from './gallery/gallery.module';
+import { GalleryController } from './gallery/gallery.controller';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { FirebaseController } from './firebase/firebase.controller';
     MinistriesModule,
     ScheduleModule,
     PagesModule,
+    GalleryModule,
   ],
-  controllers: [PagesController, FirebaseController],
+  controllers: [PagesController, FirebaseController, GalleryController],
   providers: [FirebaseService],
 })
 export class AppModule {}

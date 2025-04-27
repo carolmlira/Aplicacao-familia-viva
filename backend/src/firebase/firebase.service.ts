@@ -23,14 +23,15 @@ import { Injectable } from '@nestjs/common';
    }
  
    async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
-     const bucket = this.storage.bucket();
-     const blob = bucket.file(filename);
- 
-     const blobStream = blob.createWriteStream({
-       metadata: {
-         contentType: file.mimetype,
-       },
-     });
+    const bucket = this.storage.bucket();
+    const blob = bucket.file(filename); // O nome do arquivo inclui a categoria
+  
+    const blobStream = blob.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+  
  
      return new Promise((resolve, reject) => {
        blobStream.on('error', (err) => reject(err));
@@ -69,4 +70,12 @@ import { Injectable } from '@nestjs/common';
       throw err;
     }
   }
- }
+
+  async listFilesInCategory(category: string): Promise<string[]> {
+    const bucket = this.storage.bucket();
+    const [files] = await bucket.getFiles({ prefix: category });
+  
+    return files.map(file => file.name);
+  }
+  
+}
