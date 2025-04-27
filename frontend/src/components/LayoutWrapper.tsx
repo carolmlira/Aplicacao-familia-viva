@@ -7,7 +7,7 @@ import { ReactNode } from "react";
 
 export default function LayoutWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const noLayoutRoutes = ["/login", "/", "/escala","/usuarios"];
+  const noLayoutRoutes = ["/login", "/",];
 
   const hideLayout = noLayoutRoutes.includes(pathname);
 

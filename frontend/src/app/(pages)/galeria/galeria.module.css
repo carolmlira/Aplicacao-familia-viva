@@ -1,0 +1,19 @@
+.galeria {
+    align-items: center;
+}
+.galeria h1 {
+    font-size: 40px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+} 
+.galeria p {
+    font-size: 30px;
+}

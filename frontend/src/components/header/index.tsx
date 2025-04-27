@@ -10,7 +10,7 @@ export function Header() {
           <Image
             src="/logo.svg"
             alt="Logo"
-            width={85}
+            width={80}
             height={100}
           ></Image>
         </Link>
@@ -19,7 +19,7 @@ export function Header() {
             <Link href="/home">Home</Link>
           </li>
           <li className={styles["nav-item"]}>
-            <Link href="#sobre">Sobre</Link>
+            <Link href="/home#sobre">Sobre</Link>
           </li>
           <li className={styles["nav-item"]}>
             <Link href="/cultos">Cultos</Link>

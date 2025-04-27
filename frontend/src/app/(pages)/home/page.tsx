@@ -5,9 +5,6 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-
-
-
       {/* Banner principal da home */}
       <div className="relative w-full h-[400px] overflow-hidden">
         <Image
@@ -27,24 +24,30 @@ export default function Home() {
         </div>
       </div>
 
-
-
-{/* Sobre a igreja */}
-<div className={styles.sobre} id="sobre">
-  <h2>Quem somos?</h2>
-  <div className={styles.conteudoSobre}>
-    <p>        Lorem Ipsumis simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.lore
-    </p>
-    <Image
-      src="/sobre.svg"
-      alt="Sobre a igreja"
-      className={styles.sobreImagem}
-      width={600}
-      height={200}
-    />
-  </div>
-</div>
-
+      {/* Sobre a igreja */}
+      <div className={styles.sobre} id="sobre">
+        <h2>Quem somos?</h2>
+        <div className={styles.conteudoSobre}>
+          <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting
+            industry. Lorem Ipsum has been the industrys standard dummy text
+            ever since the 1500s, when an unknown printer took a galley of type
+            and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged. It was popularized in the 1960s with
+            the release of Letraset sheets containing Lorem Ipsum passages, and
+            more recently with desktop publishing software like Aldus PageMaker
+            including versions of Lorem Ipsum.
+          </p>
+          <Image
+            src="/sobre.svg"
+            alt="Sobre a igreja"
+            className={styles.sobreImagem}
+            width={600}
+            height={200}
+          />
+        </div>
+      </div>
 
       {/* Programação */}
       <div className={styles.programacao}>
@@ -57,39 +60,59 @@ export default function Home() {
         </div>
       </div>
 
-
-
       {/* Projetos */}
       <div className={styles.projetos}>
         <h2>Projetos</h2>
         <Link className={styles.linkProjeto} href="/projeto">Ver mais</Link>
-        <div className={styles.sobreProjetos}>
-          <h3>Arrecadação de alimentos</h3>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-            architecto magnam ut.
-          </p>
+
+        <div className={styles.projetoCard}>
+          <Image
+            src="/projeto.svg"
+            alt="Fotos do projeto"
+            className={styles.fotoProjeto}
+            width={200}
+            height={200}
+          />
+          <div className={styles.projetoDescricao}>
+            <h3>Arrecadação de alimentos</h3>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+              mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+              consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+              architecto magnam ut.
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente maiores quo obcaecati exercitationem, repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et commodi voluptatibus non sit debitis, laudantium veniam assumenda beatae nihil.
+            </p>
+          </div>
         </div>
-        <div className={styles.sobreProjetos}>
-          <h3>Arrecadação de roupas</h3>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-            architecto magnam ut.
-          </p>
+
+        <div className={styles.projetoCard}>
+          <Image
+            src="/projeto.svg"
+            alt="Fotos do projeto"
+            className={styles.fotoProjeto}
+            width={200}
+            height={200}
+          />
+          <div className={styles.projetoDescricao}>
+            <h3>Arrecadação de roupas</h3>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+              mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+              consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+              architecto magnam ut.
+              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit, ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum consectetur magnam officiis enim dignissimos accusamus.
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos recusandae pariatur corrupti reprehenderit repudiandae voluptatem numquam mollitia ad, provident eaque possimus? Provident repudiandae dolor rerum unde, quo recusandae?
+            </p>
+          </div>
         </div>
       </div>
-
-
 
       {/* Galeria */}
       <div className={styles.galeria}>
         <h2>Galeria</h2>
-        <Link href="/galeria">Ver mais</Link>
+        <Link className={styles.linkGaleria} href="/galeria">Ver mais</Link>
       </div>
     </>
   );
-}
+} 

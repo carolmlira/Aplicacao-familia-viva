@@ -37,7 +37,7 @@
 .sobreImagem{
     width: 40%;
     height: auto;
-    margin-left: 50vh;
+    margin-left: 30vh;
     margin-bottom: 10vh;
 }
 
@@ -53,16 +53,16 @@
     -webkit-text-fill-color: transparent;
     margin-left: 10vh;
   
-
 }
 .conteudoSobre {
     display: flex;
     align-items: center;
     flex-wrap: wrap; 
+    margin-bottom: 10vh;
 }
 
 .conteudoSobre p {
-    max-width: 450px;
+    max-width: 500px;
     font-size: 18px;
     line-height: 1.6;
     text-indent: 2.5em;
@@ -84,12 +84,12 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     align-items: center;
-    margin-left: 90vh;
+    margin-left: 80vh;
 }
 .dias {
     background: linear-gradient(to right, #fe8719, #fe3012);
     color: #ffff;
-    padding: 10px 40px;
+    padding: 15px 40px;
     border-radius: 15px;
     text-decoration: none;
     font-weight: bold;
@@ -100,9 +100,10 @@
 .botoesDias {
     display: flex;
     flex-wrap: wrap;
-    gap: 25vh;
-    margin-top: 40px;
-    margin-left: 10px;
+    align-items: center;
+    gap: 50px;
+    margin-top: 50px;
+    margin-left: 30vh;
 }
 .botoesDias a:hover {
     color: #f1a99e;
@@ -111,12 +112,15 @@
 /* PROJETOS */
 
 .projetos {
-    margin-top: 20vh;
+    margin-top: 40vh;
     margin-left: 10vh;
+    margin-right: 10vh;
+    position: relative;
 }
 
 .projetos h2 {
     font-size: 40px;
+    font-weight: bold;
     text-decoration: none;
     padding: 10px 0;
     transition: 0.2s ease;
@@ -125,11 +129,89 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
-
+    margin-bottom: 20px;
 }
 
 .linkProjeto {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 20px;
+    font-size: 25px;
+}
+
+.linkProjeto:hover {
+    color:  #a39797;
+}
+
+.projetos h3 {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.projetoCard {
+    display: flex;
+    align-items: center;
+    background-color: #D9D9D925;
+    padding: 20px;
+    border-radius: 9px;
+    gap: 20px;
+    margin-bottom: 10vh;
+    margin-left: 30px;
+}
+  
+.fotoProjeto {
+    width: auto;
+    height: auto;
+    object-fit: cover;
+}
+  
+.projetoCard p {
+
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: justify;
+    margin-left: 10vh;
+}  
+.projetoDescricao h3 {
+    text-align: center;
+    margin-left: 10%;
+    margin-bottom: 5%;
+}
 
 
+
+/* GALERIA */
+
+.galeria {
+    margin-top: 10%;
+    margin-left: 10vh;
+    margin-right: 10vh;
+    position: relative;
+}
+
+.galeria h2 {
+    font-size: 40px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+} 
+
+.linkGaleria {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 20px;
+    font-size: 25px;
+}
+
+.linkGaleria:hover {
+    color:  #a39797;
 }
