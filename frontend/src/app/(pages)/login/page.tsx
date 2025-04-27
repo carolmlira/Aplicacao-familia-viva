@@ -33,13 +33,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4">
+      <Link href="/home">
       <Image
         src="/logo_viva.jpg"
         alt="Família Viva Logo"
         width={140}
         height={140}
         className="mb-4"
-      />
+      /></Link>
 
       <h1 className="text-white text-4xl font-light italic">
         Família <span className="font-bold not-italic text-yellow-400">VIVA</span>

@@ -1,8 +1,10 @@
 {
     "scripts": {
-      "dev": "npm --prefix frontend run dev",
-      "build": "npm --prefix frontend run build",
-      "start": "npm --prefix frontend run start"
+        "dev": "npm --prefix frontend run dev",
+        "build": "npm --prefix frontend run build",
+        "start": "npm --prefix frontend run start"
+    },
+    "dependencies": {
+        "react-icons": "^5.5.0"
     }
-  }
-  
+}
