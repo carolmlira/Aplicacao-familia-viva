@@ -1,0 +1,60 @@
+.footer {
+    border-top: 1px solid white;
+    height: 100px;
+}
+
+.footerbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 5px; 
+}
+
+.footerbar .footer-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 35px;
+    justify-content: flex-start; 
+    flex-grow: 1; 
+}
+
+.footerbar .footer-menu h1 {
+    font-size: 20px;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footerbar .footer-menu a {
+    font-size: 15px;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    text-align: center;
+    display: inline-flex;
+    align-items: center; 
+    color: #ffff;
+}
+
+.footerbar .footer-menu a:hover {
+    color: #a39797;
+}
+
+.footerbar .footer-menu .icon {
+    font-size: 30px;
+    margin-right: 10px;
+}
+
+.footerbar .footer-menu .contato {
+    flex-grow: 1;
+}
+
