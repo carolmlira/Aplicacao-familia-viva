@@ -13,11 +13,31 @@
     --foreground: #ededed;
   }
 }
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
 body {
+<<<<<<< HEAD
   background: #030303;
   color: #ededed;
   font-family: Arial, Helvetica, sans-serif;
+=======
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif;
+  color: white;
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  margin-top: auto;
+>>>>>>> 8dea4da (Front parcialmente feito)
 }
 
 .react-calendar {

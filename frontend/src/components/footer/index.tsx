@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
+=======
+>>>>>>> 8dea4da (Front parcialmente feito)
 import { GrLocation } from "react-icons/gr";
 import { FaInstagram } from "react-icons/fa";
 import styles from "./footer.module.css";
 
+<<<<<<< HEAD
 export function Footer() {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -33,10 +37,30 @@ export function Footer() {
                 familia_vivarecife
               </a>
             </div>
+=======
+export function Footer(){
+    return(
+        <footer className={styles.footer}>
+            <nav className={styles.footerbar}>
+            <ul className={styles["footer-menu"]}>
+            <li className={styles.contato}>
+                <h1>
+                    Contato
+                </h1>
+                <FaInstagram className={styles.icon}/>
+            <a
+              href="https://www.instagram.com/familia_vivarecife/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              familia_vivarecife
+            </a>
+>>>>>>> 8dea4da (Front parcialmente feito)
           </li>
 
           <li className={styles.localizacao}>
             <h1>Localização</h1>
+<<<<<<< HEAD
             <div className={styles.info}>
               <a
                 className={styles.info}
@@ -54,3 +78,19 @@ export function Footer() {
     </footer>
   );
 }
+=======
+            <GrLocation className={styles.icon}/>
+            <a
+              href="https://maps.app.goo.gl/QQSbdw2sD8LH5sAk8"
+              target="_blank"
+              rel="noopener noreferrer"
+            > Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000
+            </a>
+          </li>
+          </ul>
+          </nav>
+
+        </footer>
+    )
+}
+>>>>>>> 8dea4da (Front parcialmente feito)

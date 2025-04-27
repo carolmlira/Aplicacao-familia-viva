@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -161,4 +162,12 @@ export default function ProjectsList() {
       )}
     </div>
   );
+=======
+export default function projeto(){
+    return (
+        <div>
+            <h1>Projetos</h1>
+        </div>
+    )
+>>>>>>> 8dea4da (Front parcialmente feito)
 }

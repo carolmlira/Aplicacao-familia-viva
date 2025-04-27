@@ -16,7 +16,11 @@
     display: flex;
     align-items: center;
     list-style: none;
+<<<<<<< HEAD
     gap: 50vh;
+=======
+    gap: 35px;
+>>>>>>> 8dea4da (Front parcialmente feito)
     justify-content: flex-start; 
     flex-grow: 1; 
 }
@@ -40,7 +44,11 @@
     transition: 0.2s ease;
     font-weight: bold;
     text-align: center;
+<<<<<<< HEAD
     display: flex;
+=======
+    display: inline-flex;
+>>>>>>> 8dea4da (Front parcialmente feito)
     align-items: center; 
     color: #ffff;
 }
@@ -50,6 +58,7 @@
 }
 
 .footerbar .footer-menu .icon {
+<<<<<<< HEAD
     font-size: 26px;
     margin-right: 10px;
 }
@@ -84,3 +93,14 @@
 .footerbar.mobile .footer-menu .localizacao {
     align-items: center;
 }
+=======
+    font-size: 30px;
+    margin-right: 20px;
+    vertical-align: middle;
+}
+
+.footerbar .footer-menu .contato {
+    flex-grow: 1;
+}
+
+>>>>>>> 8dea4da (Front parcialmente feito)
