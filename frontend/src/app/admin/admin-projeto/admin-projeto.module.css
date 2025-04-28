@@ -1,0 +1,76 @@
+.lider-container {
+    background-color: #0a0a0a;
+    color: white;
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .lider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+  }
+  
+  .lider-header h1 {
+    font-size: 2.5rem;
+    color: white;
+  }
+  
+  .editar-button {
+    background-color: #FF4500;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .editar-button:hover {
+    background-color: #e03e00;
+  }
+  
+  .lider-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+  
+  .lider-section {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  .lider-section:nth-child(even) {
+    flex-direction: row-reverse;
+  }
+  
+  .lider-img {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  .lider-texto {
+    font-size: 1rem;
+    color: #ccc;
+    max-width: 600px;
+  }
+  
+  .lider-footer {
+    margin-top: 4rem;
+    text-align: center;
+    color: #FFA500;
+    font-size: 0.9rem;
+  }
+  
+  .footer-contato,
+  .footer-localizacao {
+    margin: 0.5rem 0;
+  }
+  
