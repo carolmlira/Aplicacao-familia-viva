@@ -13,13 +13,13 @@ export default function PageProjetos() {
       id: 2,
       titulo: "Arrecadação de alimentos",
       descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
-      imagem: "/images/projeto2.jpg",
+      imagem: "/images/projeto1.jpg",
     },
     {
       id: 3,
       titulo: "Arrecadação de alimentos",
       descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
-      imagem: "/images/projeto3.jpg",
+      imagem: "/images/projeto1.jpg",
     },
   ];
 

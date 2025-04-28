@@ -25,11 +25,11 @@ export default function PageLider() {
             feugiat, in tincidunt lorem tristique. Aenean fringilla magna sit amet lectus tincidunt,
             sed aliquam velit lacinia.
           </p>
-          <img src="/images/projeto2.jpg" alt="Imagem secundaria" className="lider-img" />
+          <img src="/images/projeto1.jpg" alt="Imagem secundaria" className="lider-img" />
         </section>
 
         <section className="lider-section">
-          <img src="/images/projeto3.jpg" alt="Imagem secundaria" className="lider-img" />
+          <img src="/images/projeto1.jpg" alt="Imagem secundaria" className="lider-img" />
           <p className="lider-texto">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer blandit mauris non lorem
             feugiat, in tincidunt lorem tristique. Aenean fringilla magna sit amet lectus tincidunt,
