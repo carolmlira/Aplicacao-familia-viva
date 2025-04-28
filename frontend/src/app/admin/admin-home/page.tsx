@@ -1,12 +1,14 @@
-import styles from "../home/home.module.css";
+import styles from "../admin-home/admin-home.module.css";
 import { AiOutlineCaretLeft } from "react-icons/ai";
+import { FaRegEdit } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Home() {
+export default function Admin() {
   return (
     <>
       {/* Banner principal da home */}
+      <FaRegEdit className={`${styles.iconEdit} ${styles.iconBanner}`} />
       <div className="relative w-full h-[400px] overflow-hidden">
         <Image
           src="/banner.svg"
@@ -27,6 +29,7 @@ export default function Home() {
 
       {/* Sobre a igreja */}
       <div className={styles.sobre} id="sobre">
+      <FaRegEdit className={`${styles.iconEdit} ${styles.iconSobre}`} />
         <h2>Quem somos?</h2>
         <div className={styles.conteudoSobre}>
           <p>
@@ -54,8 +57,8 @@ export default function Home() {
       <div className={styles.programacao}>
         <h2>Nossa Programação</h2>
         <div className={styles.botoesDias}>
-          <Link href="/programacao" className={styles.dias}>Terça-feira</Link>
-          <Link href="/programacao" className={styles.dias}>Quarta e quinta</Link>
+          <Link href="/cultos" className={styles.dias}>Terça-feira</Link>
+          <Link href="/cultos" className={styles.dias}>Quarta e quinta</Link>
           <Link href="/cultos" className={styles.dias}>Sexta-feira</Link>
           <Link href="/cultos" className={styles.dias}>Domingo</Link>
         </div>

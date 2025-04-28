@@ -41,3 +41,31 @@
     margin-bottom: 5%;
 }
   
+/* ICON EDIÇÃO */
+
+.icon {
+    font-size: 35px;
+    cursor: pointer;
+}
+
+.botaoEdit {
+    background-color: #fe3012;
+    color: #ffff;
+    padding: 12px 30px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 27px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-left: 80%;
+    position: relative;
+    top: -50px;
+}
+
+.botaoEdit:hover {
+    color: #f1a99e ;
+}
+

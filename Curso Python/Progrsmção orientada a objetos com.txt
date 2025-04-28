@@ -1,0 +1,67 @@
+Progrsmção orientada a objetos com python
+
+
+paradigmas de programçaõ é um estilo de programação, nao é uma linguagem e sim uma forma de como você suluciona os problemas através do código.
+
+exemplo:
+
+problema beber agua 
+solução: usar um copo
+solução 2: usar uma garrafa
+
+yipos de paradig,as 
+
+impertsivo ou procedural
+funcional
+orientado a objetos
+
+o paradigma de programacaço orientada a objetos a estrutura o código abstraindo problemas em objetos do mundo real, facilitando o entendimento do código e tornando-o mais modular e extensível, os dois conceitso haves para aprender poo é *classes* e *objetos*
+
+
+conceito de classes e objetos
+classes define as carcateriscas  comportamentos de um objeto, mas nao consegye utilizado
+
+objetos sao definidos pela classe pode usar e eles vao possuir carcateristicas e comportamentos que foram definidos nas clsses
+
+
+class cachorro:
+   def _init_(seçf, nome, cor, acordado=True):
+       self.nome = nome #Tudo que esta em self é o atributo que esta na instancia do objeto
+       self.cor = cor
+       self.acordado = acordado
+
+   def latir(self):
+       print("Auau")
+
+   def dormir(self):
+       self.acordado = False
+       print("Zzzzz")
+
+
+objeto
+
+cao_1 = cachorro("chappie", "amarelo", False)
+cao_2 = cachorro("bob", "marrom")
+
+cao_1.latir()
+
+print(cao_2.acordado)
+cao_2.dormir()
+print(cao_2.acordado)
+
+representação de classes
+def __str__(self):
+    return f"{self.__class__.__name__}: {', '.join([f'{chave}={valor}' for chave, valor in self.__dict__.items()])}"
+
+construtotes 
+método dconstrutor sempre é executaod quano uma noba instancia da classe é criada, nesse meotdo incializamods o estado do nosso objeto, para declarar o método construtor d classe criamos um método com o nome __init__
+
+sempre é utilizado quando quer iniciakizar um valor
+
+destrutor
+método destrutor emore é executado quando uma instancua(objeto) é destruída, destrutuores em pytho nao são tao neessdaridos quanto em c++ porque python tem um coleot de lixo que lida com o gerenciamento de memoria automaticamnetr para declar o método destrutor  classe criamos com o nome __del__
+
+del "nome da instancia"
+
+Diga oq é a instancua da classe
+

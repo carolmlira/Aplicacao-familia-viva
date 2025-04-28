@@ -1,4 +1,5 @@
-import styles from "../galeria/galeria.module.css";
+import { MdOutlineModeEdit } from "react-icons/md";
+import styles from "../admin-galeria/admin-galeria.module.css";
 import Image from "next/image"; // Importando o componente Image para carregar as imagens de forma otimizada
 
 export default function Galeria() {
@@ -12,6 +13,7 @@ export default function Galeria() {
       {/* Cultos */}
       <div className={styles.tituloCultos}>
         <h2>Cultos</h2>
+        <button className={styles.botaoEdit}><MdOutlineModeEdit className={`${styles.icon} ${styles.iconCultos}`} />Editar</button>
         <div className={styles.cultosImages}>
           <Image src="/Culto_1.png" alt="Culto 1" width={300} height={200} />
           <Image src="/Culto_2.png" alt="Culto 2" width={300} height={200} />
@@ -25,6 +27,7 @@ export default function Galeria() {
       {/* Redes */}
       <div className={styles.tituloRedes}>
         <h2>Redes</h2>
+        <button className={styles.botaoEdit}><MdOutlineModeEdit className={`${styles.icon} ${styles.iconRedes}`} />Editar</button>
         <div className={styles.redesImages}>
           <Image src="/kids_1.png" alt="Rede 1" width={300} height={200} />
           <Image src="/kids_2.png" alt="Rede 2" width={300} height={200} />

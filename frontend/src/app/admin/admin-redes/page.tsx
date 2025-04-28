@@ -1,14 +1,16 @@
-"use client";
-
 import Image from "next/image";
-import styles from "./kids.module.css"; // Importando o CSS
+import { MdOutlineModeEdit } from "react-icons/md";
+import styles from "../admin-redes/admin-rede.module.css"; // Importando o CSS
 
-export default function Kids() {
+export default function Redes() {
   return (
+
     <div className={styles.kids}>
+
       {/* Título */}
       <div className={styles.tituloKids}>
         <h1>Kids</h1>
+        <button className={styles.botaoEdit}><MdOutlineModeEdit className={styles.icon} />Editar</button>
       </div>
 
       {/* Logo */}
@@ -20,7 +22,6 @@ export default function Kids() {
           height={300} 
         />
       </div>
-
       {/* Texto */}
       <div className={styles.textoKids}>
         <p>

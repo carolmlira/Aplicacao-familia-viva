@@ -22,7 +22,7 @@ export function Header() {
             <Link href="/home#sobre">Sobre</Link>
           </li>
           <li className={styles["nav-item"]}>
-            <Link href="/cultos">Cultos</Link>
+            <Link href="/galeria#galeria">Cultos</Link>
           </li>
           <li className={styles["nav-item"]}>
             <Link href="/projeto">Projetos</Link>
@@ -31,7 +31,7 @@ export function Header() {
             <Link href="/redes">Redes</Link>
           </li>
           <li className={styles["nav-item"]}>
-            <Link href="/galeria">Galeria</Link>
+            <Link href="/admin/admin-galeria">Galeria</Link>
           </li>
           <li className={styles["nav-item"]}>
             <a

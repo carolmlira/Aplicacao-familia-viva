@@ -1,0 +1,99 @@
+Business Intelligence (BI)
+consiste em uma área composta por estratégias e tecnologias utilizads pelas empresa a fim de realizar analise de dados e gerenciamento das inofrmacções,.
+
+Objetivo : Tranformar dados em conhecimento
+Entendimento: fatores conhecidos e nao conhecido
+Foco: operações e melhorias
+
+Receita recorrentes
+Produtividade
+Margem bruta de lucro
+Retorno sobre o investimento
+Numero total de clientes
+
+
+Monitoramento dee ativos
+Comportamento de clientes
+Previsibilidade de vendas
+
+Futuro do Bi
+Diferentes escopo
+Variedade dos dados
+Especificade
+Granularidade de dados
+
+Softwares de bi
+-Power bi
+Orquesrraçõa
+Recuperação de dados
+Integração
+Relatorios de visualização
+
+Big data 
+Volume
+Variedade
+Velocidade
+Veracidade
+
+Bi
+Dados típicos
+Maioria das empresas
+baixo volume de dados
+
+
+fundamenntos de inteligência de dad
+
+Oque são dados?
+são estruturas organizadas que
+
+dado(ano possuem valor - qualqueet tipo de dados) -> informações(representação do cenário, informação tem valor, poder de informar) -> conhecimento (compreensão de um contexto, ato de perceber ou entender)
+
+inteligência(decisões) -> é focada na resolução de problemas, depende do conhecimento
+
+
+oque são banco de dados?
+
+Fluxo de dados
+dado(brutos, sem valor) que vao virar informações que vao gerar conhecimento de alguma situações e assim ser tomada alguma decisão
+
+Tipos de analise em Bi
+Bi e data scince(ds)
+
+Descritiva(oque aconteceu?)
+Primeira analise
+Descrevr, Carcaterizar, sumarizar
+entender: comportamento dos dados
+
+Diagnostica(por que aconteceu?)
+Encontrar relações de causa e efeoto no cenário
+Processo probalistico
+
+
+Preditiva(data Science)(o que vai acontecer?)
+Tentar prever um cenário
+probabilidade
+analise de tendencias
+
+Prescrita(data science)(oque fazer?)
+disgnotico e precição
+resoulçaõ de um problema
+subsidio dos impactos
+
+
+
+como aplicar  bi?
+coleta das informações
+estrturaçõa(transformação)
+representação visual (relatório, gráficos...)
+
+Analise de dados e big data
+
+Data source => etl -> data warehouse -> analise de dados -> visualição dos dados
+
+
+MangooDB
+Orientados a documento
+
+SQL
+dados tradicionais
+

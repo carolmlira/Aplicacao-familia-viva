@@ -16,7 +16,7 @@
     display: flex;
     align-items: center;
     list-style: none;
-    gap: 35px;
+    gap: 50vh;
     justify-content: flex-start; 
     flex-grow: 1; 
 }
@@ -40,7 +40,7 @@
     transition: 0.2s ease;
     font-weight: bold;
     text-align: center;
-    display: inline-flex;
+    display: flex;
     align-items: center; 
     color: #ffff;
 }
@@ -50,11 +50,20 @@
 }
 
 .footerbar .footer-menu .icon {
-    font-size: 30px;
+    font-size: 26px;
     margin-right: 10px;
 }
 
-.footerbar .footer-menu .contato {
+.footerbar .footer-menu .contato,
+.footerbar .footer-menu .localizacao {
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
+.footerbar .footer-menu .contato .info,
+.footerbar .footer-menu .localizacao .info {
+    display: flex;
+    align-items: center;
+}

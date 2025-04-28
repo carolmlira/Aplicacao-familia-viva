@@ -1,0 +1,109 @@
+date datetime e  time em python
+
+datetime reposanvel com data e hora wm python
+
+
+é usado para lidar com datas e horas, e tem varios classes com date, time e timedelta
+
+exemplo 
+import datetime
+
+d = datetime.date
+print(d)
+
+
+
+from datetime import date
+
+data = date(2024, 9, 27)
+print(data)
+
+aware que tem  fuso horario
+naive que nao tem fuso horarios
+
+
+minyear menor numero de ano permitido em um objeto date ou datetime 
+maxyear maior numero de ano permitido
+
+date.yoday = data do dia de hoje
+
+datetime.today retorna data hora minutos e segundos
+
+
+manipulando datas com timedelta
+timedelta
+para fazer suntrção ou adição e modificações 
+
+import datetime
+
+d = datetime.datetime(2024, 9, 1, 16, 28)
+print(d)
+
+d = d + datetime.time.delta(weeks=1)
+print(d)
+
+now
+traz o objeto 
+
+utcnow
+
+para manipular so as horas
+
+resultado = datetime(2023, 7, 35, 19, 20) - timedelta(hours=1)
+print(resultado.time())
+
+
+formatando e convertacão datas com striftime strptime
+
+strtime (string dormat time), strp (string parse time)
+
+import datetime 
+
+d = datetime.datetime.now()
+
+print(d.strtime("%d/%m/%Y %H:%M))
+
+
+convertendo string para datetime
+
+date_string = "01/09/2024 22:27"
+d = datetime.datetime.strptime(data_string, "%d/%m/%Y %H:%M") 
+
+strftime faz como fosse uma mascara onde você pode convertert por exemplo a data americana para a dta brasileira
+
+data atual = datetime.now()
+data_hora_str = "2024-01-09 20:33"
+mascara_ptbr = "%d/%m/%Y"
+mascara_en = "%Y-%m-%d %H:%M"
+
+print(data atual.strftime(mascara_ptbt))
+
+print(datetime.strptime(data_hora_str, 
+
+
+trabalhando com timezone
+fuso horário em python
+
+
+import pytz
+pytz é uma biblioteca que ajuda a facilitar a trabalhar com fusos horrios
+
+d = datetime.datetime.now(pytz.timezone("América/São_Paulo"))
+
+insylar no terminal pip install pytz
+e importar no código
+
+import pytz
+from datetime import datetime
+
+
+caso o pytz dê erro 
+digite no terminal 
+python -m venv .env
+sourtce .env/bin/activate 
+pip install pytz
+
+pressiona ctrl n
+procure por intepretador e selecione o python .em/ venv
+
+ 

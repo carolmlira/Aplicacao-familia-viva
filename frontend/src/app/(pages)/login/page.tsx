@@ -1,10 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
 import Image from "next/image";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -27,72 +23,88 @@ export default function LoginPage() {
     if (res?.ok) {
       router.push("/");
     } else {
-      setError("Login inválido, Calabrezo");
+      setError("Login inválido");
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4">
-      <Link href="/home">
-      <Image
-        src="/logo_viva.jpg"
-        alt="Família Viva Logo"
-        width={140}
-        height={140}
-        className="mb-4"
-      /></Link>
+      {/* Logos */}
+      <div className="flex flex-col items-center space-y-2">
+        <Image
+          src="/viva_logo.png"
+          alt="Família Viva Logo"
+          width={140}
+          height={140}
+        />
+        <Image
+          src="/familia_viva.png"
+          alt="Nome Família Viva"
+          width={500}
+          height={100}
+        />
+      </div>
 
-      <h1 className="text-white text-4xl font-light italic">
-        Família <span className="font-bold not-italic text-yellow-400">VIVA</span>
-      </h1>
-
+      {/* Formulário */}
       <form
         onSubmit={handleLogin}
-        className="w-full max-w-sm bg-zinc-900 mt-6 text-white rounded-2xl shadow-lg"
+        className="w-full max-w-sm bg-zinc-900 mt-8 p-8 rounded-2xl shadow-2xl text-white space-y-6"
       >
-        <div className="p-6 space-y-4">
+        <div className="space-y-4">
           <div>
-            {/* <Label htmlFor="email">Email</Label> */}
             <input
               id="email"
               type="email"
               placeholder="Digite seu email"
-              className="mt-1 bg-zinc-800 border-zinc-700 text-white"
+              className="w-full px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
+              required
             />
           </div>
 
           <div>
-            {/* <Label htmlFor="password">Senha</Label> */}
             <input
-             
+              id="password"
               type="password"
               placeholder="Digite sua senha"
-              className="mt-1 bg-zinc-800 border-zinc-700 text-white"
-              value={password}
+              className="w-full px-4 py-2 rounded-lg bg-zinc-800 border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition"
               onChange={(e) => setPassword(e.target.value)}
+              value={password}
+              required
             />
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          )}
 
-          <button type="submit" className="w-full bg-white text-black hover:bg-gray-200">
+          <button
+            type="submit"
+            className="w-full bg-white text-black font-semibold py-2 rounded-lg hover:bg-gray-200 transition"
+          >
             Entrar
           </button>
 
-          <div className="text-center text-sm">
-            <a href="#" className="text-zinc-400 hover:text-white underline">
+          <div className="text-center">
+            <a
+              href="#"
+              className="text-sm text-zinc-400 hover:text-white underline transition"
+            >
               Esqueceu a senha?
             </a>
           </div>
         </div>
       </form>
-      <Link href="/">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded">
+
+      {/* Botão Voltar */}
+      <div className="mt-6">
+        <Link href="/">
+          <button className="bg-blue-600 hover:bg-blue-700 transition text-white font-semibold px-6 py-2 rounded-lg shadow-md">
             Voltar
           </button>
         </Link>
+      </div>
     </div>
   );
 }
