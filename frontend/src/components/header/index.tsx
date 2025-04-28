@@ -31,7 +31,7 @@ export function Header() {
             <Link href="/redes">Redes</Link>
           </li>
           <li className={styles["nav-item"]}>
-            <Link href="/admin/admin-galeria">Galeria</Link>
+            <Link href="/galeria">Galeria</Link>
           </li>
           <li className={styles["nav-item"]}>
             <a
