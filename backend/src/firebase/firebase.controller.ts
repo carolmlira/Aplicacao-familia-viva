@@ -39,20 +39,37 @@ export class FirebaseController {
     return { url };
   }
 
-  @Put('update/:filename')
+  @Put('update')
   @UseInterceptors(FileInterceptor('file'))
   async updateFile(
-    @Param('filename') filename: string,
     @UploadedFile() file: Express.Multer.File,
+    @Query('category') category: string,
+    @Query('filename') filename: string, // nome do arquivo antigo, sem o caminho
+    @Query('pageId') pageId?: string
   ) {
-    // 1. Deletar o antigo
-    await this.firebaseService.deleteFile(filename);
-
-    // 2. Fazer upload do novo com o mesmo nome
-    const url = await this.firebaseService.uploadFile(file, filename);
+    if (!category || !filename) {
+      throw new BadRequestException('Categoria e filename são obrigatórios.');
+    }
+  
+    let fullPath: string;
+  
+    if (category === 'pages') {
+      if (!pageId) {
+        throw new BadRequestException('pageId é obrigatório para categoria "pages".');
+      }
+      fullPath = `pages/${pageId}/${filename}`;
+    } else {
+      fullPath = `${category}/${filename}`;
+    }
+  
+    // 1. Deleta o antigo
+    await this.firebaseService.deleteFile(fullPath);
+  
+    // 2. Atualiza com mesmo nome
+    const url = await this.firebaseService.uploadFile(file, fullPath);
     return { url };
   }
-
+  
   @Get('pages')
   async getPagesByCategory(@Query('category') category: string) {
     if (!category) {
