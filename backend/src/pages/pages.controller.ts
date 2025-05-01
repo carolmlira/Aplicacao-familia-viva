@@ -1,34 +1,56 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { PagesService } from './pages.service';
 import { CreatePageDto } from './dto/create-page.dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto/update-page.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('pages')
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
-  @Post()
-  create(@Body() createPageDto: CreatePageDto) {
-    return this.pagesService.create(createPageDto);
+  @Post(':category')
+  @UseInterceptors(FileInterceptor('image')) // <<< Aqui!
+  create(
+    @Param('category') category: string,
+    @UploadedFile() image: Express.Multer.File, // <<< Aqui!
+    @Body() createPageDto: CreatePageDto
+  ) {
+    return this.pagesService.create(createPageDto, category, image);
   }
+  
 
+  // Buscar todas as páginas dentro de uma categoria
   @Get()
-  findAll() {
-    return this.pagesService.findAll();
+  async findAll(@Query('category') category: string) {
+    const pages = await this.pagesService.findAll(category);
+    return { pages };
+  }
+  
+
+  // Buscar uma página específica dentro de uma categoria
+  @Get(':category/:id')
+  findOne(@Param('category') category: string, @Param('id') id: string) {
+    return this.pagesService.findOne(id, category);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.pagesService.findOne(id);
+  @Get('projects')
+  async findProjects() {
+    return this.pagesService.findAllProjects();
+  }
+  
+  // Atualizar uma página dentro de uma categoria
+  @Patch(':category/:id')
+  update(
+    @Param('category') category: string,
+    @Param('id') id: string,
+    @Body() updatePageDto: UpdatePageDto,
+  ) {
+    return this.pagesService.update(id, updatePageDto, category);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePageDto: UpdatePageDto) {
-    return this.pagesService.update(id, updatePageDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.pagesService.remove(id);
+  // Excluir uma página dentro de uma categoria
+  @Delete(':category/:id')
+  remove(@Param('category') category: string, @Param('id') id: string) {
+    return this.pagesService.remove(id, category);
   }
 }

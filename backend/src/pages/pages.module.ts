@@ -1,11 +1,11 @@
-// pages/pages.module.ts
 import { Module } from '@nestjs/common';
-import { PagesController } from './pages.controller';
 import { PagesService } from './pages.service';
+import { PagesController } from './pages.controller';
+import { FirebaseService } from 'src/firebase/firebase.service'; // <-- importar!
 
 @Module({
   controllers: [PagesController],
-  providers: [PagesService],
-  exports: [PagesService], 
+  providers: [PagesService, FirebaseService], 
+  exports: [PagesService]
 })
 export class PagesModule {}

@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
  import { cert } from 'firebase-admin/app';
  import * as admin from 'firebase-admin';
  
+ 
  @Injectable()
  export class FirebaseService {
    private storage;
    private messaging;
+   private firestore: FirebaseFirestore.Firestore;
  
    constructor() {
      // Verifica se já existe uma app do Firebase inicializada
@@ -20,31 +22,32 @@ import { Injectable } from '@nestjs/common';
  
      this.storage = admin.storage();
      this.messaging = admin.messaging();
+     this.firestore = admin.firestore(); 
    }
  
    async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
     const bucket = this.storage.bucket();
     const blob = bucket.file(filename); // O nome do arquivo inclui a categoria
-  
+    
     const blobStream = blob.createWriteStream({
       metadata: {
         contentType: file.mimetype,
       },
     });
   
- 
-     return new Promise((resolve, reject) => {
-       blobStream.on('error', (err) => reject(err));
- 
-       blobStream.on('finish', async () => {
-         await blob.makePublic();
-         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-         resolve(publicUrl);
-       });
- 
-       blobStream.end(file.buffer);
-     });
-   }
+    return new Promise((resolve, reject) => {
+      blobStream.on('error', (err) => reject(err));
+  
+      blobStream.on('finish', async () => {
+        await blob.makePublic();
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+        resolve(publicUrl);
+      });
+  
+      blobStream.end(file.buffer);
+    });
+  }
+  
 
    async getFileUrl(filename: string): Promise<string> {
     const bucket = this.storage.bucket();
@@ -77,5 +80,27 @@ import { Injectable } from '@nestjs/common';
   
     return files.map(file => file.name);
   }
+
+  async getCollectionByPath(path: string) {
+    const collectionRef = this.firestore.collection(path);
+    return await collectionRef.get();
+  }
+  
+  async listFilesInPage(pageId: string): Promise<string[]> {
+    const prefix = `pages/${pageId}/`;
+    const bucket = this.storage.bucket();
+    const [files] = await bucket.getFiles({ prefix });
+  
+    const urls: string[] = [];
+  
+    for (const file of files) {
+      await file.makePublic(); // opcional, se já estiverem públicos, pode ser omitido
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+      urls.push(publicUrl);
+    }
+  
+    return urls;
+  }
+  
   
 }
