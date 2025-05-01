@@ -9,7 +9,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  password?:string;
+  password?: string;
   level: string;
   active: boolean;
   phone?: string;
@@ -24,8 +24,7 @@ export default function Usuarios() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false); // Estado para o modal de editar
-
+  const [showEditModal, setShowEditModal] = useState(false);
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
@@ -78,17 +77,6 @@ export default function Usuarios() {
     const { name, value, type } = e.target;
     const val = type === "radio" ? value === "true" : value;
     setNewUser({ ...newUser, [name]: val });
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewUser({ ...newUser, photo: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const handleAddUser = async () => {
@@ -155,7 +143,8 @@ export default function Usuarios() {
             + Adicionar Usuário
           </button>
         </div>
-         {/*Tabela para amostrar usuarios*/ }
+
+        {/* Tabela para mostrar usuários */}
         <div className="overflow-x-auto">
           <table className="w-full table-auto text-left border-collapse rounded-lg overflow-hidden">
             <thead>
@@ -166,7 +155,7 @@ export default function Usuarios() {
                 <th className="px-4 py-3">Nível</th>
                 <th className="px-4 py-3">Ativo</th>
                 <th className="px-4 py-3">WhatsApp</th>
-                <th className="px-4 py-3">Ministerio</th>
+                <th className="px-4 py-3">Ministério</th>
                 <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
@@ -201,15 +190,21 @@ export default function Usuarios() {
         </div>
       </main>
 
-      <footer className="mt-10 text-center">
+      {/* Rodapé Atualizado */}
+      <footer className="mt-10 text-center flex justify-center gap-4">
         <Link href="/">
           <button className="bg-gray-700 hover:bg-gray-800 text-white px-5 py-2 rounded-lg transition">
             Voltar
           </button>
         </Link>
+        <Link href="/projetos">
+          <button className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg transition">
+            Projetos
+          </button>
+        </Link>
       </footer>
 
-      {/* POP-UP de Adicionar Usuário */}
+      {/* Modal de adicionar usuário */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-2xl p-8 w-full max-w-xl relative">
@@ -228,14 +223,7 @@ export default function Usuarios() {
               <input name="password" type="password" value={newUser.password} onChange={handleInputChange} className="border text-black p-2 rounded" placeholder="Senha" />
               <input name="phone" value={newUser.phone} onChange={handleInputChange} className="border text-black p-2 rounded" placeholder="Telefone" />
               <input name="ministryId" value={newUser.ministryId} onChange={handleInputChange} className="border text-black p-2 rounded" placeholder="ID do Ministério" />
-              <input
-               name="photo"
-               type="text"
-               value={newUser.photo}
-               onChange={handleInputChange}
-               className="border text-black p-2 rounded"
-               placeholder="URL da Foto"
-              />
+              <input name="photo" value={newUser.photo} onChange={handleInputChange} className="border text-black p-2 rounded" placeholder="URL da Foto" />
               <select name="level" value={newUser.level} onChange={handleInputChange} className="border p-2 text-black rounded">
                 <option value="ADMIN">ADMIN</option>
                 <option value="VOLUNT">VOLUNT</option>
@@ -254,15 +242,14 @@ export default function Usuarios() {
             </div>
 
             <div>
-          <label className="block text-black font-medium">Whatsapp Ativo?</label>
-          <input
-            type="checkbox"
-            name="whatsappOptIn"
-            checked={newUser.whatsappOptIn}
-            onChange={(e) => setNewUser({ ...newUser, whatsappOptIn: e.target.checked })}
-          />
-        </div>
-            
+              <label className="block text-black font-medium">Whatsapp Ativo?</label>
+              <input
+                type="checkbox"
+                name="whatsappOptIn"
+                checked={newUser.whatsappOptIn}
+                onChange={(e) => setNewUser({ ...newUser, whatsappOptIn: e.target.checked })}
+              />
+            </div>
 
             <button onClick={handleAddUser} className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg mt-6">
               Adicionar Usuário
@@ -271,104 +258,59 @@ export default function Usuarios() {
         </div>
       )}
 
-      {/* POP-UP de Editar Usuário */}
-{showEditModal && editUser && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white rounded-2xl p-8 w-full max-w-xl relative">
-      <button
-        className="absolute top-4 right-4 text-xl font-bold text-gray-700"
-        onClick={() => setShowEditModal(false)}
-      >
-        ×
-      </button>
+      {/* Modal de editar usuário */}
+      {showEditModal && editUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl p-8 w-full max-w-xl relative">
+            <button
+              className="absolute top-4 right-4 text-xl font-bold text-gray-700"
+              onClick={() => setShowEditModal(false)}
+            >
+              ×
+            </button>
 
-      <h2 className="text-2xl text-black font-bold mb-4">Editar Usuário</h2>
+            <h2 className="text-2xl text-black font-bold mb-4">Editar Usuário</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input
-          name="name"
-          value={editUser.name}
-          onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
-          className="border text-black p-2 rounded"
-          placeholder="Nome"
-        />
-        <input
-          name="email"
-          value={editUser.email}
-          onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-          className="border text-black p-2 rounded"
-          placeholder="Email"
-        />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input name="name" value={editUser.name} onChange={(e) => setEditUser({ ...editUser, name: e.target.value })} className="border text-black p-2 rounded" placeholder="Nome" />
+              <input name="email" value={editUser.email} onChange={(e) => setEditUser({ ...editUser, email: e.target.value })} className="border text-black p-2 rounded" placeholder="Email" />
+              <input name="password" type="password" value={editUser.password} onChange={(e) => setEditUser({ ...editUser, password: e.target.value })} className="border text-black p-2 rounded" placeholder="Senha" />
+              <input name="phone" value={editUser.phone || ""} onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })} className="border text-black p-2 rounded" placeholder="Telefone" />
+              <input name="ministryId" value={editUser.ministryId} onChange={(e) => setEditUser({ ...editUser, ministryId: e.target.value })} className="border text-black p-2 rounded" placeholder="ID do Ministério" />
+              <input name="photo" value={editUser.photo || ""} onChange={(e) => setEditUser({ ...editUser, photo: e.target.value })} className="border text-black p-2 rounded" placeholder="URL da Foto" />
+              <select name="level" value={editUser.level} onChange={(e) => setEditUser({ ...editUser, level: e.target.value })} className="border p-2 text-black rounded">
+                <option value="ADMIN">ADMIN</option>
+                <option value="VOLUNT">VOLUNT</option>
+                <option value="COMUNIC">COMUNIC</option>
+              </select>
 
-        <input
-          name="password"
-          type="password"
-          value={editUser.password}
-          onChange={(e) => setEditUser({ ...editUser, password: e.target.value })}
-          className="border text-black p-2 rounded"
-          placeholder="password"
-        />
+              <div>
+                <label className="block text-black font-medium">Ativo</label>
+                <input
+                  type="checkbox"
+                  name="active"
+                  checked={editUser.active}
+                  onChange={(e) => setEditUser({ ...editUser, active: e.target.checked })}
+                />
+              </div>
 
-        <input
-          name="phone"
-          value={editUser.phone || ""}
-          onChange={(e) => setEditUser({ ...editUser, phone: e.target.value })}
-          className="border text-black p-2 rounded"
-          placeholder="Telefone"
-        />
-        <input
-          name="ministryId"
-          value={editUser.ministryId}
-          onChange={(e) => setEditUser({ ...editUser, ministryId: e.target.value })}
-          className="border text-black p-2 rounded"
-          placeholder="ID do Ministério"
-        />
-        <input
-          name="photo"
-          value={editUser.photo || ""}
-          onChange={(e) => setEditUser({ ...editUser, photo: e.target.value })}
-          className="border text-black p-2 rounded"
-          placeholder="URL da Foto"
-        />
-        <select
-          name="level"
-          value={editUser.level}
-          onChange={(e) => setEditUser({ ...editUser, level: e.target.value })}
-          className="border p-2 text-black rounded"
-        >
-          <option value="ADMIN">ADMIN</option>
-          <option value="VOLUNT">VOLUNT</option>
-          <option value="COMUNIC">COMUNIC</option>
-        </select>
+              <div>
+                <label className="block text-black font-medium">Whatsapp Ativo?</label>
+                <input
+                  type="checkbox"
+                  name="whatsappOptIn"
+                  checked={editUser.whatsappOptIn}
+                  onChange={(e) => setEditUser({ ...editUser, whatsappOptIn: e.target.checked })}
+                />
+              </div>
+            </div>
 
-        <div>
-          <label className="block text-black font-medium">Ativo</label>
-          <input
-            type="checkbox"
-            name="active"
-            checked={editUser.active}
-            onChange={(e) => setEditUser({ ...editUser, active: e.target.checked })}
-          />
+            <button onClick={handleEditUser} className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg mt-6">
+              Atualizar Usuário
+            </button>
+          </div>
         </div>
-
-        {/* Campo WhatsappOptIn */}
-        <div>
-          <label className="block text-black font-medium">Whatsapp Ativo?</label>
-          <input
-            type="checkbox"
-            name="whatsappOptIn"
-            checked={editUser.whatsappOptIn}
-            onChange={(e) => setEditUser({ ...editUser, whatsappOptIn: e.target.checked })}
-          />
-        </div>
-      </div>
-
-      <button onClick={handleEditUser} className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg mt-6">
-        Atualizar Usuário
-      </button>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }

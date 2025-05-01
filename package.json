@@ -1,8 +1,12 @@
 {
     "scripts": {
-      "dev": "npm --prefix frontend run dev",
-      "build": "npm --prefix frontend run build",
-      "start": "npm --prefix frontend run start"
+        "dev": "npm --prefix frontend run dev",
+        "build": "npm --prefix frontend run build",
+        "start": "npm --prefix frontend run start"
+    },
+    "dependencies": {
+        "next": "^15.3.1",
+        "next-auth": "^4.24.11",
+        "react-calendar": "^5.1.0"
     }
-  }
-  
+}
