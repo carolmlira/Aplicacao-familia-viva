@@ -110,74 +110,55 @@ export default function NewProject() {
     return data.url;
   }
 
+  const projetos = [
+    {
+      id: 1,
+      titulo: "Arrecadação de alimentos",
+      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
+      imagem: "/images/projeto1.jpg",
+    },
+    {
+      id: 2,
+      titulo: "Arrecadação de alimentos",
+      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
+      imagem: "/images/projeto1.jpg",
+    },
+    {
+      id: 3,
+      titulo: "Arrecadação de alimentos",
+      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
+      imagem: "/images/projeto1.jpg",
+    },
+  ];
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Novo Projeto</h1>
+    <div className="projetos-container">
+      <div className="projetos-header">
+        <h1>Projetos</h1>
+      </div>
 
-      <form onSubmit={handleAddProject} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block mb-1 font-semibold">Título</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full border text-black p-2 rounded"
-              placeholder="Título do Projeto"
-            />
+      <div className="projetos-content">
+        {projetos.map((projeto) => (
+          <div key={projeto.id} className="projeto-card">
+            <div className="projeto-img">
+              <img src={projeto.imagem} alt={projeto.titulo} />
+            </div>
+            <div className="projeto-texto">
+              <h2>{projeto.titulo}</h2>
+              <p>{projeto.descricao}</p>
+            </div>
           </div>
+        ))}
+      </div>
 
-          <div>
-            <label className="block mb-1 font-semibold">Imagem (arquivo)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setFormData(prev => ({ ...prev, imageFile: file }));
-                }
-              }}
-              className="w-full border text-black p-2 rounded"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block mb-1 font-semibold">Conteúdo</label>
-            <textarea
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              required
-              className="w-full border text-black p-2 rounded"
-              placeholder="Conteúdo do Projeto"
-            />
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="active"
-              checked={formData.active}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, active: e.target.checked }))
-              }
-              className="mr-2"
-            />
-            <label className="text-black font-medium">Ativo</label>
-          </div>
+      <footer className="projetos-footer">
+        <div className="footer-contato">
+          <p>@familia_vivarecife</p>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          {loading ? "Salvando..." : "Salvar Projeto"}
-        </button>
-      </form>
+        <div className="footer-localizacao">
+          <p>Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000</p>
+        </div>
+      </footer>
     </div>
   );
 }

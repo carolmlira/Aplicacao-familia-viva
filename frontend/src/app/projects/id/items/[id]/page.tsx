@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import "@/style/lider.css";
 
 export default function Page() {
   const { id } = useParams<{ id: string }>();
@@ -94,62 +95,49 @@ export default function Page() {
   if (!project) return <div>Projeto não encontrado.</div>;
 
   return (
-    <div className="p-4">
-      <div className="flex items-center space-x-2">
-        <img
-          src="/pencil-square.svg"
-          alt="Editar"
-          className="w-5 h-5 invert cursor-pointer"
-          onClick={() => setEditing(!editing)}
-        />
-        <h1 className="text-xl font-bold">{project.title}</h1>
-      </div>
+    <div className="lider-container">
+      <header className="lider-header">
+        <h1>Arrecadação de alimentos</h1>
+        <button className="editar-button">Editar</button>
+      </header>
 
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          alt={project.title}
-          className="my-4 w-full max-w-md rounded shadow"
-        />
-      )}
+      <main className="lider-content">
+        <section className="lider-section">
+          <img src="/images/logo_viva.jpg" alt="Imagem principal" className="lider-img" />
+          <p className="lider-texto">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer blandit mauris non lorem
+            feugiat, in tincidunt lorem tristique. Aenean fringilla magna sit amet lectus tincidunt,
+            sed aliquam velit lacinia.
+          </p>
+        </section>
 
-      {editing ? (
-        <div className="mt-4 space-y-2">
-          <input
-            type="text"
-            className="border p-2 w-full"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Título"
-          />
-          <textarea
-            className="border p-2 w-full"
-            value={formData.content}
-            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            placeholder="Conteúdo"
-            rows={6}
-          />
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Salvar
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              if (e.target.files && e.target.files.length > 0) {
-                setNewImage(e.target.files[0]);
-              }
-            }}
-            className="block mt-2"
-          />
+        <section className="lider-section">
+          <p className="lider-texto">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer blandit mauris non lorem
+            feugiat, in tincidunt lorem tristique. Aenean fringilla magna sit amet lectus tincidunt,
+            sed aliquam velit lacinia.
+          </p>
+          <img src="/images/logo_viva.jpg" alt="Imagem secundaria" className="lider-img" />
+        </section>
 
+        <section className="lider-section">
+          <img src="/images/logo_viva.jpg" alt="Imagem secundaria" className="lider-img" />
+          <p className="lider-texto">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer blandit mauris non lorem
+            feugiat, in tincidunt lorem tristique. Aenean fringilla magna sit amet lectus tincidunt,
+            sed aliquam velit lacinia.
+          </p>
+        </section>
+      </main>
+
+      <footer className="lider-footer">
+        <div className="footer-contato">
+          <p>@familia_vivarecife</p>
         </div>
-      ) : (
-        <p className="mt-4">{project.content}</p>
-      )}
+        <div className="footer-localizacao">
+          <p>Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000</p>
+        </div>
+      </footer>
     </div>
   );
 }
