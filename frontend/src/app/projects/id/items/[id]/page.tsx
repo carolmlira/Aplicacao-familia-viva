@@ -7,20 +7,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export default function Page() {
+  const router = useRouter();
   const { id } = useParams<{ id: string }>();
   const { data: session, status } = useSession();
-  const router = useRouter();
   const [project, setProject] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false); 
   const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const fileInputs = useRef<HTMLInputElement[]>([]);
 
   const [category] = useState('pages');
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false); 
 
-  
   useEffect(() => {
     if (typeof id === 'string') {
       fetchProject(id);
@@ -33,7 +32,7 @@ export default function Page() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`);
       const data = await res.json();
       setProject(data);
-      setFormData({ title: data.title, content: data.content, active: data.active === 'true' || data.active === true}); // pré-carrega os dados no form
+      setFormData({ title: data.title, content: data.content, active: data.active === 'true' || data.active === true});
     } catch (err) {
       console.error("Erro ao buscar projeto:", err);
     } finally {
@@ -46,7 +45,7 @@ export default function Page() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/files?pageId=${id}`);
       const data = await res.json();
       if (Array.isArray(data.files)) {
-        setImageUrls(data.files); // Agora salva como array de URLs
+        setImageUrls(data.files); // Salva como array de URLs
       }
     } catch (err) {
       console.error("Erro ao buscar imagem do projeto:", err);
@@ -66,7 +65,6 @@ export default function Page() {
     const data = await response.json();
     return data.url;
   }
-  
 
   async function updateProject(id: string, projectData: any): Promise<void> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`, {
@@ -83,6 +81,77 @@ export default function Page() {
       throw new Error('Erro ao atualizar o projeto');
     }
   }
+  async function updateImage(file: File, imageId: string): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    const newName = `${uuidv4()}.png`; // Corrigido: interpolação dentro de string template
+  
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&filename=${imageId}.png&newName=${newName}&pageId=${id}`,
+      {
+        method: 'PUT',
+        body: formData,
+      }
+    );
+  
+    if (!response.ok) throw new Error('Erro ao atualizar a imagem');
+    const data = await response.json();
+    return data.url;
+  }
+  
+  async function uploadNewImage(file: File): Promise<string> {
+    const imageId = uuidv4();
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=pages&filename=${imageId}.png&pageId=${id}`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+  
+    if (!response.ok) throw new Error('Erro no upload da nova imagem');
+    const data = await response.json();
+    return data.url;
+  }
+
+  const deleteImage = async (category: string, pageId: string, imageId: string) => {
+    // Se o nome da imagem é o id + ".png", então:
+    const filename = `${imageId}.png`;
+  
+    // Construa os parâmetros de consulta corretamente:
+    const params = new URLSearchParams({
+      category,       // "pages"
+      pageId,         // O id da página
+      filename,       // "8b8b6ed6-1ee5-4cff-84ff-dfac621eaf46.png"
+    });
+  
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/firebase/delete?${params.toString()}`,
+        { method: 'DELETE' }
+      );
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Erro ao deletar imagem: ${errorText}`);
+      }
+  
+      const data = await res.json();
+      console.log('Imagem deletada com sucesso:', data);
+  
+      // Atualiza o estado para remover a imagem da lista
+      setImageUrls((prev) => prev.filter((url, i) => {
+        // Você pode comparar o filename que aparece na URL com o que foi deletado
+        return !url.includes(filename);
+      }));
+    } catch (err) {
+      console.error('Erro ao deletar imagem:', err);
+    }
+  };
+  
   
   
   const handleSave = async () => {
@@ -121,7 +190,6 @@ export default function Page() {
     }
   };
   
-  
   const handleReplaceImage = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -135,6 +203,27 @@ export default function Page() {
       });
     } catch (err) {
       console.error("Erro ao substituir imagem:", err);
+    }
+  };
+  const handleDeleteImage = async (index: number) => {
+    const imageUrl = imageUrls[index];
+    if (!imageUrl) return;
+  
+    try {
+      // Extrair o nome do arquivo da URL
+      const urlParts = imageUrl.split('/');
+      const filenameWithToken = urlParts[urlParts.length - 1];
+      const filename = filenameWithToken.split('?')[0]; // Remove qualquer query string
+      const filenameWithoutExtension = filename.split('.')[0]; // Remove extensão .png ou outra
+      const confirmed = window.confirm('Tem certeza que deseja excluir esta imagem?');
+      if (confirmed) {
+        await deleteImage(category, id, filenameWithoutExtension);
+      }
+  
+      // Atualizar estado removendo a imagem
+      setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    } catch (err) {
+      console.error('Erro ao deletar imagem:', err);
     }
   };
   
@@ -204,41 +293,49 @@ return (
             />
             Página ativa
           </label>
+          <div className="mt-2">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setNewImages((prev) => [...prev, e.target.files![0]]);
+                }
+              }}
+            />
+          </div>
   
           {imageUrls && imageUrls.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-            {(() => { fileInputs.current = []; return null })()} {/* <- Limpa os refs */}
-
-
-            {imageUrls.map((url, index) => {
-              const imageId = url.split('/').pop()?.split('.')[0];
-              return (
-                <div key={imageId} className="relative group">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
+              {imageUrls.map((url, index) => (
+                <div key={index} className="relative group">
                   <img
                     src={url}
                     alt={`Imagem ${index + 1}`}
                     className="w-full rounded shadow object-cover cursor-pointer"
-                    onClick={() => handleImageClick(index)} // chama o input click
+                    onClick={() => handleImageClick(index)}
                   />
+                  
                   <input
                     type="file"
                     accept="image/*"
-                    className="hidden"
+                    style={{ display: 'none' }}
                     ref={(el) => {
                       if (el) fileInputs.current[index] = el;
                     }}
-                    
                     onChange={(e) => handleReplaceImage(e, index)}
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-sm pointer-events-none">
-                    Clique para substituir
-                  </div>
-
+                  
+                  <button
+                    onClick={() => handleDeleteImage(index)}
+                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full"
+                  >
+                    ✕
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
 
           <button
             onClick={handleSave}
