@@ -5,7 +5,8 @@ import {
   Length,
   IsBoolean,
   IsDate,
-  Matches
+  Matches,
+  IsArray
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -39,5 +40,9 @@ export class CreatePageDto {
   @Type(() => Date)
   updatedAt?: Date; // Data da última atualização.
 
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 
 }

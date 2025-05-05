@@ -17,7 +17,6 @@ export class PagesController {
   ) {
     return this.pagesService.create(createPageDto, category, image);
   }
-  
 
   // Buscar todas as páginas dentro de uma categoria
   @Get()
@@ -26,7 +25,6 @@ export class PagesController {
     return { pages };
   }
   
-
   // Buscar uma página específica dentro de uma categoria
   @Get(':category/:id')
   findOne(@Param('category') category: string, @Param('id') id: string) {
@@ -39,6 +37,7 @@ export class PagesController {
   }
   
   // Atualizar uma página dentro de uma categoria
+  //@Patch(':category/items/:id')
   @Patch(':category/:id')
   update(
     @Param('category') category: string,
@@ -47,7 +46,7 @@ export class PagesController {
   ) {
     return this.pagesService.update(id, updatePageDto, category);
   }
-
+  
   // Excluir uma página dentro de uma categoria
   @Delete(':category/:id')
   remove(@Param('category') category: string, @Param('id') id: string) {

@@ -63,6 +63,7 @@ export class PagesService {
 
   // Função para atualizar uma página dentro de uma categoria
   async update(id: string, updatePageDto: UpdatePageDto, category: string) {
+    console.log('Dados recebidos:', updatePageDto);
     const categoryCollection = this.collection.doc(category).collection('items');
     const docRef = categoryCollection.doc(id);
     const doc = await docRef.get();
