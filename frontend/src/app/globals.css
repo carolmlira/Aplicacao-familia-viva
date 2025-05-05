@@ -45,6 +45,7 @@ footer {
   font-size: 1rem; /* Aumenta a fonte */
 }
 
+<<<<<<< HEAD
 html {
   scroll-behavior: smooth;
 }
@@ -53,3 +54,9 @@ html {
   height: 50px !important; /* Altura dos quadrados */
   /* Largura dos quadrados */
 }
+=======
+.react-calendar__tile {
+  height: 50px !important; /* Altura dos quadrados */
+  /* Largura dos quadrados */
+}
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)

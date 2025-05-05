@@ -29,6 +29,7 @@ export class AuthService {
   async login(user: any) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     const payload = {
       email: user.email,
       sub: user.id,
@@ -40,8 +41,13 @@ export class AuthService {
 =======
 =======
 >>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+=======
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 <<<<<<< HEAD
     const payload = { email: user.email, sub: user.id, role: user.level, name: user.name };
+=======
+    const payload = { email: user.email, sub: user.id, role: user.level, name: user.name, ministryId: user.ministryId };
+>>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
    
 =======
     const payload = { email: user.email, sub: user.id, role: user.role };

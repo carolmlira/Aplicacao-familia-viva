@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -163,11 +164,28 @@ export default function ProjectsList() {
     </div>
   );
 =======
+=======
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 export default function projeto(){
     return (
         <div>
             <h1>Projetos</h1>
         </div>
     )
+<<<<<<< HEAD
 >>>>>>> 8dea4da (Front parcialmente feito)
 }
+=======
+}
+=======
+"use client";
+
+export default function Projeto() {
+  return (
+    <div>
+      <h1>Projetos</h1>
+    </div>
+  );
+}
+>>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)

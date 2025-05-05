@@ -1,19 +1,43 @@
 .galeria {
     align-items: center;
+    margin-bottom: 8%;
+    margin-top: 10%;
+
 }
-.galeria h1 {
+  
+.galeria h2 {
     font-size: 40px;
     font-weight: bold;
     text-decoration: none;
     padding: 10px 0;
     transition: 0.2s ease;
-    font-weight: bold;
     background: linear-gradient(to right, #fe8719, #fe3012);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
-} 
+    margin-left: 5%;
+}
+  
 .galeria p {
     font-size: 30px;
 }
+  
+.cultosImages {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-left: 5%;
+}
+
+.redesImages {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-left: 5%;
+}
+
+.tituloRedes h2 {
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+  

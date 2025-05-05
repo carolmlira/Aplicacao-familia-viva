@@ -5,7 +5,10 @@
     date: string; // ISO format: YYYY-MM-DD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     members: string[]; // nomes ou IDs de pessoas que foram escaladas
+=======
+>>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
     description: string; // descrição do que o usuario tem que fazer naquele dia.
     available: boolean; // Se o usuario tem disponibilidade
     confirmed?: boolean; // quem se disponibilizou

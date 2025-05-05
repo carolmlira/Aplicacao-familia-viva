@@ -1,5 +1,6 @@
 /* BANNER */
 .banner {
+<<<<<<< HEAD
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -48,11 +49,39 @@
   position: absolute;
   right: 10px;
   z-index: 2;
+=======
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.2;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+  
+.logoPrincipal {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 400px; 
+}
+  
+.logoPrincipal h1 {
+    margin-top: -13px; 
+    font-size: 40px;
+    font-weight: bold;
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 }
 
 /* SOBRE */
 
 .sobre {
+<<<<<<< HEAD
   margin-top: 20vh;
   margin-left: 10vh;
 }
@@ -162,11 +191,96 @@
 .tooltip:hover .tooltipText {
   visibility: visible;
   opacity: 1;
+=======
+    margin-top: 20vh;
+    margin-left: 10vh;
+}
+
+.sobreImagem{
+    width: 40%;
+    height: auto;
+    margin-left: 30vh;
+    margin-bottom: 10vh;
+}
+
+.sobre h2 {
+    font-size: 40px;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-left: 10vh;
+  
+}
+.conteudoSobre {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; 
+    margin-bottom: 10vh;
+}
+
+.conteudoSobre p {
+    max-width: 500px;
+    font-size: 18px;
+    line-height: 1.6;
+    text-indent: 2.5em;
+}
+
+
+/* PROGRAMAÇÃO */
+
+.programacao {
+    margin-top: 20vh;
+}
+
+.programacao h2 {
+    font-size: 35px;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    align-items: center;
+    margin-left: 80vh;
+}
+
+.dias {
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    color: #ffff;
+    padding: 15px 40px;
+    border-radius: 15px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    font-size: 27px;
+}
+
+.botoesDias {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 50px;
+    margin-top: 50px;
+    margin-left: 30vh;
+}
+
+.botoesDias a:hover {
+    color: #f1a99e;
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 }
 
 /* PROJETOS */
 
 .projetos {
+<<<<<<< HEAD
   margin-top: 40vh;
   margin-left: 10vh;
   margin-right: 10vh;
@@ -232,10 +346,81 @@
   margin-left: 10%;
   margin-bottom: 5%;
 }
+=======
+    margin-top: 40vh;
+    margin-left: 10vh;
+    margin-right: 10vh;
+    position: relative;
+}
+
+.projetos h2 {
+    font-size: 40px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+}
+
+.linkProjeto {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 20px;
+    font-size: 25px;
+}
+
+.linkProjeto:hover {
+    color:  #a39797;
+}
+
+.projetos h3 {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.projetoCard {
+    display: flex;
+    align-items: center;
+    background-color: #D9D9D925;
+    padding: 20px;
+    border-radius: 9px;
+    gap: 20px;
+    margin-bottom: 10vh;
+    margin-left: 30px;
+}
+  
+.fotoProjeto {
+    width: auto;
+    height: auto;
+    object-fit: cover;
+}
+  
+.projetoCard p {
+
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: justify;
+    margin-left: 10vh;
+}  
+.projetoDescricao h3 {
+    text-align: center;
+    margin-left: 10%;
+    margin-bottom: 5%;
+}
+
+
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 
 /* GALERIA */
 
 .galeria {
+<<<<<<< HEAD
   margin-top: 10%;
   margin-left: 10vh;
   margin-right: 10vh;
@@ -288,3 +473,57 @@
 .icon:hover {
   color: #a39797;
 }
+=======
+    margin-top: 10%;
+    margin-left: 10vh;
+    margin-right: 10vh;
+    margin-bottom: 10vh;
+    position: relative;
+}
+.cultosImages {
+    display: flex;
+    gap: 20px;
+    flex-wrap: nowrap;
+}
+.galeria h2 {
+    font-size: 40px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+} 
+
+.linkGaleria {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 20px;
+    font-size: 25px;
+}
+
+.linkGaleria:hover {
+    color:  #a39797;
+}
+
+.galeria .icon {
+    font-size: 30px;
+    margin-right: 10px;
+    margin-top: 7%;
+    cursor: pointer;
+}
+
+.galeria .iconInvert {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease; 
+}
+
+.icon:hover {
+    color:#a39797;
+}
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)

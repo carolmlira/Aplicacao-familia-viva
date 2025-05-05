@@ -39,6 +39,7 @@ export function Footer() {
             </div>
 =======
 export function Footer(){
+<<<<<<< HEAD
     return(
         <footer className={styles.footer}>
             <nav className={styles.footerbar}>
@@ -93,4 +94,46 @@ export function Footer(){
         </footer>
     )
 }
+<<<<<<< HEAD
 >>>>>>> 8dea4da (Front parcialmente feito)
+=======
+=======
+  return(
+      <footer className={styles.footer}>
+          <nav className={styles.footerbar}>
+              <ul className={styles["footer-menu"]}>
+                  <li className={styles.contato}>
+                      <h1>Contato</h1>
+                      <div className={styles.info}>
+                          <a
+                              className={styles.info}
+                              href="https://www.instagram.com/familia_vivarecife/"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                          > <FaInstagram className={styles.icon} />
+                              familia_vivarecife
+                          </a>
+                      </div>
+                  </li>
+
+                  <li className={styles.localizacao}>
+                      <h1>Localização</h1>
+                      <div className={styles.info}>
+                         
+                          <a 
+                              className={styles.info}
+                              href="https://maps.app.goo.gl/QQSbdw2sD8LH5sAk8"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                          > <GrLocation className={styles.icon} />
+                              Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000
+                          </a>
+                      </div>
+                  </li>
+              </ul>
+          </nav>
+      </footer>
+  );
+}
+>>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)

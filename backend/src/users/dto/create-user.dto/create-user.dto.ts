@@ -42,15 +42,18 @@ export class CreateUserDto {
 <<<<<<< HEAD
 =======
 
-  @ApiProperty({description: "A role do Usuario"})
+  @ApiProperty({ description: 'A role do Usuario' })
   @IsNotEmpty()
   @IsEnum(Role, { message: 'Nível de acesso inválido' })
   level: Role; // O Enum está em Auth.
 >>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   @ApiProperty({ description: 'A role do Usuario' })
 =======
+=======
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 <<<<<<< HEAD
   @ApiProperty({description: "A role do Usuario"})
 >>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
@@ -64,7 +67,13 @@ export class CreateUserDto {
 =======
 >>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
   @ApiProperty({description: "Se está ativo do Usuario"})
+<<<<<<< HEAD
 >>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+=======
+=======
+  @ApiProperty({ description: 'Se está ativo do Usuario' })
+>>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
   @IsBoolean()
   active: boolean; // Indica se o usuário está ativo no sistema
 
@@ -91,7 +100,12 @@ export class CreateUserDto {
   @ApiProperty({ description: 'id do ministerio' })
   @IsString()
   @Length(3, 100)
+<<<<<<< HEAD
   ministryId: string;
+=======
+<<<<<<< HEAD
+  ministryId: string; 
+>>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -113,5 +127,8 @@ export class CreateUserDto {
 >>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
 =======
 >>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+=======
+  ministryId: string;
+>>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
 }
 >>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)
