@@ -1,0 +1,69 @@
+.footer {
+    border-top: 1px solid white;
+    height: 100px;
+}
+
+.footerbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 5px; 
+}
+
+.footerbar .footer-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 50vh;
+    justify-content: flex-start; 
+    flex-grow: 1; 
+}
+
+.footerbar .footer-menu h1 {
+    font-size: 20px;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footerbar .footer-menu a {
+    font-size: 15px;
+    text-decoration: none;
+    padding: 10px 0;
+    transition: 0.2s ease;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    align-items: center; 
+    color: #ffff;
+}
+
+.footerbar .footer-menu a:hover {
+    color: #a39797;
+}
+
+.footerbar .footer-menu .icon {
+    font-size: 26px;
+    margin-right: 10px;
+}
+
+.footerbar .footer-menu .contato,
+.footerbar .footer-menu .localizacao {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footerbar .footer-menu .contato .info,
+.footerbar .footer-menu .localizacao .info {
+    display: flex;
+    align-items: center;
+}

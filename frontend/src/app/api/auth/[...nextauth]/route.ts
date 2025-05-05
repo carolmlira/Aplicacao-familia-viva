@@ -4,13 +4,14 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
-interface CustomUser {
-  id: string;
-  email: string;
-  role: string;
-  access_token: string;
-  name: string;
-}
+// interface CustomUser {
+//   id: string;
+//   email: string;
+//   role: string;
+//   access_token: string;
+//   name: string;
+//   ministryId: string;
+// }
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -73,6 +74,7 @@ export const authOptions: NextAuthOptions = {
             role: payload.role,
             token: accessToken,
             name: payload.name,
+            ministryId: payload.ministryId,
           };
         } catch (error) {
           console.error('Erro na autenticação com Nest:', error);
@@ -90,6 +92,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.accessToken = user.token;
         token.name = user.name;
+        token.ministryId = user.ministryId;
       }
       return token;
     },
@@ -100,6 +103,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).email = token.email;
         (session.user as any).role = token.role;
         (session.user as any).name = token.name;
+        (session.user as any).ministryId = token.ministryId;
       }
       (session as any).accessToken = token.accessToken;
       return session;

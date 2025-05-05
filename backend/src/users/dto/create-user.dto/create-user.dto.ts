@@ -13,50 +13,49 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/auth/role.enum';
 
 export class CreateUserDto {
-  @ApiProperty({description: "O nome do Usuario"})
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ description: 'O nome do Usuario' })
+  @IsString({ message: 'O nome deve ser uma string' })
+  @IsNotEmpty({ message: 'O nome é obrigatório' })
   name: string; // Nome completo do usuário
 
-  @ApiProperty({description: "O Email do Usuario"})
-  @IsEmail()
-  @IsNotEmpty()
+  @ApiProperty({ description: 'O Email do Usuario' })
+  @IsEmail({}, { message: 'O email deve ser válido' })
+  @IsNotEmpty({ message: 'O email é obrigatório' })
   email: string; // E-mail do usuário (deve ser válido)
 
-  @ApiProperty({description: "A senha do do Usuario"})
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(6)
+  @ApiProperty({ description: 'A senha do do Usuario' })
+  @IsString({ message: 'A senha deve ser uma string' })
+  @IsNotEmpty({ message: 'A senha é obrigatória' })
+  @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
   password: string; // Senha do usuário (mínimo de 6 caracteres)
 
-  @ApiProperty({description: "A role do Usuario"})
+  @ApiProperty({ description: 'A role do Usuario' })
   @IsNotEmpty()
   @IsEnum(Role, { message: 'Nível de acesso inválido' })
   level: Role; // O Enum está em Auth.
 
-  @ApiProperty({description: "Se está ativo do Usuario"})
+  @ApiProperty({ description: 'Se está ativo do Usuario' })
   @IsBoolean()
   active: boolean; // Indica se o usuário está ativo no sistema
 
-  @ApiProperty({description: "Photo do Usuario"})
+  @ApiProperty({ description: 'Photo do Usuario' })
   @IsOptional()
   @IsString()
   photo?: string; // URL da foto de perfil do usuário (opcional)
 
-  @ApiProperty({description: "O Numero do Usuario"})
-  @IsOptional()
+  @ApiProperty({ description: 'O Numero do Usuario' })
   @Matches(/^\+\d{1,3}\d{7,14}$/, {
-    message: 'O número de telefone deve estar no formato internacional, exemplo: +5511999999999',
+    message:
+      'O número de telefone deve estar no formato internacional, exemplo: +5511999999999',
   })
   phone?: string; // Telefone no formato internacional, com DDI e DDD (opcional)
 
-  @ApiProperty({description: "Notificao wpp do Usuario"})
+  @ApiProperty({ description: 'Notificao wpp do Usuario' })
   @IsBoolean()
   whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
 
-  @ApiProperty({description: "id do ministerio"})
+  @ApiProperty({ description: 'id do ministerio' })
   @IsString()
   @Length(3, 100)
-  ministryId: string; 
-
+  ministryId: string;
 }

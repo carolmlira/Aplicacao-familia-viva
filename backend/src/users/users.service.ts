@@ -19,7 +19,7 @@ export class UsersService {
 
   async findAll(): Promise<UserEntity[]> {
     const snapshot = await this.collection.get();
-    return snapshot.docs.map(doc => doc.data() as UserEntity);
+    return snapshot.docs.map((doc) => doc.data() as UserEntity);
   }
 
   async findOne(id: string): Promise<UserEntity> {
@@ -36,7 +36,10 @@ export class UsersService {
     return snapshot.docs[0].data() as UserEntity;
   }
 
-  async update(id: string, updateUserDto: Partial<CreateUserDto>): Promise<UserEntity> {
+  async update(
+    id: string,
+    updateUserDto: Partial<CreateUserDto>,
+  ): Promise<UserEntity> {
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
     if (!doc.exists) {
@@ -46,7 +49,7 @@ export class UsersService {
       ...doc.data(),
       ...updateUserDto,
     };
-    await docRef.set(updatedData);
+    await docRef.update(updatedData);
     return updatedData as UserEntity;
   }
 
