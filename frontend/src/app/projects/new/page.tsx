@@ -3,6 +3,8 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from "next/link";
+import Image from 'next/image';
 
 
 export default function NewProject() {
@@ -15,7 +17,7 @@ export default function NewProject() {
     title: '',
     content: '',
     active: true,
-    imageFile: null as File | null, // Arquivo de imagem
+    imageFiles: [] as File[],
   });
 
   useEffect(() => {
@@ -35,24 +37,27 @@ export default function NewProject() {
     setLoading(true);
   
     try {
-      // 1. Primeiro cria o projeto SEM a imagem
-      const newProject = {
-        title: formData.title,
-        content: formData.content,
-        active: formData.active,
-        icon: 'project',
-        updatedBy: session?.user?.name || 'admin',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      const data = new FormData();
+      data.append('title', formData.title);
+      data.append('content', formData.content);
+      data.append('active', String(formData.active));
+      data.append('icon', 'project');
+      data.append('updatedBy', session?.user?.name || 'admin');
+      data.append('createdAt', new Date().toISOString());
+      data.append('updatedAt', new Date().toISOString());
+  
+      // Verifique se 'images' está undefined e substitua por um array vazio
+      const images = formData.imageFiles.length > 0 ? formData.imageFiles : [];
+      images.forEach((file) => {
+        data.append('images', file); // O nome 'images' deve bater com o `@UploadedFiles()`
+      });
   
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects`, {
         method: 'POST',
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${(session as any).accessToken}`,
         },
-        body: JSON.stringify(newProject),
+        body: data,
       });
   
       if (!res.ok) {
@@ -61,24 +66,8 @@ export default function NewProject() {
         throw new Error('Erro ao criar projeto');
       }
   
-      const project = await res.json();
-      console.log('Projeto criado:', project);
-  
-      // 2. Agora que tem o project.id, faz upload da imagem no caminho certo
-      if (formData.imageFile) {
-        const imageUrl = await handleUploadImage(formData.imageFile, project.id);
-  
-        // 3. Atualiza o projeto com a imagem
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${project.id}/image`, {
-          method: 'PATCH',
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${(session as any).accessToken}`,
-          },
-          body: JSON.stringify({ imageUrl }),
-        });
-      }
-  
+      const created = await res.json();
+      console.log('Projeto criado com imagens:', created);
       router.push('/projects');
     } catch (error) {
       console.error(error);
@@ -88,11 +77,11 @@ export default function NewProject() {
   }
   
   // Atualize o handleUploadImage para receber o projectId:
-  async function handleUploadImage(file: File, projectId: string): Promise<string> {
+  async function handleUploadImage(file: File, projectId: string, pageId: string): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
   
-    const categoryWithId = `${category}/${projectId}`; // Exemplo: pages/abc123
+    const categoryWithId = `${category}/${pageId}/${projectId}`; // Exemplo: pages/abc123
   
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${categoryWithId}`, {
       method: 'POST',
@@ -110,55 +99,68 @@ export default function NewProject() {
     return data.url;
   }
 
-  const projetos = [
-    {
-      id: 1,
-      titulo: "Arrecadação de alimentos",
-      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
-      imagem: "/images/projeto1.jpg",
-    },
-    {
-      id: 2,
-      titulo: "Arrecadação de alimentos",
-      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
-      imagem: "/images/projeto1.jpg",
-    },
-    {
-      id: 3,
-      titulo: "Arrecadação de alimentos",
-      descricao: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam sit amet lacus vitae justo pulvinar blandit.",
-      imagem: "/images/projeto1.jpg",
-    },
-  ];
-
   return (
-    <div className="projetos-container">
-      <div className="projetos-header">
-        <h1>Projetos</h1>
-      </div>
-
-      <div className="projetos-content">
-        {projetos.map((projeto) => (
-          <div key={projeto.id} className="projeto-card">
-            <div className="projeto-img">
-              <img src={projeto.imagem} alt={projeto.titulo} />
-            </div>
-            <div className="projeto-texto">
-              <h2>{projeto.titulo}</h2>
-              <p>{projeto.descricao}</p>
-            </div>
+    <>
+      {/* Cabeçalho com botões de navegação */}
+      <header className="mb-10 flex justify-center items-center px-4">
+        <div className="flex gap-4">
+          <Link href="/projects">
+            <button className="flex items-left gap-2 bg-green-600 hover:bg-green-700 text-invert px-5 py-2 rounded-lg transition">
+              <Image src="/images/seta-left.svg" alt="Voltar" width={16} height={16} />
+            </button>
+          </Link>
+        </div>
+      </header>
+  
+      {/* Formulário */}
+      <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
+        <h1 className="text-2xl font-bold mb-4">Nova Página</h1>
+        <form onSubmit={handleAddProject} className="space-y-4">
+          <div>
+            <label className="block font-medium">Título</label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 p-2 rounded"
+            />
           </div>
-        ))}
-      </div>
+  
+          <div>
+            <label className="block font-medium">Conteúdo</label>
+            <textarea
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              rows={5}
+              required
+              className="w-full border border-gray-300 p-2 rounded"
+            />
+          </div>
+  
+          <div>
+            <label className="block font-medium">Imagem (opcional)</label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => setFormData({ ...formData, imageFiles: Array.from(e.target.files || []) })}
+            />
 
-      <footer className="projetos-footer">
-        <div className="footer-contato">
-          <p>@familia_vivarecife</p>
-        </div>
-        <div className="footer-localizacao">
-          <p>Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000</p>
-        </div>
-      </footer>
-    </div>
+          </div>
+  
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Salvando...' : 'Criar Página'}
+          </button>
+        </form>
+      </div>
+    </>
   );
+  
 }

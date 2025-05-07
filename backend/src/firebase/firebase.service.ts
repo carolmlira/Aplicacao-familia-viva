@@ -8,27 +8,32 @@ import { Injectable } from '@nestjs/common';
    private storage;
    private messaging;
    private firestore: FirebaseFirestore.Firestore;
- 
+
    constructor() {
-     // Verifica se já existe uma app do Firebase inicializada
-     if (!admin.apps.length) {
-       const serviceAccount = require('../../src/config/familia-viva-recife-firebase-adminsdk-fbsvc-d7800a47bd.json');
- 
-       admin.initializeApp({
-         credential: cert(serviceAccount),
-         storageBucket: 'gs://familia-viva-recife.firebasestorage.app', 
-       });
-     }
- 
-     this.storage = admin.storage();
-     this.messaging = admin.messaging();
-     this.firestore = admin.firestore(); 
-   }
+    if (!admin.apps.length) {
+      const serviceAccount = require('../../src/config/familia-viva-recife-firebase-adminsdk-fbsvc-d7800a47bd.json');
+  
+      admin.initializeApp({
+        credential: cert(serviceAccount),
+        storageBucket: 'gs://familia-viva-recife.firebasestorage.app',
+      });
+    }
+  
+    this.storage = admin.storage();
+    this.messaging = admin.messaging();
+    this.firestore = admin.firestore();
+    
+  }
+  
  
    async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
+    if (!file || !filename) {
+      throw new Error('Arquivo ou nome do arquivo inválido');
+    }
+  
     const bucket = this.storage.bucket();
-    const blob = bucket.file(filename); // O nome do arquivo inclui a categoria
-    
+    const blob = bucket.file(filename);
+  
     const blobStream = blob.createWriteStream({
       metadata: {
         contentType: file.mimetype,
@@ -48,7 +53,6 @@ import { Injectable } from '@nestjs/common';
     });
   }
   
-
    async getFileUrl(filename: string): Promise<string> {
     const bucket = this.storage.bucket();
     const file = bucket.file(filename);
@@ -73,6 +77,13 @@ import { Injectable } from '@nestjs/common';
       throw err;
     }
   }
+  async deleteFolder(folderPath: string): Promise<void> {
+    const bucket = this.storage.bucket();
+    const [files] = await bucket.getFiles({ prefix: folderPath });
+    const deletions = files.map((file) => file.delete());
+    await Promise.all(deletions);
+  }
+  
 
   async listFilesInCategory(category: string): Promise<string[]> {
     const bucket = this.storage.bucket();
@@ -86,8 +97,8 @@ import { Injectable } from '@nestjs/common';
     return await collectionRef.get();
   }
   
-  async listFilesInPage(pageId: string): Promise<string[]> {
-    const prefix = `pages/${pageId}/`;
+  async listFilesInPage(pageId: string, category: string): Promise<string[]> {
+    const prefix = `pages/${category}/${pageId}/`;
     const bucket = this.storage.bucket();
     const [files] = await bucket.getFiles({ prefix });
   
@@ -101,6 +112,5 @@ import { Injectable } from '@nestjs/common';
   
     return urls;
   }
-  
   
 }

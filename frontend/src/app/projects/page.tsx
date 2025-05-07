@@ -46,7 +46,7 @@ export default function ProjectsList() {
 
           try {
             const imageRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/files?pageId=${project.id}`
+              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/${category}/files?pageId=${project.id}`
             );
             const imageData = await imageRes.json();
             const imageUrl =
@@ -65,18 +65,24 @@ export default function ProjectsList() {
       console.error('Erro ao buscar projetos:', error);
     }
   }
-
   async function deleteProject(id: string) {
     if (!confirm('Tem certeza que deseja excluir este projeto?')) return;
-
+  
     try {
       setLoading(true);
+  
+      // Deleta pasta de imagens no storage
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete-folder?category=pages&subgrup=projects&pageId=${id}`, {
+        method: 'DELETE',
+      });
+  
+      // Deleta o projeto no banco
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`, {
         method: 'DELETE',
       });
-
+  
       if (!res.ok) throw new Error('Erro ao deletar projeto');
-
+  
       fetchProjects();
     } catch (error) {
       console.error('Erro ao excluir projeto:', error);
@@ -84,7 +90,7 @@ export default function ProjectsList() {
       setLoading(false);
     }
   }
-
+  
   return (
     <div className="projetos-container">
       <div className="projetos-header">
@@ -111,35 +117,44 @@ export default function ProjectsList() {
       ) : (
         <div className="projetos-content">
           {projects.map((project) => (
-            <div key={project.id} className="projeto-card">
-              <div className="projeto-img">
-                <Link href={`/projects/id/items/${project.id}`}>
+            <Link
+              key={project.id}
+              href={`/projects/id/items/${project.id}`}
+              className="block"
+            >
+              <div className="projeto-card">
+                <div className="projeto-img">
                   <img
-                    src={project.imageUrl || '/placeholder.svg'}
+                    src={project.imageUrl || 'images/placeholder.svg'}
                     alt={project.title}
                   />
-                </Link>
-              </div>
-              <div className="projeto-texto">
-                <h2>{project.title}</h2>
-                <p>
-                  {project.content?.slice(0, 150)}
-                  {project.content?.length > 150 && '...'}
-                </p>
+                </div>
+                <div className="projeto-texto">
+                  <h2>{project.title}</h2>
+                  <p>
+                    {project.content?.slice(0, 150)}
+                    {project.content?.length > 150 && '...'}
+                  </p>
 
-                {(session?.user as any)?.role === 'ADMIN' && (
-                  <button
-                    onClick={() => deleteProject(project.id)}
-                    className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    disabled={loading}
-                  >
-                    {loading ? 'Excluindo...' : 'Excluir'}
-                  </button>
-                )}
+                  {(session?.user as any)?.role === 'ADMIN' && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteProject(project.id);
+                      }}
+                      className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      disabled={loading}
+                    >
+                      {loading ? 'Excluindo...' : 'Excluir'}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
+
       )}
 
       <footer className="projetos-footer">

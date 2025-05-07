@@ -23,8 +23,8 @@ export class CreatePageDto {
   @IsString()
   icon?: string; // Pode armazenar um nome de ícone (ex: "home", "info", "team"), útil pra exibir um ícone no frontend.
 
-  @IsBoolean()
-  active: boolean; //Indica se a página está ativa/publicada.
+  @IsString()
+  active: string; //Indica se a página está ativa/publicada.
 
   @IsOptional()
   @IsString()

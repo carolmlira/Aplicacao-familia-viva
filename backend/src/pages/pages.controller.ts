@@ -1,22 +1,24 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, UseInterceptors, UploadedFiles, Query } from '@nestjs/common';
 import { PagesService } from './pages.service';
 import { CreatePageDto } from './dto/create-page.dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto/update-page.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('pages')
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
 
   @Post(':category')
-  @UseInterceptors(FileInterceptor('image')) // <<< Aqui!
+  @UseInterceptors(FilesInterceptor('images')) // 'images' é o nome do campo do FormData
   create(
     @Param('category') category: string,
-    @UploadedFile() image: Express.Multer.File, // <<< Aqui!
+    @UploadedFiles() images: Express.Multer.File[], // Agora um array
     @Body() createPageDto: CreatePageDto
   ) {
-    return this.pagesService.create(createPageDto, category, image);
+    console.log('Imagens recebidas:', images);  // Debug para verificar as imagens
+    return this.pagesService.create(createPageDto, category, images);
   }
+  
 
   // Buscar todas as páginas dentro de uma categoria
   @Get()

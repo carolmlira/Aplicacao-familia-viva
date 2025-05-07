@@ -5,7 +5,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-
 export default function Page() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
@@ -42,25 +41,29 @@ export default function Page() {
 
   async function fetchProjectImage(id: string) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/files?pageId=${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/projects/files?pageId=${id}`);
       const data = await res.json();
       if (Array.isArray(data.files)) {
-        setImageUrls(data.files); // Salva como array de URLs
+        setImageUrls(data.files); 
       }
     } catch (err) {
       console.error("Erro ao buscar imagem do projeto:", err);
     }
   }
 
-  async function uploadImage(file: File): Promise<string> {
+  async function uploadImage(file: File, pageId: string): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
   
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?pageId=${id}&category=${category}`, {
-      method: 'POST',
-      body: formData,
-    });
+    const categoryWithId = `pages/projects/${pageId}`;
   
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${encodeURIComponent(categoryWithId)}`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
     if (!response.ok) throw new Error('Erro no upload da imagem');
     const data = await response.json();
     return data.url;
@@ -81,56 +84,36 @@ export default function Page() {
       throw new Error('Erro ao atualizar o projeto');
     }
   }
-  async function updateImage(file: File, imageId: string): Promise<string> {
+  // Função para substituir a imagem no Firebase Storage (usando PUT)
+  const updateImage = async (file: File, imageId: string): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-  
-    const newName = `${uuidv4()}.png`; // Corrigido: interpolação dentro de string template
-  
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&filename=${imageId}.png&newName=${newName}&pageId=${id}`,
+    const cleanImageId = imageId.replace(/\.png$/, '');
+    const newName = `${uuidv4()}.png`;
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=projects&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
       {
         method: 'PUT',
         body: formData,
       }
     );
-  
+
     if (!response.ok) throw new Error('Erro ao atualizar a imagem');
     const data = await response.json();
     return data.url;
-  }
-  
-  async function uploadNewImage(file: File): Promise<string> {
-    const imageId = uuidv4();
-    const formData = new FormData();
-    formData.append('file', file);
-  
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=pages&filename=${imageId}.png&pageId=${id}`,
-      {
-        method: 'POST',
-        body: formData,
-      }
-    );
-  
-    if (!response.ok) throw new Error('Erro no upload da nova imagem');
-    const data = await response.json();
-    return data.url;
-  }
+  };
 
   const deleteImage = async (category: string, pageId: string, imageId: string) => {
-    // Se o nome da imagem é o id + ".png", então:
     const filename = `${imageId}.png`;
-  
-    // Construa os parâmetros de consulta corretamente:
     const params = new URLSearchParams({
-      category,       // "pages"
-      pageId,         // O id da página
-      filename,       // "8b8b6ed6-1ee5-4cff-84ff-dfac621eaf46.png"
+      category,      
+      subgrup: 'projects',
+      pageId,        
+      filename,       
     });
   
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/firebase/delete?${params.toString()}`,
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete?${params.toString()}`,
         { method: 'DELETE' }
       );
   
@@ -144,32 +127,33 @@ export default function Page() {
   
       // Atualiza o estado para remover a imagem da lista
       setImageUrls((prev) => prev.filter((url, i) => {
-        // Você pode comparar o filename que aparece na URL com o que foi deletado
         return !url.includes(filename);
       }));
     } catch (err) {
       console.error('Erro ao deletar imagem:', err);
     }
   };
-  
-  
-  
+
+  // Função para salvar as imagens e os dados
   const handleSave = async () => {
     setLoading(true);
-  
+
     try {
       const uploadedUrls: string[] = [];
-  
+
+      // Faz o upload das novas imagens se houverem
       for (const file of newImages) {
-        const url = await uploadImage(file); // função que retorna a URL do Firebase
+        const url = await uploadImage(file, id); 
         uploadedUrls.push(url);
       }
-  
+
       await updateProject(id, {
         ...formData,
+        active: String(formData.active),
         images: [...imageUrls, ...uploadedUrls],
       });
-  
+
+      // Atualiza o estado com as URLs de imagem
       setImageUrls((prev) => [...prev, ...uploadedUrls]);
       setNewImages([]);
       setEditing(false);
@@ -181,30 +165,44 @@ export default function Page() {
   };
 
   const handleImageClick = (index: number) => {
-    console.log("Clicou na imagem", index);
     const inputElement = fileInputs.current[index];
     if (inputElement) {
-      inputElement.click(); // Isso deve abrir o seletor
+      inputElement.click(); 
     } else {
       console.log("Input não encontrado no índice", index);
     }
   };
   
+  // Função para substituir a imagem na interface
   const handleReplaceImage = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
     try {
-      const url = await uploadImage(file);
+      // Se estivermos substituindo uma imagem existente, usaremos o `updateImage`
+      const imageUrl = imageUrls[index];
+      const imageId = imageUrl.split('/').pop()?.split('?')[0];
+      let updatedUrl: string;
+
+      if (imageId) {
+        // Atualiza a imagem existente
+        updatedUrl = await updateImage(file, imageId);
+      } else {
+        // Se não encontrarmos um ID, consideramos como nova imagem e fazemos upload
+        updatedUrl = await uploadImage(file, id);
+      }
+
+      // Atualiza a URL da imagem no estado
       setImageUrls((prev) => {
         const updated = [...prev];
-        updated[index] = url; // Substitui a URL da imagem na posição correta
+        updated[index] = `${updatedUrl}?t=${Date.now()}`
         return updated;
       });
     } catch (err) {
       console.error("Erro ao substituir imagem:", err);
     }
   };
+  
   const handleDeleteImage = async (index: number) => {
     const imageUrl = imageUrls[index];
     if (!imageUrl) return;
@@ -213,7 +211,7 @@ export default function Page() {
       // Extrair o nome do arquivo da URL
       const urlParts = imageUrl.split('/');
       const filenameWithToken = urlParts[urlParts.length - 1];
-      const filename = filenameWithToken.split('?')[0]; // Remove qualquer query string
+      const filename = filenameWithToken.split('?')[0]; 
       const filenameWithoutExtension = filename.split('.')[0]; // Remove extensão .png ou outra
       const confirmed = window.confirm('Tem certeza que deseja excluir esta imagem?');
       if (confirmed) {
@@ -226,7 +224,6 @@ export default function Page() {
       console.error('Erro ao deletar imagem:', err);
     }
   };
-  
 
   if (loading) return <div>Carregando...</div>;
   if (!project) return <div>Projeto não encontrado.</div>;

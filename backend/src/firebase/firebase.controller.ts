@@ -8,30 +8,40 @@ export class FirebaseController {
   constructor(private readonly firebaseService: FirebaseService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Query('category') category: string,
-    @Query('pageId') pageId?: string, // pageId é opcional, só será usado se a categoria for "pages"
-  ) {
-    console.log('file:', file); // debug
-    const ext = file.originalname.split('.').pop(); // Pega a extensão do arquivo
-    let filename: string;
-
-    // Se for da categoria "pages", verificamos se o pageId foi fornecido
-    if (category === 'pages') {
-      if (!pageId) {
-        // Caso não tenha um pageId, podemos lançar um erro ou salvar em um diretório genérico
-        throw new Error('pageId é obrigatório para uploads na categoria "pages".');
-      }
-      filename = `pages/${pageId}/${uuidv4()}.${ext}`; // Cria um caminho específico para as páginas
-    } else {
-      filename = `${category}/${uuidv4()}.${ext}`; // Caso contrário, o caminho será baseado apenas na categoria
+@UseInterceptors(FileInterceptor('file'))
+async uploadFile(
+  @UploadedFile() file: Express.Multer.File,
+  @Query('category') category: string,
+  @Query('pageId') pageId?: string,
+) {
+  // Verifica se a categoria é 'pages' e valida a presença do pageId
+  if (category === 'pages') {
+    if (!pageId) {
+      throw new BadRequestException('pageId é obrigatório para uploads na categoria "pages".');
     }
 
-    const url = await this.firebaseService.uploadFile(file, filename); // Chama o serviço para fazer o upload
-    return { url, filename }; // Retorna o URL da imagem e o nome do arquivo
+    // Pega a extensão do arquivo
+    const ext = file.originalname.split('.').pop();
+    // Gera um ID único para o arquivo
+    const generatedId = uuidv4();
+    // Cria o caminho completo com o ID gerado e a extensão
+    const filename = `pages/${category}/${pageId}/${generatedId}.${ext}`;
+
+    // Realiza o upload e obtém a URL do arquivo
+    const url = await this.firebaseService.uploadFile(file, filename);
+    return { url, filename }; // Retorna a URL e o nome do arquivo
   }
+
+  // Para outras categorias, o processo é similar
+  const ext = file.originalname.split('.').pop();
+  const generatedId = uuidv4();
+  const filename = `${category}/${generatedId}.${ext}`;
+
+  // Faz o upload do arquivo e retorna a URL
+  const url = await this.firebaseService.uploadFile(file, filename);
+  return { url, filename }; // Retorna a URL e o nome do arquivo
+}
+
   
   @Get('file/:filename')
   async getFile(@Param('filename') filename: string) {
@@ -44,8 +54,9 @@ export class FirebaseController {
   async updateFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('category') category: string,
-    @Query('filename') filename: string, // nome antigo
-    @Query('newName') newName: string,   // nome novo
+    @Query('subgrup') subgrup: string,
+    @Query('filename') filename: string, 
+    @Query('newName') newName: string,   
     @Query('pageId') pageId?: string
   ) {
     if (!category || !filename || !newName) {
@@ -59,8 +70,9 @@ export class FirebaseController {
       if (!pageId) {
         throw new BadRequestException('pageId é obrigatório para categoria "pages".');
       }
-      oldPath = `pages/${pageId}/${filename}`;
-      newPath = `pages/${pageId}/${newName}`;
+
+      oldPath = `pages/${subgrup}/${pageId}/${filename}`;
+      newPath = `pages/${subgrup}/${pageId}/${newName}`;
     } else {
       oldPath = `${category}/${filename}`;
       newPath = `${category}/${newName}`;
@@ -93,6 +105,7 @@ export class FirebaseController {
   @Delete('delete')
   async deleteFileGeneric(
     @Query('category') category: string,
+    @Query('subgrup') subgrup: string,
     @Query('filename') filename: string,
     @Query('pageId') pageId?: string,
   ) {
@@ -101,48 +114,48 @@ export class FirebaseController {
     }
   
     const fullPath = pageId
-      ? `${category}/${pageId}/${filename}`
+      ? `${category}/${subgrup}/${pageId}/${filename}`
       : `${category}/${filename}`;
   
     await this.firebaseService.deleteFile(fullPath);
     return { message: `Arquivo ${fullPath} deletado com sucesso.` };
   }
-
-  /*@Delete('delete')
-  async deleteImage(@Body() body: { pageId: string; imageUrl: string }) {
-    const { pageId, imageUrl } = body;
-    if (!pageId || !imageUrl) {
-      throw new BadRequestException('pageId e imageUrl são obrigatórios');
+  @Delete('delete-folder')
+  async deleteFolder(
+    @Query('category') category: string,
+    @Query('subgrup') subgrup: string,
+    @Query('pageId') pageId: string,
+  ) {
+    if (!category || !subgrup || !pageId) {
+      throw new BadRequestException('category, subgrup e pageId são obrigatórios.');
     }
-
-    const filename = this.extractPathFromUrl(imageUrl); // função util
-    return this.firebaseService.deleteFile(`pages/${pageId}/${filename}`);
+  
+    const folderPath = `${category}/${subgrup}/${pageId}`;
+    await this.firebaseService.deleteFolder(folderPath); // novo método
+    return { message: `Pasta ${folderPath} deletada com sucesso.` };
   }
-  extractPathFromUrl(imageUrl: string): string {
-    try {
-      const decodedUrl = decodeURIComponent(imageUrl);
-      const pathStart = decodedUrl.indexOf('/o/') + 3;
-      const pathEnd = decodedUrl.indexOf('?');
-      const fullPath = decodedUrl.substring(pathStart, pathEnd).replace(/%2F/g, '/');
-      return fullPath.split('/').pop() || ''; // Retorna apenas o nome do arquivo
-    } catch {
-      throw new BadRequestException('URL inválida');
-    }
-  }
-*/
+  
   @Get('list')
   async listFiles(@Query('category') category: string) {
     const files = await this.firebaseService.listFilesInCategory(category);
     return { files };
   }
   
-  @Get('pages/files')
-  async getPageFiles(@Query('pageId') pageId: string) {
+  @Get('pages/:category/files')
+  async getPageFilesByCategory(
+    @Param('category') category: string,
+    @Query('pageId') pageId: string,
+  ) {
     if (!pageId) {
       throw new BadRequestException('pageId não informado');
     }
+  
+    // Verifica se categoria existe, se quiser aplicar alguma lógica aqui.
+    // Aqui você pode também montar o caminho incluindo a categoria, se necessário.
+  
 
-    const urls = await this.firebaseService.listFilesInPage(pageId);
+    const urls = await this.firebaseService.listFilesInPage(pageId, category); // método novo ou reutilizado
     return { files: urls };
   }
+  
 }
