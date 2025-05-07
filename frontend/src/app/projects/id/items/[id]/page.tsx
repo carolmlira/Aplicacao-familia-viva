@@ -14,6 +14,7 @@ export default function Page() {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const fileInputs = useRef<HTMLInputElement[]>([]);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
 
   const [category] = useState('pages');
   const [loading, setLoading] = useState(true);
@@ -155,7 +156,9 @@ export default function Page() {
 
       // Atualiza o estado com as URLs de imagem
       setImageUrls((prev) => [...prev, ...uploadedUrls]);
+
       setNewImages([]);
+      
       setEditing(false);
     } catch (err) {
       console.error("Erro ao atualizar projeto:", err);
@@ -223,6 +226,31 @@ export default function Page() {
     } catch (err) {
       console.error('Erro ao deletar imagem:', err);
     }
+  };
+
+  const handleRemovePreviewImage = (index: number) => {
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
+  };
+  
+  // Função para mover a imagem para cima
+  const moveImageUp = (index: number) => {
+    if (index === 0) return; // Não mover se já estiver na primeira posição
+    const newImageUrls = [...imageUrls];
+    const temp = newImageUrls[index];
+    newImageUrls[index] = newImageUrls[index - 1];
+    newImageUrls[index - 1] = temp;
+    setImageUrls(newImageUrls);
+  };
+
+  // Função para mover a imagem para baixo
+  const moveImageDown = (index: number) => {
+    if (index === imageUrls.length - 1) return; // Não mover se já estiver na última posição
+    const newImageUrls = [...imageUrls];
+    const temp = newImageUrls[index];
+    newImageUrls[index] = newImageUrls[index + 1];
+    newImageUrls[index + 1] = temp;
+    setImageUrls(newImageUrls);
   };
 
   if (loading) return <div>Carregando...</div>;
@@ -294,12 +322,37 @@ return (
             <input
               type="file"
               accept="image/*"
+              multiple
               onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  setNewImages((prev) => [...prev, e.target.files![0]]);
+                if (e.target.files) {
+                  const filesArray = Array.from(e.target.files);
+                  setNewImages((prev) => [...prev, ...filesArray]);
+
+                  // Gera previews
+                  const previews = filesArray.map((file) => URL.createObjectURL(file));
+                  setPreviewImages((prev) => [...prev, ...previews]);
                 }
               }}
             />
+            {previewImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
+                {previewImages.map((url, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={url}
+                      alt={`Nova imagem ${index + 1}`}
+                      className="w-full rounded shadow object-cover"
+                    />
+                    <button
+                      onClick={() => handleRemovePreviewImage(index)}
+                      className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
+                    >
+                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
   
           {imageUrls && imageUrls.length > 0 && (
@@ -312,7 +365,7 @@ return (
                     className="w-full rounded shadow object-cover cursor-pointer"
                     onClick={() => handleImageClick(index)}
                   />
-                  
+
                   <input
                     type="file"
                     accept="image/*"
@@ -322,7 +375,7 @@ return (
                     }}
                     onChange={(e) => handleReplaceImage(e, index)}
                   />
-                  
+
                   <button
                     onClick={() => handleDeleteImage(index)}
                     className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full"

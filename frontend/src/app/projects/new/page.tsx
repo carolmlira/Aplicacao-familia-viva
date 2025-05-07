@@ -11,6 +11,8 @@ export default function NewProject() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const [imageFiles, setImageFiles] = useState<{ id: string; file: File;previewUrl: string }[] >([]);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [category, setCategory] = useState('pages');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,10 +48,9 @@ export default function NewProject() {
       data.append('createdAt', new Date().toISOString());
       data.append('updatedAt', new Date().toISOString());
   
-      // Verifique se 'images' está undefined e substitua por um array vazio
-      const images = formData.imageFiles.length > 0 ? formData.imageFiles : [];
-      images.forEach((file) => {
-        data.append('images', file); // O nome 'images' deve bater com o `@UploadedFiles()`
+      const images = imageFiles.length > 0 ? imageFiles : [];
+      images.forEach(({ file }) => {
+        data.append('images', file);
       });
   
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects`, {
@@ -98,20 +99,12 @@ export default function NewProject() {
     const data = await res.json();
     return data.url;
   }
+  const handleRemovePreviewImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <>
-      {/* Cabeçalho com botões de navegação */}
-      <header className="mb-10 flex justify-center items-center px-4">
-        <div className="flex gap-4">
-          <Link href="/projects">
-            <button className="flex items-left gap-2 bg-green-600 hover:bg-green-700 text-invert px-5 py-2 rounded-lg transition">
-              <Image src="/images/seta-left.svg" alt="Voltar" width={16} height={16} />
-            </button>
-          </Link>
-        </div>
-      </header>
-  
       {/* Formulário */}
       <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
         <h1 className="text-2xl font-bold mb-4">Nova Página</h1>
@@ -146,9 +139,40 @@ export default function NewProject() {
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) => setFormData({ ...formData, imageFiles: Array.from(e.target.files || []) })}
-            />
+              onChange={(e) => {
+                const files = Array.from(e.target.files || []);
 
+                const filesWithIds = files.map(file => ({
+                  id: crypto.randomUUID(),
+                  file,
+                  previewUrl: URL.createObjectURL(file),
+                }));
+
+                setImageFiles(prev => [...prev, ...filesWithIds]);
+              }}
+            />
+            {imageFiles.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-4">
+                {imageFiles.map(({ id, previewUrl }, index) => (
+                  <div key={id} className="relative">
+                    <Image
+                      src={previewUrl}
+                      alt={`Preview ${id}`}
+                      width={150}
+                      height={150}
+                      className="object-cover rounded shadow"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePreviewImage(index)}
+                      className="absolute top-1 right-1 bg-white rounded-full shadow p-1"
+                    >
+                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>           
+            )}
           </div>
   
           <button
