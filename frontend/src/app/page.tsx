@@ -7,7 +7,6 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    // Aqui que fica as tags do tipo html
     <div>
       <main className="flex flex-col items-center justify-center min-h-screen">
         <div className="flex flex-row gap-4">
@@ -26,25 +25,50 @@ export default function Home() {
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded"
                 onClick={() =>
-                  signOut({ callbackUrl: 'http://localhost:3001' })
+                  signOut({ callbackUrl: 'http://localhost:3001/login' })
                 }
               >
                 Logout
               </button>
-              {/* Mostrar o botão Escala apenas se o usuário estiver autenticado */}
+
               <Link
                 href="/escala"
                 className="bg-blue-600 text-white px-4 py-2 rounded text-center"
               >
                 Escala
               </Link>
-              {(session.user as any).role === "ADMIN" && (
-              <Link
-               href="/usuarios"
-               className="bg-green-600 text-white px-4 py-2 rounded text-center"
+
+              {['ADMIN', 'COMUNIC'].includes((session.user as any).role) && (
+                <Link
+                  href="/gallery"
+                  className="bg-yellow-500 text-white px-4 py-2 rounded text-center"
                 >
-                Usuários
-              </Link>
+                  Galeria
+                </Link>
+              )}
+
+              {(session.user as any).role === "ADMIN" && (
+                <>
+                  <Link
+                    href="/usuarios"
+                    className="bg-green-600 text-white px-4 py-2 rounded text-center"
+                  >
+                    Usuários
+                  </Link>
+
+                  <Link
+                    href="/ministry"
+                    className="bg-purple-600 text-white px-4 py-2 rounded text-center"
+                  >
+                    Ministérios
+                  </Link>
+                  <Link
+                    href="/projects"
+                    className="bg-orange-600 text-white px-4 py-2 rounded text-center"
+                  >
+                    Projeto
+                  </Link>
+                </>
               )}
             </>
           )}

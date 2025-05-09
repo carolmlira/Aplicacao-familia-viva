@@ -6,45 +6,50 @@ import { Injectable } from '@nestjs/common';
  export class FirebaseService {
    private storage;
    private messaging;
- 
-   constructor() {
-     // Verifica se já existe uma app do Firebase inicializada
-     if (!admin.apps.length) {
-       const serviceAccount = require('../../src/config/familia-viva-recife-firebase-adminsdk-fbsvc-d7800a47bd.json');
- 
-       admin.initializeApp({
-         credential: cert(serviceAccount),
-         storageBucket: 'gs://familia-viva-recife.firebasestorage.app', 
-       });
-     }
- 
-     this.storage = admin.storage();
-     this.messaging = admin.messaging();
-   }
- 
-   async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
-     const bucket = this.storage.bucket();
-     const blob = bucket.file(filename);
- 
-     const blobStream = blob.createWriteStream({
-       metadata: {
-         contentType: file.mimetype,
-       },
-     });
- 
-     return new Promise((resolve, reject) => {
-       blobStream.on('error', (err) => reject(err));
- 
-       blobStream.on('finish', async () => {
-         await blob.makePublic();
-         const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-         resolve(publicUrl);
-       });
- 
-       blobStream.end(file.buffer);
-     });
-   }
+   private firestore: FirebaseFirestore.Firestore;
 
+   constructor() {
+    if (!admin.apps.length) {
+      const serviceAccount = require('../../src/config/familia-viva-recife-firebase-adminsdk-fbsvc-d7800a47bd.json');
+  
+      admin.initializeApp({
+        credential: cert(serviceAccount),
+        storageBucket: 'gs://familia-viva-recife.firebasestorage.app',
+      });
+    }
+  
+    this.storage = admin.storage();
+    this.messaging = admin.messaging();
+    this.firestore = admin.firestore();  
+  }
+  
+   async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
+    if (!file || !filename) {
+      throw new Error('Arquivo ou nome do arquivo inválido');
+    }
+  
+    const bucket = this.storage.bucket();
+    const blob = bucket.file(filename);
+  
+    const blobStream = blob.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+  
+    return new Promise((resolve, reject) => {
+      blobStream.on('error', (err) => reject(err));
+  
+      blobStream.on('finish', async () => {
+        await blob.makePublic();
+        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+        resolve(publicUrl);
+      });
+  
+      blobStream.end(file.buffer);
+    });
+  }
+  
    async getFileUrl(filename: string): Promise<string> {
     const bucket = this.storage.bucket();
     const file = bucket.file(filename);
@@ -69,4 +74,40 @@ import { Injectable } from '@nestjs/common';
       throw err;
     }
   }
- }
+  async deleteFolder(folderPath: string): Promise<void> {
+    const bucket = this.storage.bucket();
+    const [files] = await bucket.getFiles({ prefix: folderPath });
+    const deletions = files.map((file) => file.delete());
+    await Promise.all(deletions);
+  }
+  
+
+  async listFilesInCategory(category: string): Promise<string[]> {
+    const bucket = this.storage.bucket();
+    const [files] = await bucket.getFiles({ prefix: category });
+  
+    return files.map(file => file.name);
+  }
+
+  async getCollectionByPath(path: string) {
+    const collectionRef = this.firestore.collection(path);
+    return await collectionRef.get();
+  }
+  
+  async listFilesInPage(pageId: string, category: string): Promise<string[]> {
+    const prefix = `pages/${category}/${pageId}/`;
+    const bucket = this.storage.bucket();
+    const [files] = await bucket.getFiles({ prefix });
+  
+    const urls: string[] = [];
+  
+    for (const file of files) {
+      await file.makePublic(); // opcional, se já estiverem públicos, pode ser omitido
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+      urls.push(publicUrl);
+    }
+  
+    return urls;
+  }
+  
+}

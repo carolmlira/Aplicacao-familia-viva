@@ -24,8 +24,9 @@ import { FirebaseController } from './firebase/firebase.controller';
     MinistriesModule,
     ScheduleModule,
     PagesModule,
+
   ],
-  controllers: [PagesController, FirebaseController],
+  controllers: [PagesController, FirebaseController,],
   providers: [FirebaseService],
 })
 export class AppModule {}
