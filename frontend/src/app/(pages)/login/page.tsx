@@ -252,6 +252,7 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
+<<<<<<< HEAD
             <a
               href="#"
               className="text-sm text-zinc-400 hover:text-white underline transition"
@@ -259,6 +260,11 @@ export default function LoginPage() {
 >>>>>>> 3d50828 (Finalização das redes e galeria. Ajuste na tela de login.)
               Esqueceu a senha?
             </a>
+=======
+          <Link href="/esqueceu-senha" className="text-sm text-zinc-400 hover:text-white underline transition"> 
+          Esqueceu a senha?
+          </Link>
+>>>>>>> 5c615ca (Finalização das pages Admin, inserção da page 'Esqueceu a senha', e ajustes em algumas pages)
           </div>
         </div>
       </form>

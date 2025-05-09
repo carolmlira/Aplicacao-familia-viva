@@ -48,3 +48,7 @@ export default function Mulheres() {
     </div>
   );
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 11ba172 (Finalização das pages Admin, inserção da page 'Esqueceu a senha', e ajustes em algumas pages)

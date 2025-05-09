@@ -20,11 +20,15 @@ import { ReactNode } from "react";
 export default function LayoutWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 <<<<<<< HEAD
+<<<<<<< HEAD
   const noLayoutRoutes = ["/login", "/", "/escala","/usuarios"];
 >>>>>>> 8dea4da (Front parcialmente feito)
 =======
   const noLayoutRoutes = ["/login", "/",];
 >>>>>>> 36db846 (Finalização da home, inicialização da page Galeria)
+=======
+  const noLayoutRoutes = ["/login", "/", "/esqueceu-senha"];
+>>>>>>> 11ba172 (Finalização das pages Admin, inserção da page 'Esqueceu a senha', e ajustes em algumas pages)
 
   const hideLayout = noLayoutRoutes.includes(pathname);
 
