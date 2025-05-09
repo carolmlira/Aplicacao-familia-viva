@@ -54,10 +54,38 @@ export default function Home() {
       <div className={styles.programacao}>
         <h2>Nossa Programação</h2>
         <div className={styles.botoesDias}>
-          <Link href="/programacao" className={styles.dias}>Terça-feira</Link>
-          <Link href="/programacao" className={styles.dias}>Quarta e quinta</Link>
-          <Link href="/cultos" className={styles.dias}>Sexta-feira</Link>
-          <Link href="/cultos" className={styles.dias}>Domingo</Link>
+          <div className={styles.tooltip}>
+            <Link href="/programacao" className={styles.dias}>Terça-feira</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Culto de Ensino</strong></p>
+              <p> 19h</p>
+              <p>Igreja Família Viva</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/programacao" className={styles.dias}>Quarta e quinta</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Programação:</strong></p>
+              <p> Ensaio do grupo</p>
+              <p> Reunião de liderança</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/cultos" className={styles.dias}>Sexta-feira</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Culto da Juventude</strong></p>
+              <p>Louvor jovem</p>
+              <p>19h30</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/cultos" className={styles.dias}>Domingo</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Culto da Família</strong></p>
+              <p>Ministério Infantil</p>
+              <p>18h</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -65,6 +93,7 @@ export default function Home() {
       <div className={styles.projetos}>
         <h2>Projetos</h2>
         <Link className={styles.linkProjeto} href="/projeto">Ver mais</Link>
+
         <div className={styles.projetoCard}>
           <Image
             src="/projeto.svg"
@@ -73,17 +102,19 @@ export default function Home() {
             width={200}
             height={200}
           />
-          <div className={styles.projetoDescricao}>
-            <h3>Arrecadação de alimentos</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-              mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-              consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-              architecto magnam ut.
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente maiores quo obcaecati exercitationem, repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et commodi voluptatibus non sit debitis, laudantium veniam assumenda beatae nihil.
-            </p>
-          </div>
+          <Link href="/projeto" className={styles.projetoDescricao}>
+            <div>
+              <h3>Arrecadação de alimentos</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+                mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+                consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+                architecto magnam ut.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente maiores quo obcaecati exercitationem, repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et commodi voluptatibus non sit debitis, laudantium veniam assumenda beatae nihil.
+              </p>
+            </div>
+          </Link>
         </div>
 
         <div className={styles.projetoCard}>
@@ -94,17 +125,19 @@ export default function Home() {
             width={200}
             height={200}
           />
-          <div className={styles.projetoDescricao}>
-            <h3>Arrecadação de roupas</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-              mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-              consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-              architecto magnam ut.
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit, ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum consectetur magnam officiis enim dignissimos accusamus.
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos recusandae pariatur corrupti reprehenderit repudiandae voluptatem numquam mollitia ad, provident eaque possimus? Provident repudiandae dolor rerum unde, quo recusandae?
-            </p>
-          </div>
+          <Link href="/projeto" className={styles.projetoDescricao}>
+            <div>
+              <h3>Arrecadação de roupas</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+                mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+                consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+                architecto magnam ut.
+                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit, ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum consectetur magnam officiis enim dignissimos accusamus.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos recusandae pariatur corrupti reprehenderit repudiandae voluptatem numquam mollitia ad, provident eaque possimus? Provident repudiandae dolor rerum unde, quo recusandae?
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -113,14 +146,14 @@ export default function Home() {
         <h2>Galeria</h2>
         <Link className={styles.linkGaleria} href="/galeria">Ver mais</Link>
         <div className={styles.cultosImages}>
-        <AiOutlineCaretLeft className={styles.icon} />
+          <AiOutlineCaretLeft className={styles.icon} />
           <Image src="/Culto_1.png" alt="Culto 1" width={300} height={200} />
           <Image src="/Culto_2.png" alt="Culto 2" width={300} height={200} />
           <Image src="/Culto_3.png" alt="Culto 3" width={300} height={200} />
-          <Image src="/Culto_4.png" alt="Culto 3" width={300} height={200} />
+          <Image src="/Culto_4.png" alt="Culto 4" width={300} height={200} />
           <AiOutlineCaretLeft className={`${styles.icon} ${styles.iconInvert}`} />
         </div>
       </div>
     </>
   );
-} 
+}

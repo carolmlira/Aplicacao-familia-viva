@@ -1,52 +1,106 @@
+"use client";
+
 import Image from "next/image";
-import { MdOutlineModeEdit } from "react-icons/md";
-import styles from "../admin-redes/admin-rede.module.css"; // Importando o CSS
+import { FaRegTrashAlt } from "react-icons/fa";
+import styles from "../admin-redes/admin-rede.module.css";
 
-export default function Redes() {
+export default function AdminRedes() {
   return (
+    <div className={styles.redes}>
+      <h2>Redes</h2>
 
-    <div className={styles.kids}>
-
-      {/* Título */}
-      <div className={styles.tituloKids}>
-        <h1>Kids</h1>
-        <button className={styles.botaoEdit}><MdOutlineModeEdit className={styles.icon} />Editar</button>
-      </div>
-
-      {/* Logo */}
-      <div className={styles.logoKids}>
-        <Image 
-          src="/kids_logo.png" 
-          alt="Rede Kids Logo" 
-          width={300} 
-          height={300} 
+      {/* Rede Kids */}
+      <div className={styles.redesCard}>
+        <Image
+          src="/rede-kids.png"
+          alt="Fotos das redes"
+          className={styles.fotoRede}
+          width={200}
+          height={200}
         />
-      </div>
-      {/* Texto */}
-      <div className={styles.textoKids}>
-        <p>
-          Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem
-          Ipsum has been the industrys standard dummy text ever since the 1500s, when an
-          unknown printer took a galley of type and scrambled it to make a type specimen
-          book.
-        </p>
-        <p>
-          It has survived not only five centuries, but also the leap into electronic
-          typesetting, remaining essentially unchanged. It was popularised in the 1960s.
-        </p>
-        <p>
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
-          Ipsum has been the industrys standard dummy text ever since the 1500s.
-        </p>
+        <div className={styles.redesDescricao}>
+          <h3>Rede Kids</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+            architecto magnam ut. Lorem ipsum dolor sit amet consectetur
+            adipisicing elit. Sapiente maiores quo obcaecati exercitationem,
+            repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem
+            aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur
+            maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et
+            commodi voluptatibus non sit debitis, laudantium veniam assumenda
+            beatae nihil.
+          </p>
+          <button className={styles.botaoDelete}>
+            <FaRegTrashAlt className={`${styles.icon} ${styles.iconDelete}`} />
+            Excluir
+          </button>
+        </div>
       </div>
 
-      {/* Galeria de imagens */}
-      <div className={styles.kidsImages}>
-        <Image src="/kids_1.png" alt="Foto 1" width={300} height={200} />
-        <Image src="/kids_2.png" alt="Foto 2" width={300} height={200} />
-        <Image src="/Kids_3.png" alt="Foto 3" width={300} height={200} />
+      {/* Rede Jovem */}
+      <div className={styles.redesCard}>
+        <Image
+          src="/rede-jovem.png"
+          alt="Fotos das redes"
+          className={styles.fotoRedes}
+          width={300}
+          height={300}
+        />
+        <div className={styles.redesDescricao}>
+          <h3>Rede Jovem</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+            architecto magnam ut. Lorem ipsum dolor sit amet consectetur,
+            adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit,
+            ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum
+            consectetur magnam officiis enim dignissimos accusamus. Lorem ipsum
+            dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos
+            recusandae pariatur corrupti reprehenderit repudiandae voluptatem
+            numquam mollitia ad, provident eaque possimus? Provident repudiandae
+            dolor rerum unde, quo recusandae?
+          </p>
+          <button className={styles.botaoDelete}>
+            <FaRegTrashAlt className={`${styles.icon} ${styles.iconDelete}`} />
+            Excluir
+          </button>
+        </div>
+      </div>
+
+      {/* Rede Mulheres */}
+      <div className={styles.redesCard}>
+        <Image
+          src="/rede-mulheres.png"
+          alt="Fotos das redes"
+          className={styles.fotoRedes}
+          width={250}
+          height={200}
+        />
+        <div className={styles.redesDescricao}>
+          <h3>Rede Mulheres</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
+            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
+            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
+            architecto magnam ut. Lorem ipsum dolor sit amet consectetur,
+            adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit,
+            ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum
+            consectetur magnam officiis enim dignissimos accusamus. Lorem ipsum
+            dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos
+            recusandae pariatur corrupti reprehenderit repudiandae voluptatem
+            numquam mollitia ad, provident eaque possimus? Provident repudiandae
+            dolor rerum unde, quo recusandae?
+          </p>
+          <button className={styles.botaoDelete}>
+            <FaRegTrashAlt className={`${styles.icon} ${styles.iconDelete}`} />
+            Excluir
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-

@@ -12,7 +12,7 @@ export function Header() {
             alt="Logo"
             width={80}
             height={100}
-          ></Image>
+          />
         </Link>
         <ul className={styles["nav-menu"]}>
           <li className={styles["nav-item"]} id="home">
@@ -28,7 +28,16 @@ export function Header() {
             <Link href="/projeto">Projetos</Link>
           </li>
           <li className={styles["nav-item"]}>
-            <Link href="/redes">Redes</Link>
+            <div className={styles.dropdown}>
+              <Link href="/redes" className={styles["nav-link"]}>
+                Redes
+              </Link>
+              <ul className={styles["dropdown-menu"]}>
+                <li><Link href="/redes/rede-kids">Rede Kids</Link></li>
+                <li><Link href="/redes/rede-mulheres">Rede de Mulheres</Link></li>
+                <li><Link href="/redes/rede-jovens">Rede de Jovens</Link></li>
+              </ul>
+            </div>
           </li>
           <li className={styles["nav-item"]}>
             <Link href="/galeria">Galeria</Link>
@@ -52,7 +61,7 @@ export function Header() {
             </a>
           </li>
           <li>
-            <Link href="/" className={styles.botaoLogin}>
+            <Link href="/login" className={styles.botaoLogin}>
               Login
             </Link>
           </li>
