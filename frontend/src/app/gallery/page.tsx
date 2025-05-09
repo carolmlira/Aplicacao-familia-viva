@@ -67,10 +67,11 @@ export default function FirebaseGallery() {
   
   const deleteFile = async (filename: string) => {
     try {
+      console.log("filename: ", filename)
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete/${filename}`, {
         method: 'DELETE',
       });
-  
+      console.log("res: ", res)
       if (!res.ok) {
         throw new Error('Erro ao deletar arquivo');
       }

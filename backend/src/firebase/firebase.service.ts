@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
  import { cert } from 'firebase-admin/app';
  import * as admin from 'firebase-admin';
  
- 
  @Injectable()
  export class FirebaseService {
    private storage;
@@ -21,11 +20,9 @@ import { Injectable } from '@nestjs/common';
   
     this.storage = admin.storage();
     this.messaging = admin.messaging();
-    this.firestore = admin.firestore();
-    
+    this.firestore = admin.firestore();  
   }
   
- 
    async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
     if (!file || !filename) {
       throw new Error('Arquivo ou nome do arquivo inválido');

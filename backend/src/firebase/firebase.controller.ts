@@ -112,14 +112,35 @@ async uploadFile(
     if (!category || !filename) {
       throw new BadRequestException('Parâmetros obrigatórios: category e filename');
     }
+    let fullPath: string;
   
-    const fullPath = pageId
-      ? `${category}/${subgrup}/${pageId}/${filename}`
-      : `${category}/${filename}`;
+    // Mostra o caminho antes de montar o caminho completo
+    console.log(`category: ${category}, subgrup: ${subgrup}, pageId: ${pageId}, filename: ${filename}`);
   
-    await this.firebaseService.deleteFile(fullPath);
-    return { message: `Arquivo ${fullPath} deletado com sucesso.` };
+    // Montando o caminho completo com base nos parâmetros
+    if (subgrup && pageId) {
+      fullPath = `${category}/${subgrup}/${pageId}/${filename}`;
+    } else if (subgrup) {
+      fullPath = `${category}/${subgrup}/${filename}`;
+    } else if (pageId) {
+      fullPath = `${category}/${filename}`;
+    } else {
+      fullPath = `${category}/${filename}`;
+    }
+  
+    // Mostra o caminho final montado
+    console.log(`Caminho completo do arquivo a ser deletado: ${fullPath}`);
+  
+    try {
+      await this.firebaseService.deleteFile(fullPath);
+      return { message: `Arquivo ${fullPath} deletado com sucesso.` };
+    } catch (error) {
+      console.error(`Erro ao deletar arquivo: ${error.message}`);
+      throw new BadRequestException(`Erro ao deletar arquivo: ${error.message}`);
+    }
   }
+  
+
   @Delete('delete-folder')
   async deleteFolder(
     @Query('category') category: string,
@@ -131,7 +152,7 @@ async uploadFile(
     }
   
     const folderPath = `${category}/${subgrup}/${pageId}`;
-    await this.firebaseService.deleteFolder(folderPath); // novo método
+    await this.firebaseService.deleteFolder(folderPath); 
     return { message: `Pasta ${folderPath} deletada com sucesso.` };
   }
   
@@ -149,11 +170,6 @@ async uploadFile(
     if (!pageId) {
       throw new BadRequestException('pageId não informado');
     }
-  
-    // Verifica se categoria existe, se quiser aplicar alguma lógica aqui.
-    // Aqui você pode também montar o caminho incluindo a categoria, se necessário.
-  
-
     const urls = await this.firebaseService.listFilesInPage(pageId, category); // método novo ou reutilizado
     return { files: urls };
   }
