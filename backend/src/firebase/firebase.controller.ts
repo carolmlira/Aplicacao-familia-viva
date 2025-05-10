@@ -140,6 +140,10 @@ async uploadFile(
     }
   }
   
+  @Delete('delete-gallery')
+  async delete(@Query('filename') filename: string) {
+    return this.firebaseService.deleteFile(filename);
+  }
 
   @Delete('delete-folder')
   async deleteFolder(
@@ -158,10 +162,11 @@ async uploadFile(
   
   @Get('list')
   async listFiles(@Query('category') category: string) {
-    const files = await this.firebaseService.listFilesInCategory(category);
+    const prefix = `${category}/`; // lista tudo dentro de gallery/
+    const files = await this.firebaseService.listFiles(prefix);
     return { files };
   }
-  
+
   @Get('pages/:category/files')
   async getPageFilesByCategory(
     @Param('category') category: string,

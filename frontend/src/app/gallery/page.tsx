@@ -1,16 +1,20 @@
 'use client'
-import { useSession } from "next-auth/react"; // Pega a sessão atual (quem está logado e suas permissões).
-import { useEffect, useState } from 'react' // Para redirecionar o usuário se ele não for admin.
-import { useRouter } from "next/navigation"; // Para redirecionamento
-import Link from "next/link"; // Para criar navegação sem recarregar a página.
-
+import { useSession } from "next-auth/react"; 
+import { useEffect, useState } from 'react'
+import { useRouter } from "next/navigation"; 
+import Link from "next/link";
 
 export default function FirebaseGallery() {
-  const { data: session, status } = useSession(); //tem as informações de quem está logado (tipo nome, email, role)
+  const { data: session, status } = useSession(); 
   const router = useRouter();
-
+  
+  const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [category, setCategory] = useState('gallery');
+  const [subgrup, setSubgrup] = useState('');
+  const [groupedFiles, setGroupedFiles] = useState<{ [subgrup: string]: string[] }>({});
+
   const [files, setFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -19,46 +23,68 @@ export default function FirebaseGallery() {
   
     const role = (session?.user as any)?.role; 
     if (!session || (role !== "ADMIN" && role !== "COMUNIC")) {
-      router.push("/"); // Redireciona se não for ADMIN ou COMUNIC
+      router.push("/"); 
     }
   }, [session, status, router]);
 
+  useEffect(() => {
+    const grouped = files.reduce((acc: { [key: string]: string[] }, path: string) => {
+      const cleanPath = path.replace(/^gallery\//, ''); 
+      const parts = cleanPath.split('/');
+      const group = parts.slice(0, -1).join('/'); // exemplo: galeria/culto-jovens
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(path);
+      return acc;
+    }, {});
+    
+    setGroupedFiles(grouped);
+  }, [files]);
 
   useEffect(() => {
     fetchFiles();
   }, [category]); // Carrega sempre que a categoria mudar
 
   async function uploadFile() {
-    if (!file) return;
-  
+    if (!file || !subgrup) {
+      alert('Por favor, selecione um arquivo e informe o subgrupo.');
+      return;
+    }
+
     setLoading(true);
-  
+
     const formData = new FormData();
     formData.append('file', file);
-  
+
+    const fullCategory = `${category}/${subgrup}`;
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${category}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${fullCategory}`, {
         method: 'POST',
         body: formData,
       });
-  
+
       const data = await res.json();
       console.log('Arquivo enviado:', data.url);
-  
-      // Depois de enviar, atualiza a lista
-      await fetchFiles();
+
+      await fetchFiles(); 
+      
+      setFile(null);
+      setSubgrup('');
+      setShowModal(false);
     } catch (error) {
       console.error('Erro ao enviar o arquivo:', error);
     } finally {
       setLoading(false);
     }
   }
-  
-  
+
   async function fetchFiles() {
+    if (!category) return;
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
       const data = await res.json();
+      console.log('Arquivos recebidos:', data.files);
       setFiles(data.files || []);
     } catch (error) {
       console.error('Erro ao listar arquivos:', error);
@@ -66,70 +92,132 @@ export default function FirebaseGallery() {
   }
   
   const deleteFile = async (filename: string) => {
+     const confirmDelete = window.confirm('Tem certeza que deseja excluir esta imagem?');
+    if (!confirmDelete) return; // Não faz nada se o usuário cancelar
     try {
-      console.log("filename: ", filename)
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete/${filename}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete-gallery?filename=${encodeURIComponent(filename)}`, {
         method: 'DELETE',
       });
       console.log("res: ", res)
       if (!res.ok) {
         throw new Error('Erro ao deletar arquivo');
       }
-  
-      const data = await res.json();
-      console.log('Arquivo deletado:', data.message);
+
+      await fetchFiles();
     } catch (error) {
       console.error(error);
     }
 
   };
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Galeria de Arquivos</h1>
-
-      {/* Upload */}
-      <div className="mb-6">
-        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-        <button
-          onClick={uploadFile}
-          disabled={loading}
-          className="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    <>
+      {expandedImage && (
+        <div
+          onClick={() => setExpandedImage(null)}
+          className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 cursor-zoom-out"
         >
-          {loading ? 'Enviando...' : 'Enviar'}
-        </button>
-      </div>
+          <img
+            src={expandedImage}
+            alt="Imagem ampliada"
+            className="max-w-full max-h-full rounded shadow-lg"
+          />
+        </div>
+      )}
 
-      {/* Lista de arquivos */}
-      <div>
-        <ul className="space-y-2">
-          {files.map((filename) => (
-            <li key={filename} className="flex justify-between items-center bg-gray-100 p-2 rounded">
-              {/* Exibindo as imagens diretamente */}
-              <img
-                 src={`https://firebasestorage.googleapis.com/v0/b/familia-viva-recife.firebasestorage.app/o/${encodeURIComponent(filename)}?alt=media`} 
-                alt={(filename)} // Utilizando a função para o alt também
-                className="w-32 h-32 object-cover"
+      <div className="p-8">
+        <h1 className="text-2xl font-bold mb-4">Galeria</h1>
+
+        {/* Botão para abrir modal (visível só para ADMIN ou COMUNIC) */}
+        {['ADMIN', 'COMUNIC'].includes((session?.user as any)?.role) && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Adicionar Seção
+          </button>
+        )}
+
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md relative">
+              <h2 className="text-xl font-semibold mb-4">Enviar Arquivo</h2>
+
+              <label className="block mb-2 font-medium">Subgrupo</label>
+              <input
+                type="text"
+                value={subgrup}
+                onChange={(e) => setSubgrup(e.target.value)}
+                placeholder="ex: culto-jovens"
+                className="border rounded px-2 py-1 w-full mb-4"
               />
-              <div className="flex items-center space-x-2">
-                <a
-                  href={`https://firebasestorage.googleapis.com/v0/b/familia-viva-recife.firebasestorage.app/o/${encodeURIComponent(filename)}?alt=media`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  Abrir Arquivo
-                </a>
+
+              <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+
+              <div className="mt-4 flex justify-end space-x-2">
                 <button
-                  onClick={() => deleteFile(filename)}
-                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-red-300 rounded hover:bg-gray-400"
                 >
-                  Excluir
+                  Cancelar
+                </button>
+                <button
+                  onClick={uploadFile}
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  {loading ? 'Enviando...' : 'Enviar'}
                 </button>
               </div>
-            </li>
-          ))}
-        </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de arquivos agrupados */}
+        <div className="mt-8">
+          {Object.entries(groupedFiles).length === 0 ? (
+            <p className="text-gray-500">Nenhum arquivo encontrado.</p>
+          ) : (
+            Object.entries(groupedFiles).map(([group, files]) => {
+              const baseUrl = 'https://firebasestorage.googleapis.com/v0/b/familia-viva-recife.firebasestorage.app/o/';
+              return (
+                <div key={group} className="mb-10">
+                  <h2 className="text-xl font-bold mb-4 text-orange-500 capitalize">
+                    {group.replace(/-/g, ' ')}
+                  </h2>
+                  <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {files.map((filename) => (
+                      <li key={filename} className="relative">
+                        <img
+                          src={`${baseUrl}${encodeURIComponent(filename)}?alt=media`}
+                          alt={filename}
+                          className="w-full h-48 object-cover mb-2 rounded cursor-zoom-in"
+                          onClick={() =>
+                            setExpandedImage(`${baseUrl}${encodeURIComponent(filename)}?alt=media`)
+                          }
+                        />
+                        <div className="absolute top-0 right-0 p-2">
+                          {/* Botão de excluir (visível só para ADMIN ou COMUNIC) */}
+                          {['ADMIN', 'COMUNIC'].includes((session?.user as any)?.role) && (
+                            <button
+                              onClick={() => deleteFile(filename)}
+                              className="bg-red-500 text-white text-sm px-2 py-1 rounded hover:bg-red-600"
+                            >
+                              Excluir
+                            </button>
+                          )}
+                        </div>
+
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
