@@ -29,7 +29,7 @@ export function Header() {
           </li>
           <li className={styles["nav-item"]}>
             <div className={styles.dropdown}>
-              <Link href="/redes" className={styles["nav-link"]}>
+              <Link href="/Redes" className={styles["nav-link"]}>
                 Redes
               </Link>
               <ul className={styles["dropdown-menu"]}>
