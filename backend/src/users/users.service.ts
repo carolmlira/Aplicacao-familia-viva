@@ -52,6 +52,36 @@ export class UsersService {
     await docRef.update(updatedData);
     return updatedData as UserEntity;
   }
+  async updateResetToken(id: string, token: string, expires: Date) {
+    // Exemplo genérico para Firebase, Mongo, etc.
+    return await this.collection.doc(id).update({
+      resetToken: token,
+      resetExpires: expires.toISOString(),
+    });
+  }
+
+  async verifyResetToken(token: string): Promise<UserEntity | null> {
+    const snapshot = await this.collection
+      .where('resetToken', '==', token)
+      .get();
+    if (snapshot.empty) {
+      return null;
+    }
+    const userDoc = snapshot.docs[0];
+    const user = userDoc.data() as UserEntity;
+
+    // Verificar se o token ainda está válido
+    if (!user.resetExpires) {
+      return null; // resetExpires está ausente ou nulo
+    }
+
+    const expiresAt = new Date(user.resetExpires);
+    if (isNaN(expiresAt.getTime()) || expiresAt < new Date()) {
+      return null; // Data inválida ou token expirado
+    }
+
+    return user;
+  }
 
   async remove(id: string): Promise<{ deleted: boolean }> {
     const doc = await this.collection.doc(id).get();

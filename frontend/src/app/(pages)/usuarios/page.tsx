@@ -17,6 +17,8 @@ interface User {
   photo?: string;
   whatsappOptIn: boolean;
   ministryId: string;
+  resetToken?: null;
+  resetExpires?: null;
 }
 
 interface ValidationErrors {
@@ -49,6 +51,8 @@ export default function Usuarios() {
     active: true,
     whatsappOptIn: false,
     ministryId: "Ministerio Viv",
+    resetToken: null,
+    resetExpires: null,
   });
 
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -165,6 +169,8 @@ export default function Usuarios() {
         active: true,
         whatsappOptIn: false,
         ministryId: "Ministerio Viv",
+        resetToken: null,
+        resetExpires: null,
       });
       setFormErrors({});
     } catch (error) {
@@ -403,9 +409,10 @@ export default function Usuarios() {
                 onChange={handleInputChange}
                 className="border p-2 text-black rounded"
               >
-                <option value="ADMIN">ADMIN</option>
-                <option value="VOLUNT">VOLUNT</option>
-                <option value="COMUNIC">COMUNIC</option>
+                <option value="ADMIN">Líder ou ADMIN</option>
+                <option value="VOLUNT">Voluntário</option>
+                <option value="COMUNIC">Comunicação</option>
+                <option value="USER">Usuário</option>
               </select>
 
               <div>

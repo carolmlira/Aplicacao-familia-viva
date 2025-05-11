@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (res?.ok) {
       router.push("/");
     } else {
-      setError("Login inválido");
+      setError("Login ou senha inválido");
     }
   };
 
@@ -75,24 +75,20 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
-
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-lg hover:bg-gray-200 transition"
           >
             Entrar
           </button>
-
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <div className="text-center">
-            <a
-              href="#"
+            <Link
+              href="/esqueceu-senha"
               className="text-sm text-zinc-400 hover:text-white underline transition"
             >
               Esqueceu a senha?
-            </a>
+            </Link>
           </div>
         </div>
       </form>

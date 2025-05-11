@@ -1,12 +1,39 @@
+"use client";
 import styles from "../app/home.module.css";
 import { AiOutlineCaretLeft } from "react-icons/ai";
 import Image from "next/image";
 import Link from "next/link";
+import { FaRegEdit } from "react-icons/fa";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Home() {
+  const { data: session } = useSession();
+
+  const userRole = session?.user?.role;
+  const podeEditar = userRole === "ADMIN" || userRole === "COMUNIC";
+
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 200); // pequeno delay para garantir que a renderização terminou
+      }
+    }
+  }, [pathname]);
+
   return (
     <>
       {/* Banner principal da home */}
+      {podeEditar && (
+        <FaRegEdit className={`${styles.iconEdit} ${styles.iconBanner}`} />
+      )}
       <div className="relative w-full h-[400px] overflow-hidden">
         <Image
           src="/banner.svg"
@@ -27,6 +54,9 @@ export default function Home() {
 
       {/* Sobre a igreja */}
       <div className={styles.sobre} id="sobre">
+        {podeEditar && (
+          <FaRegEdit className={`${styles.iconEdit} ${styles.iconSobre}`} />
+        )}
         <h2>Quem somos?</h2>
         <div className={styles.conteudoSobre}>
           <p>
@@ -51,21 +81,57 @@ export default function Home() {
       </div>
 
       {/* Programação */}
-      <div className={styles.programacao}>
+      <div className={styles.programacao} id="programacao">
         <h2>Nossa Programação</h2>
         <div className={styles.botoesDias}>
-          <Link href="/programacao" className={styles.dias}>
-            Terça-feira
-          </Link>
-          <Link href="/programacao" className={styles.dias}>
-            Quarta e quinta
-          </Link>
-          <Link href="/cultos" className={styles.dias}>
-            Sexta-feira
-          </Link>
-          <Link href="/cultos" className={styles.dias}>
-            Domingo
-          </Link>
+          <div className={styles.tooltip}>
+            <Link href="/programacao" className={styles.dias}>
+              Terça-feira
+            </Link>
+            <div className={styles.tooltipText}>
+              <p>
+                <strong>Culto de Ensino</strong>
+              </p>
+              <p> 19h</p>
+              <p>Igreja Família Viva</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/programacao" className={styles.dias}>
+              Quarta e quinta
+            </Link>
+            <div className={styles.tooltipText}>
+              <p>
+                <strong>Programação:</strong>
+              </p>
+              <p> Ensaio do grupo</p>
+              <p> Reunião de liderança</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/cultos" className={styles.dias}>
+              Sexta-feira
+            </Link>
+            <div className={styles.tooltipText}>
+              <p>
+                <strong>Culto da Juventude</strong>
+              </p>
+              <p>Louvor jovem</p>
+              <p>19h30</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/cultos" className={styles.dias}>
+              Domingo
+            </Link>
+            <div className={styles.tooltipText}>
+              <p>
+                <strong>Culto da Família</strong>
+              </p>
+              <p>Ministério Infantil</p>
+              <p>18h</p>
+            </div>
+          </div>
         </div>
       </div>
 

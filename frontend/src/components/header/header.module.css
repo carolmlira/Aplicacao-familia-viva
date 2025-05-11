@@ -63,3 +63,35 @@
 .navbar .nav-menu .nav-item {
   font-weight: bold;
 }
+
+.nav-item {
+  position: relative;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 25px;
+  left: -10;
+  z-index: 999;
+  min-width: 180px;
+  background-color: #0c0b0b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  align-items: center;
+  padding: 10px;
+}
+
+.dropdown-menu li a {
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: block;
+}

@@ -10,7 +10,7 @@ const Header = dynamic(() => import("@/components/header"), { ssr: false });
 
 export default function LayoutWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const noLayoutRoutes = ["/login"];
+  const noLayoutRoutes = ["/login", "/esqueceu-senha", "/redefinir-senha"];
 
   const hideLayout = noLayoutRoutes.includes(pathname);
 

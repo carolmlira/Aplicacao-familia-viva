@@ -8,6 +8,7 @@ import {
   Matches,
   IsEnum,
   Length,
+  IsEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/auth/role.enum';
@@ -58,4 +59,15 @@ export class CreateUserDto {
   @IsString()
   @Length(3, 100)
   ministryId: string;
+
+  //Tokens para usuario alterar sua senha.
+  @ApiProperty({ description: 'Token de reset' })
+  @IsOptional()
+  @IsString()
+  resetToken?: string | null;
+
+  @ApiProperty({ description: 'Data de expiração do reset' })
+  @IsOptional()
+  @IsString()
+  resetExpires?: string | null;
 }
