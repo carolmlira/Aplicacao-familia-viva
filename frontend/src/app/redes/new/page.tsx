@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 
-export default function NewProject() {
+export default function NewRede() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -33,7 +33,7 @@ export default function NewProject() {
     setFormData(prev => ({ ...prev, [name]: value }));
   }
 
-  async function handleAddProject(e: React.FormEvent<HTMLFormElement>) {
+  async function handleAddRede(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
   
@@ -52,7 +52,7 @@ export default function NewProject() {
         data.append('images', file);
       });
   
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${(session as any).accessToken}`,
@@ -62,13 +62,13 @@ export default function NewProject() {
   
       if (!res.ok) {
         const errorText = await res.text();
-        console.error('Erro ao criar projeto:', res.status, errorText);
-        throw new Error('Erro ao criar projeto');
+        console.error('Erro ao criar rede:', res.status, errorText);
+        throw new Error('Erro ao criar rede');
       }
   
       const created = await res.json();
-      console.log('Projeto criado com imagens:', created);
-      router.push('/projects');
+      console.log('rede criado com imagens:', created);
+      router.push('/redes');
     } catch (error) {
       console.error(error);
     } finally {
@@ -76,12 +76,12 @@ export default function NewProject() {
     }
   }
   
-  // Atualize o handleUploadImage para receber o projectId:
-  async function handleUploadImage(file: File, projectId: string, pageId: string): Promise<string> {
+  // Atualize o handleUploadImage para receber o redeId:
+  async function handleUploadImage(file: File, redeId: string, pageId: string): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
   
-    const categoryWithId = `${category}/${pageId}/${projectId}`; // Exemplo: pages/abc123
+    const categoryWithId = `${category}/${pageId}/${redeId}`; // Exemplo: pages/abc123
   
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${categoryWithId}`, {
       method: 'POST',
@@ -98,6 +98,7 @@ export default function NewProject() {
     const data = await res.json();
     return data.url;
   }
+
   const handleRemovePreviewImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -106,8 +107,8 @@ export default function NewProject() {
     <>
       {/* Formulário */}
       <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Nova Página</h1>
-        <form onSubmit={handleAddProject} className="space-y-4">
+        <h1 className="text-2xl font-bold mb-4">Nova Rede</h1>
+        <form onSubmit={handleAddRede} className="space-y-4">
           <div>
             <label className="block font-medium">Título</label>
             <input
@@ -179,7 +180,7 @@ export default function NewProject() {
             disabled={loading}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? 'Salvando...' : 'Criar Página'}
+            {loading ? 'Salvando...' : 'Criar Rede'}
           </button>
         </form>
       </div>

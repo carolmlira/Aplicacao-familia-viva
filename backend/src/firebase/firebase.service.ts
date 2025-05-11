@@ -98,7 +98,7 @@ import { Injectable } from '@nestjs/common';
     // Filtra para garantir que estamos listando apenas arquivos e não subdiretórios
     return files
       .filter(file => !file.name.endsWith('/'))
-      .map(file => file.name.replace(/^Gallery\//, ''));
+      .map(file => file.name.replace(/^gallery\//, ''));
 
   }
 
