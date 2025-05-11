@@ -1,97 +1,161 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import styles from "../redes/rede.module.css";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import "@/style/redes.css";
 
-export default function Redes() {
+interface PagesRedes {
+  id: string;
+  title: string;
+  content: string;
+  icon: string;
+  active: boolean;
+  imageUrl?: string;
+}
+
+export default function RedesList() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const [category] = useState('redes');
+  const [redes, setRedes] = useState<PagesRedes[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (!session || (session.user as any)?.role !== 'ADMIN') {
+      router.push('/');
+      return;
+    }
+
+    fetchRedes();
+  }, [session, status, router]);
+
+  async function fetchRedes() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`);
+      const data = await res.json();
+      const rawRedes: PagesRedes[] = Array.isArray(data.pages) ? data.pages : [];
+
+      const redesWithImages = await Promise.all(
+        rawRedes.map(async (rede) => {
+          if (!rede.id) return rede;
+
+          try {
+            const imageRes = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/${category}/files?pageId=${rede.id}`
+            );
+            const imageData = await imageRes.json();
+            const imageUrl =
+              Array.isArray(imageData.files) && imageData.files.length > 0 ? imageData.files[0] : undefined;
+
+            return { ...rede, imageUrl };
+          } catch (err) {
+            console.warn(`Erro ao buscar imagem de ${rede.title}:`, err);
+            return { ...rede };
+          }
+        })
+      );
+
+      setRedes(redesWithImages);
+    } catch (error) {
+      console.error('Erro ao buscar redes:', error);
+    }
+  }
+  async function deleteRede(id: string) {
+    if (!confirm('Tem certeza que deseja excluir esta rede?')) return;
+  
+    try {
+      setLoading(true);
+  
+      // Deleta pasta de imagens no storage
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete-folder?category=pages&subgrup=redes&pageId=${id}`, {
+        method: 'DELETE',
+      });
+  
+      // Deleta a rede no banco
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (!res.ok) throw new Error('Erro ao deletar rede');
+  
+      fetchRedes();
+    } catch (error) {
+      console.error('Erro ao excluir rede:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
   return (
-    <div className={styles.redes}>
-      <h2>Redes</h2>
+    <div className="redes-container">
+      <div className="redes-header">
+        <div className="flex justify-between items-center mb-6 w-full">
+          <h1 className="text-2xl font-bold text-left mr-4">
+            <span className="bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent">
+              Redes
+            </span>
+          </h1>
 
-      {/* Rede Kids */}
-      <div className={styles.redesCard}>
-        <Image
-          src="/rede-kids.png"
-          alt="Fotos das redes"
-          className={styles.fotoRede}
-          width={200}
-          height={200}
-        />
-        <div className={styles.redesDescricao}>
-          <h3>Rede Kids</h3>
-          <Link className={styles.linkRede} href="/redes/rede-kids">Ver mais</Link>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-            architecto magnam ut. Lorem ipsum dolor sit amet consectetur
-            adipisicing elit. Sapiente maiores quo obcaecati exercitationem,
-            repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem
-            aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur
-            maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et
-            commodi voluptatibus non sit debitis, laudantium veniam assumenda
-            beatae nihil.
-          </p>
+          {(session?.user as any)?.role === 'ADMIN' && (
+            <button
+              onClick={() => router.push('/redes/new')}
+              className="ml-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Nova Rede
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Rede Jovem */}
-      <div className={styles.redesCard}>
-        <Image
-          src="/rede-jovem.png"
-          alt="Fotos das redes"
-          className={styles.fotoRedes}
-          width={300}
-          height={300}
-        />
-        <div className={styles.redesDescricao}>
-          <h3>Rede Jovem</h3>
-          <Link className={styles.linkRede} href="/redes/rede-jovem">Ver mais</Link>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-            architecto magnam ut. Lorem ipsum dolor sit amet consectetur,
-            adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit,
-            ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum
-            consectetur magnam officiis enim dignissimos accusamus. Lorem ipsum
-            dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos
-            recusandae pariatur corrupti reprehenderit repudiandae voluptatem
-            numquam mollitia ad, provident eaque possimus? Provident repudiandae
-            dolor rerum unde, quo recusandae?
-          </p>
-        </div>
-      </div>
+      {redes.length === 0 ? (
+        <p className="text-gray-400 text-center">Nenhuma rede encontrada.</p>
+      ) : (
+        <div className="redes-content">
+          {redes.map((rede) => (
+            <Link
+              key={rede.id}
+              href={`/redes/id/items/${rede.id}`}
+              className="block"
+            >
+              <div className="rede-card">
+                <div className="rede-img">
+                  <img
+                    src={rede.imageUrl || 'images/placeholder.svg'}
+                    alt={rede.title}
+                  />
+                </div>
+                <div className="rede-texto">
+                  <h2>{rede.title}</h2>
+                  <p>
+                    {rede.content?.slice(0, 150)}
+                    {rede.content?.length > 150 && '...'}
+                  </p>
 
-      {/* Rede Mulheres */}
-      <div className={styles.redesCard}>
-        <Image
-          src="/rede-mulheres.png"
-          alt="Fotos das redes"
-          className={styles.fotoRedes}
-          width={250}
-          height={200}
-        />
-        <div className={styles.redesDescricao}>
-          <h3>Rede Mulheres</h3>
-          <Link className={styles.linkRede} href="/redes/rede-mulheres">Ver mais</Link>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-            mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-            consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-            architecto magnam ut. Lorem ipsum dolor sit amet consectetur,
-            adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit,
-            ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum
-            consectetur magnam officiis enim dignissimos accusamus. Lorem ipsum
-            dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos
-            recusandae pariatur corrupti reprehenderit repudiandae voluptatem
-            numquam mollitia ad, provident eaque possimus? Provident repudiandae
-            dolor rerum unde, quo recusandae?
-          </p>
+                  {(session?.user as any)?.role === 'ADMIN' && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteRede(rede.id);
+                      }}
+                      className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      disabled={loading}
+                    >
+                      {loading ? 'Excluindo...' : 'Excluir'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
-      </div>
+
+      )}
     </div>
   );
 }

@@ -1,24 +1,35 @@
 import NextAuth from "next-auth";
-import { JWT } from "next-auth/jwt";
+import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
-    role?: string;
     user: {
       id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      level: "ADMIN" | "VOLUNT" | "COMUNIC"; // novo campo que você quer
+      name: string;
+      email: string;
+      photo?: string;
+      ministryId: string;
+      role: "ADMIN" | "COMUNIC" | "VOLUNT" | "USER";
     };
+  }
+
+  interface User {
+    id: string;
+    name: string;
+    email: string;
+    photo?: string;
+    role: "ADMIN" | "COMUNIC" | "VOLUNT" | "USER";
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
+    id: string;
+    email: string;
+    name: string;
+    photo?: string;
+    role: "ADMIN" | "COMUNIC" | "VOLUNT" | "USER";
     accessToken?: string;
-    role?: string;
-    level?: "ADMIN" | "VOLUNT" | "COMUNIC"; // também adiciona no JWT (caso use nele)
   }
 }
