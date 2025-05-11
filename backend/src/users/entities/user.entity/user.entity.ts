@@ -13,4 +13,8 @@ export interface UserEntity {
   ministryId: string;
   resetToken?: string | null; // Token de reset
   resetExpires?: string | null;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)

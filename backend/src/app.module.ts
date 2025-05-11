@@ -27,11 +27,18 @@ import { EmailModule } from './email/email.module';
     ScheduleModule,
     PagesModule,
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
   ],
   controllers: [PagesController, FirebaseController,],
   providers: [FirebaseService],
+=======
+    EmailModule,
+  ],
+  controllers: [PagesController, FirebaseController],
+  providers: [FirebaseService, EmailService],
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
 })
 export class AppModule {}

@@ -51,6 +51,7 @@ export default function LoginPage() {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       setError("Login inválido");
 =======
       setError("Login inválido, Calabrezo");
@@ -64,6 +65,12 @@ export default function LoginPage() {
 =======
       setError("Login inválido, Calabrezo");
 >>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
+=======
+      setError("Login inválido, Calabrezo");
+=======
+      setError("Login ou senha inválido");
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
     }
   };
 
@@ -266,31 +273,36 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
-
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-lg hover:bg-gray-200 transition"
           >
             Entrar
           </button>
-
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <div className="text-center">
+<<<<<<< HEAD
 
             <a
               href="#"
+=======
+            <Link
+              href="/esqueceu-senha"
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
               className="text-sm text-zinc-400 hover:text-white underline transition"
             >
 
               Esqueceu a senha?
+<<<<<<< HEAD
             </a>
 
           <Link href="/esqueceu-senha" className="text-sm text-zinc-400 hover:text-white underline transition"> 
           Esqueceu a senha?
           </Link>
 
+=======
+            </Link>
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
           </div>
         </div>
       </form>

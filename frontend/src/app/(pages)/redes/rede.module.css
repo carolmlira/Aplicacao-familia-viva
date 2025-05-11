@@ -1,4 +1,5 @@
 .redes {
+<<<<<<< HEAD
     margin-top: 15vh;
     margin-left: 10vh;
     margin-right: 10vh;
@@ -69,4 +70,78 @@
     text-align: center;
     margin-left: 10%;
     margin-bottom: 5%;
+=======
+  margin-top: 15vh;
+  margin-left: 10vh;
+  margin-right: 10vh;
+}
+
+.redes h2 {
+  font-size: 40px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px 0;
+  transition: 0.2s ease;
+  background: linear-gradient(to right, #fe8719, #fe3012);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+}
+
+.linkRede {
+  position: absolute;
+  top: 0;
+  right: 20px;
+  margin-top: 20px;
+  font-size: 25px;
+  transition: 0.4s ease;
+  cursor: pointer;
+}
+
+.linkRede:hover {
+  color: #a39797;
+}
+
+.redes h3 {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.redesCard {
+  display: flex;
+
+  position: relative;
+  align-items: center;
+  background-color: #d9d9d925;
+  padding: 20px;
+  border-radius: 9px;
+  gap: 20px;
+  margin-bottom: 10vh;
+  margin-left: 30px;
+  transition: all 0.3s ease;
+}
+
+.redesCard:hover {
+  transform: translateY(-5px);
+}
+
+.fotoRede {
+  width: auto;
+  height: auto;
+  object-fit: cover;
+}
+
+.redesDescricao p {
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: justify;
+  margin-left: 10vh;
+}
+
+.redesDescricao h3 {
+  text-align: center;
+  margin-left: 10%;
+  margin-bottom: 5%;
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
 }

@@ -7,6 +7,7 @@ import { FaInstagram } from "react-icons/fa";
 import styles from "./footer.module.css";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function Footer() {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -38,6 +39,8 @@ export function Footer() {
               </a>
             </div>
 =======
+=======
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
 export function Footer(){
 <<<<<<< HEAD
     return(
@@ -115,24 +118,47 @@ export function Footer(){
                           </a>
                       </div>
                   </li>
+=======
+export function Footer() {
+  return (
+    <footer id="footer" className={styles.footer}>
+      <nav className={styles.footerbar}>
+        <ul className={styles["footer-menu"]}>
+          <li className={styles.contato}>
+            <h1>Contato</h1>
+            <div className={styles.info}>
+              <a
+                className={styles.info}
+                href="https://www.instagram.com/familia_vivarecife/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {" "}
+                <FaInstagram className={styles.icon} />
+                familia_vivarecife
+              </a>
+            </div>
+          </li>
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
 
-                  <li className={styles.localizacao}>
-                      <h1>Localização</h1>
-                      <div className={styles.info}>
-                         
-                          <a 
-                              className={styles.info}
-                              href="https://maps.app.goo.gl/QQSbdw2sD8LH5sAk8"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                          > <GrLocation className={styles.icon} />
-                              Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000
-                          </a>
-                      </div>
-                  </li>
-              </ul>
-          </nav>
-      </footer>
+          <li className={styles.localizacao}>
+            <h1>Localização</h1>
+            <div className={styles.info}>
+              <a
+                className={styles.info}
+                href="https://maps.app.goo.gl/QQSbdw2sD8LH5sAk8"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {" "}
+                <GrLocation className={styles.icon} />
+                Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </footer>
   );
 }
 >>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)

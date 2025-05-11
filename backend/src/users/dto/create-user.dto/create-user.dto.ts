@@ -129,6 +129,20 @@ export class CreateUserDto {
 >>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 =======
   ministryId: string;
+<<<<<<< HEAD
 >>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
+=======
+
+  //Tokens para usuario alterar sua senha.
+  @ApiProperty({ description: 'Token de reset' })
+  @IsOptional()
+  @IsString()
+  resetToken?: string | null;
+
+  @ApiProperty({ description: 'Data de expiração do reset' })
+  @IsOptional()
+  @IsString()
+  resetExpires?: string | null;
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
 }
 >>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)

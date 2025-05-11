@@ -21,10 +21,13 @@ html, body {
 
 body {
 <<<<<<< HEAD
+<<<<<<< HEAD
   background: #030303;
   color: #ededed;
   font-family: Arial, Helvetica, sans-serif;
 =======
+=======
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
   background-color: black;
   display: flex;
   flex-direction: column;
@@ -38,7 +41,15 @@ main {
 
 footer {
   margin-top: auto;
+<<<<<<< HEAD
 >>>>>>> 8dea4da (Front parcialmente feito)
+=======
+=======
+  background: #030303;
+  color: #ededed;
+  font-family: Arial, Helvetica, sans-serif;
+>>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
 }
 
 .react-calendar {
@@ -46,6 +57,9 @@ footer {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
 html {
   scroll-behavior: smooth;
 }

@@ -23,27 +23,6 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch('http://localhost:3000/auth/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-            }),
-          });
-        
-  
-
-          let data;
-          try {
-             data = await res.json(); // Protege caso o backend não retorne nada
-          } catch (err) {
-            console.error("Resposta da API não é JSON:", err);
-            return null;
-          }
-        try {
           const res = await fetch("http://localhost:3000/auth/login", {
             method: "POST",
             headers: {
@@ -99,7 +78,7 @@ export const authOptions: NextAuthOptions = {
           console.error("Erro na autenticação com Nest:", error);
           return null;
         }
-        },
+      },
     }),
   ],
 
@@ -134,10 +113,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 60,
   },
 
-  secret: 'c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=',
-
-
-  secret: 'c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=',
+  secret: "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
 
   pages: {
     signIn: "/login", // ou a página que você usa

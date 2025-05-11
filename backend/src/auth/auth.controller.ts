@@ -25,4 +25,8 @@ export class AuthController {
     await this.authService.resetPassword(dto.token, dto.password);
     return { message: 'Senha atualizada com sucesso.' };
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
