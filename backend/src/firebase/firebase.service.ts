@@ -52,7 +52,7 @@ import { Injectable } from '@nestjs/common';
     });
   }
   
-   async getFileUrl(filename: string): Promise<string> {
+  async getFileUrl(filename: string): Promise<string> {
     const bucket = this.storage.bucket();
     const file = bucket.file(filename);
   

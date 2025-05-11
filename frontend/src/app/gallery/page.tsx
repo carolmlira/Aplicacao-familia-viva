@@ -15,11 +15,14 @@ export default function FirebaseGallery() {
   const [subgrup, setSubgrup] = useState('');
   const [groupedFiles, setGroupedFiles] = useState<{ [subgrup: string]: string[] }>({});
 
+  const [filesImages, setFilesimage] = useState<File[]>([]);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+
   const [files, setFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return; // Ainda carregando a sessão
+    if (status === "loading") return; 
   
     const role = (session?.user as any)?.role; 
     if (!session || (role !== "ADMIN" && role !== "COMUNIC")) {
@@ -45,34 +48,37 @@ export default function FirebaseGallery() {
   }, [category]); // Carrega sempre que a categoria mudar
 
   async function uploadFile() {
-    if (!file || !subgrup) {
-      alert('Por favor, selecione um arquivo e informe o subgrupo.');
+    if (filesImages.length === 0 || !subgrup) {
+      alert('Por favor, selecione um ou mais arquivos e informe o subgrupo.');
       return;
     }
 
     setLoading(true);
 
     const formData = new FormData();
-    formData.append('file', file);
+    filesImages.forEach((file) => {
+      formData.append('files', file); // nome do campo deve bater com o backend
+    });
 
     const fullCategory = `${category}/${subgrup}`;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${fullCategory}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload-gallery?category=${fullCategory}`, {
         method: 'POST',
         body: formData,
       });
 
       const data = await res.json();
-      console.log('Arquivo enviado:', data.url);
+      console.log('Arquivos enviados:', data.urls);
 
-      await fetchFiles(); 
-      
-      setFile(null);
+      await fetchFiles();
+
+      setFilesimage([]);
+      setPreviewImages([]);
       setSubgrup('');
       setShowModal(false);
     } catch (error) {
-      console.error('Erro ao enviar o arquivo:', error);
+      console.error('Erro ao enviar os arquivos:', error);
     } finally {
       setLoading(false);
     }
@@ -107,8 +113,18 @@ export default function FirebaseGallery() {
     } catch (error) {
       console.error(error);
     }
+  }
+  
+  function removePreviewImage(index: number) {
+  const updatedPreviews = [...previewImages];
+  const updatedFiles = [...filesImages];
 
-  };
+  updatedPreviews.splice(index, 1);
+  updatedFiles.splice(index, 1);
+
+  setPreviewImages(updatedPreviews);
+  setFilesimage(updatedFiles);
+}
 
   return (
     <>
@@ -149,11 +165,43 @@ export default function FirebaseGallery() {
                 type="text"
                 value={subgrup}
                 onChange={(e) => setSubgrup(e.target.value)}
-                placeholder="ex: culto-jovens"
+                placeholder="ex: culto jovens"
                 className="border rounded px-2 py-1 w-full mb-4"
               />
 
-              <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  const selectedFiles = Array.from(e.target.files || []);
+                  setFilesimage((prevFiles) => [...prevFiles, ...selectedFiles]);
+                  const previews = selectedFiles.map((file) => URL.createObjectURL(file));
+                  setPreviewImages((prevPreviews) => [...prevPreviews, ...previews]);
+                }}
+                className="mb-4"
+              />
+
+              {previewImages.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {previewImages.map((src, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={src}
+                        alt={`preview-${index}`}
+                        className="h-24 object-cover rounded border w-full"
+                      />
+                      <button
+                        onClick={() => removePreviewImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        title="Remover imagem"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-4 flex justify-end space-x-2">
                 <button
@@ -208,7 +256,6 @@ export default function FirebaseGallery() {
                             </button>
                           )}
                         </div>
-
                       </li>
                     ))}
                   </ul>
