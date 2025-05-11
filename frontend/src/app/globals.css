@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -13,9 +14,23 @@
     --foreground: #ededed;
   }
 }
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif;
+  color: white;
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  margin-top: auto;
 }
