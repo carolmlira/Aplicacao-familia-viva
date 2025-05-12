@@ -99,7 +99,7 @@ export default function FirebaseGallery() {
   
   const deleteFile = async (filename: string) => {
      const confirmDelete = window.confirm('Tem certeza que deseja excluir esta imagem?');
-    if (!confirmDelete) return; // Não faz nada se o usuário cancelar
+    if (!confirmDelete) return; // Não faz nada se o usuário cancelar.
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete-gallery?filename=${encodeURIComponent(filename)}`, {
         method: 'DELETE',
