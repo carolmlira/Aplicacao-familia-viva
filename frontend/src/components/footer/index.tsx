@@ -1,11 +1,24 @@
+import { useEffect, useState } from "react";
 import { GrLocation } from "react-icons/gr";
 import { FaInstagram } from "react-icons/fa";
 import styles from "./footer.module.css";
 
 export function Footer() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1000);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <footer id="footer" className={styles.footer}>
-      <nav className={styles.footerbar}>
+      <nav className={`${styles.footerbar} ${isMobile ? styles.mobile : ""}`}>
         <ul className={styles["footer-menu"]}>
           <li className={styles.contato}>
             <h1>Contato</h1>
@@ -16,7 +29,6 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {" "}
                 <FaInstagram className={styles.icon} />
                 familia_vivarecife
               </a>
@@ -32,7 +44,6 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {" "}
                 <GrLocation className={styles.icon} />
                 Av. Afonso Olindense, 1045 - Várzea, Recife - PE, 50810-000
               </a>
