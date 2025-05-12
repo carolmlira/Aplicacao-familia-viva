@@ -16,18 +16,7 @@
     display: flex;
     align-items: center;
     list-style: none;
-<<<<<<< HEAD
-<<<<<<< HEAD
     gap: 50vh;
-=======
-    gap: 35px;
->>>>>>> 8dea4da (Front parcialmente feito)
-=======
-    gap: 35px;
-=======
-    gap: 50vh;
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
     justify-content: flex-start; 
     flex-grow: 1; 
 }
@@ -51,18 +40,7 @@
     transition: 0.2s ease;
     font-weight: bold;
     text-align: center;
-<<<<<<< HEAD
-<<<<<<< HEAD
     display: flex;
-=======
-    display: inline-flex;
->>>>>>> 8dea4da (Front parcialmente feito)
-=======
-    display: inline-flex;
-=======
-    display: flex;
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
     align-items: center; 
     color: #ffff;
 }
@@ -72,8 +50,6 @@
 }
 
 .footerbar .footer-menu .icon {
-<<<<<<< HEAD
-<<<<<<< HEAD
     font-size: 26px;
     margin-right: 10px;
 }
@@ -108,37 +84,3 @@
 .footerbar.mobile .footer-menu .localizacao {
     align-items: center;
 }
-=======
-=======
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
-    font-size: 30px;
-    margin-right: 10px;
-}
-
-.footerbar .footer-menu .contato {
-    flex-grow: 1;
-}
-
-<<<<<<< HEAD
->>>>>>> 8dea4da (Front parcialmente feito)
-=======
-=======
-    font-size: 26px;
-    margin-right: 10px;
-}
-
-.footerbar .footer-menu .contato,
-.footerbar .footer-menu .localizacao {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.footerbar .footer-menu .contato .info,
-.footerbar .footer-menu .localizacao .info {
-    display: flex;
-    align-items: center;
-}
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
