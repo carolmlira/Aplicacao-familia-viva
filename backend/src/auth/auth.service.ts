@@ -42,7 +42,7 @@ export class AuthService {
 
   async generateResetToken(email: string): Promise<string> {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new NotFoundException('Usuário não encontrado');
+    if (!user) throw new NotFoundException('Email Incorreto');
 
     const token = randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 3600000); // 1 hora

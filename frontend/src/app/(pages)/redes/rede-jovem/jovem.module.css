@@ -1,59 +1,84 @@
 .jovens {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .tituloJovens {
-    text-align: left;
-    margin-left: 10vh;
-    margin-bottom: 20px;
+  text-align: left;
+  margin-left: 10vh;
+  margin-bottom: 20px;
 }
 
 .tituloJovens h1 {
-    font-size: 40px;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 10px 0;
-    transition: 0.2s ease;
-    background: linear-gradient(to right, #fe8719, #fe3012);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  font-size: 40px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px 0;
+  transition: 0.2s ease;
+  background: linear-gradient(to right, #fe8719, #fe3012);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .logoJovens {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
 }
 
 .logoJovens img {
-    border-radius: 100px;
+  border-radius: 100px;
 }
 
 .textoJovens {
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-    color: #d4d4d4;
-    margin-bottom: 1rem; 
-      
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  color: #d4d4d4;
+  margin-bottom: 1rem;
 }
 
 .textoJovens p {
-    margin-bottom: 20px;
-    font-size: 18px;
-    line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 18px;
+  line-height: 1.6;
 }
 
 .jovensImages {
-    display: flex;
-    gap: 20px;
-    margin-top: 30px;
-    justify-content: center;
-    margin-bottom: 10vh;
+  display: flex;
+  gap: 20px;
+  margin-top: 30px;
+  justify-content: center;
+  margin-bottom: 10vh;
 }
 
 .jovensImages img {
-    object-fit: cover;
-    border-radius: 10px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.icon {
+  font-size: 35px;
+  cursor: pointer;
+}
+
+.botaoEdit {
+  background-color: #fe3012;
+  color: #ffff;
+  padding: 12px 30px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 27px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-left: 80%;
+  position: relative;
+  top: -50px;
+}
+
+.botaoEdit:hover {
+  color: #f1a99e;
 }

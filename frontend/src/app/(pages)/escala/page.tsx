@@ -29,7 +29,9 @@ export default function Escala() {
   const [schedules, setSchedules] = useState<Schedule[]>([]); // Confirmadas
   const [adminSchedules, setAdminSchedules] = useState<Schedule[]>([]);
   const [pendingSchedules, setPendingSchedules] = useState<Schedule[]>([]); // Pendentes
-  const [description, setDescription] = useState("");
+
+  const [confirmedDescription, setConfirmedDescription] = useState("");
+  const [availableDescription, setAvailableDescription] = useState("");
   const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(
     null
   );
@@ -53,9 +55,11 @@ export default function Escala() {
       router.push("/"); // ou outra rota pública
     }
 
-    if (role === "ADMIN") {
+    if (role === "ADMIN" || role === "VOLUNT") {
       fetchSchedulesByDate();
       fetchConfirmedSchedules();
+      fetchSchedulesByUser();
+      fetchSchedulesByUserPeding();
     } else {
       fetchSchedulesByUser(); // Confirmadas
       fetchSchedulesByUserPeding(); // Pendentes
@@ -147,6 +151,7 @@ export default function Escala() {
       }
 
       alert("Disponibilidade enviada!");
+      fetchSchedulesByDate();
       fetchSchedulesByUser();
       fetchSchedulesByUserPeding();
     } catch (error: any) {
@@ -179,7 +184,7 @@ export default function Escala() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            description,
+            description: confirmedDescription,
             date: newDate.split("T")[0],
             available: schedulee.available, // Garantir que a disponibilidade seja mantida
             confirmed: schedulee.confirmed, // Garantir que o status de confirmado seja mantido
@@ -195,11 +200,13 @@ export default function Escala() {
       }
 
       alert("Escala atualizada com sucesso!");
-      setDescription("");
+      setConfirmedDescription("");
       setSelectedScheduleId(null);
       setShowModal(false);
       fetchSchedulesByDate();
       fetchConfirmedSchedules();
+      fetchSchedulesByUser();
+      fetchSchedulesByUserPeding();
     } catch (error) {
       alert("Erro ao atualizar escala");
     }
@@ -207,7 +214,9 @@ export default function Escala() {
 
   const handleConfirm = async () => {
     if (!selectedScheduleId) return;
-    const schedule = schedules.find((s) => s.id === selectedScheduleId);
+    const schedule =
+      schedules.find((s) => s.id === selectedScheduleId) ||
+      adminSchedules.find((s) => s.id === selectedScheduleId);
     if (!schedule) return;
 
     try {
@@ -222,7 +231,7 @@ export default function Escala() {
             userId: schedule.userId,
             date: schedule.date,
             available: schedule.available,
-            description: description,
+            description: availableDescription,
             confirmed: true,
             ministryId: schedule.ministryId,
           }),
@@ -235,7 +244,7 @@ export default function Escala() {
       }
 
       alert("Escala confirmada com sucesso!");
-      setDescription("");
+      setAvailableDescription("");
       setSelectedScheduleId(null);
       fetchSchedulesByDate();
       fetchSchedulesByUserPeding();
@@ -262,6 +271,7 @@ export default function Escala() {
       fetchSchedulesByDate();
       fetchSchedulesByUserPeding();
       fetchSchedulesByUser();
+
       fetchConfirmedSchedules();
     } catch (error) {
       alert("Erro ao excluir escala");
@@ -271,8 +281,7 @@ export default function Escala() {
   // 4. Função para editar um horário confirmado
   const handleEditConfirmed = (schedule: Schedule) => {
     setSelectedScheduleId(schedule.id);
-    setDescription(schedule.description || "");
-    setSelectedUserName(schedule.userName || "");
+    setConfirmedDescription(schedule.description || "");
     setNewDate(schedule.date);
     setShowModal(true); // Exibe o modal
   };
@@ -330,8 +339,8 @@ export default function Escala() {
           </div>
         </div>
 
-        {/* Tabela de Escalas Confirmadas */}
-        {role === "ADMIN" && (
+        {/* Tabela de ADMIN Escalas Confirmadas */}
+        {(role === "ADMIN" || role === "VOLUNT") && (
           <div className="w-full max-w-md">
             <h2 className="text-xl font-semibold mb-4 text-center">
               Escalas Confirmadas
@@ -341,6 +350,7 @@ export default function Escala() {
                 <tr className="bg-gray-200">
                   <th className="p-2 border">Dia</th>
                   <th className="p-2 border">Nome</th>
+                  <th className="p-2 border">Ministerio</th>
                   <th className="p-2 border">Ações</th>
                 </tr>
               </thead>
@@ -362,6 +372,7 @@ export default function Escala() {
                         )}
                       </td>
                       <td className="p-2">{schedule.userName}</td>
+                      <td className="p-2">{schedule.ministryId}</td>
                       <td className="p-2 flex gap-2">
                         <button
                           onClick={() =>
@@ -402,13 +413,13 @@ export default function Escala() {
                   ),
                 }).map((_, idx) => (
                   <tr key={`empty-${idx}`}>
-                    <td className="p-2 border h-10" colSpan={3}></td>
+                    <td className="p-2 border h-10" colSpan={4}></td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
-            {/* Modal de Edição */}
+            {/* Janela de edição de descrição e data do usuario */}
             {showModal && (
               <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                 <div className="bg-white p-6 rounded shadow-md relative w-full max-w-md">
@@ -437,13 +448,15 @@ export default function Escala() {
                       <textarea
                         id="description"
                         placeholder="Descrição do dia"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        value={confirmedDescription}
+                        onChange={(e) =>
+                          setConfirmedDescription(e.target.value)
+                        }
                         maxLength={1000}
                         className="w-full border rounded p-2 mb-4 pr-10 resize-none h-32"
                       />
                       <span className="absolute bottom-2 right-3 text-xs text-gray-500">
-                        {description.length}/1000
+                        {confirmedDescription.length}/1000
                       </span>
                     </div>
                     <button
@@ -457,7 +470,7 @@ export default function Escala() {
               </div>
             )}
 
-            {/* Paginação */}
+            {/* Paginação botão anterior e próximo */}
             <div className="flex justify-center items-center gap-4 mt-4">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -483,8 +496,8 @@ export default function Escala() {
         )}
       </div>
 
-      {/* Tabela de Disponibilidades dos usuarios abaixo */}
-      {role === "ADMIN" && (
+      {/* Tabela de Disponibilidades dos usuarios para o ADMIN aceitar e colocar descrição */}
+      {(role === "ADMIN" || role === "VOLUNT") && (
         <div className="mt-12 w-full max-w-3xl">
           <h2 className="text-xl font-semibold mb-4">Disponibilidades</h2>
           <table className="w-full border">
@@ -492,6 +505,7 @@ export default function Escala() {
               <tr className="bg-gray-200">
                 <th className="p-2 border">Dia</th>
                 <th className="p-2 border">Nome do Usuário</th>
+                <th className="p-2 border">Ministerio</th>
                 <th className="p-2 border">Ação</th>
               </tr>
             </thead>
@@ -513,6 +527,7 @@ export default function Escala() {
                       )}
                     </td>
                     <td className="p-2">{schedule.userName}</td>
+                    <td className="p-2">{schedule.ministryId}</td>
                     <td className="p-2 flex gap-2">
                       <button
                         onClick={() => {
@@ -546,7 +561,7 @@ export default function Escala() {
                 ),
               }).map((_, idx) => (
                 <tr key={`empty-${idx}`}>
-                  <td className="p-2 border h-10" colSpan={3}></td>
+                  <td className="p-2 border h-10" colSpan={4}></td>
                 </tr>
               ))}
             </tbody>
@@ -568,7 +583,9 @@ export default function Escala() {
 
             <button
               onClick={() => setAvailableCurrentPage((prev) => prev + 1)}
-              disabled={availablecurrentPage * itemsPerPage >= schedules.length}
+              disabled={
+                availablecurrentPage * itemsPerPage >= adminSchedules.length
+              }
               className="px-3 py-1 bg-gray-300 rounded"
             >
               Próxima
@@ -582,21 +599,31 @@ export default function Escala() {
                 <textarea
                   id="description"
                   placeholder="Descrição do dia"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  value={availableDescription}
+                  onChange={(e) => setAvailableDescription(e.target.value)}
                   maxLength={1000}
                   className="w-full border rounded p-2 mb-4 pr-10 resize-none h-32"
                 />
                 <span className="absolute bottom-2 right-3 text-xs text-gray-500">
-                  {description.length}/1000
+                  {availableDescription.length}/1000
                 </span>
               </div>
-              <button
-                onClick={handleConfirm}
-                className="mt-2 bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Confirmar
-              </button>
+              <div className=" flex gap-2">
+                <button
+                  onClick={handleConfirm}
+                  className="mt-2 bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Confirmar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDescriptionTextArea(false);
+                  }}
+                  className="mt-2 bg-red-600 text-white px-4 py-2 rounded "
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           )}
         </div>

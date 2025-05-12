@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
 import { UserEntity } from './entities/user.entity/user.entity';
 import { firestore } from '../config/firebase.config';
@@ -9,6 +13,11 @@ export class UsersService {
   private collection = firestore.collection('users');
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const existingUser = await this.findByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new ConflictException('Este e-mail já está em uso');
+    }
+
     const newUser: UserEntity = {
       id: uuidv4(),
       ...createUserDto,
@@ -40,6 +49,13 @@ export class UsersService {
     id: string,
     updateUserDto: Partial<CreateUserDto>,
   ): Promise<UserEntity> {
+    if (updateUserDto.email) {
+      const existingUser = await this.findByEmail(updateUserDto.email);
+      if (existingUser && existingUser.id !== id) {
+        throw new ConflictException('Este e-mail já está em uso');
+      }
+    }
+
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
     if (!doc.exists) {

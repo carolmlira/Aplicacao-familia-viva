@@ -1,7 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import styles from "../rede-jovem/jovem.module.css"; // Importando o CSS
+import { useSession } from "next-auth/react";
+import { MdOutlineModeEdit } from "react-icons/md";
 
 export default function Jovens() {
+  const { data: session } = useSession();
+
+  const userRole = session?.user?.role;
+  const podeEditar = userRole === "ADMIN" || userRole === "COMUNIC";
+
   return (
     <div className={styles.jovens}>
       {/* Título */}
@@ -9,6 +18,14 @@ export default function Jovens() {
         <h1>Rede Jovens</h1>
       </div>
 
+      {podeEditar && (
+        <button className={styles.botaoEdit}>
+          <MdOutlineModeEdit
+            className={`${styles.icon} ${styles.iconCultos}`}
+          />
+          Editar
+        </button>
+      )}
       {/* Logo */}
       <div className={styles.logoJovens}>
         <Image

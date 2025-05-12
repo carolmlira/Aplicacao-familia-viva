@@ -7,7 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 export default function Header() {
   const { data: session, status } = useSession();
   const role = session?.user?.role; // Assumindo que o role está disponível no user
-  if (status === "loading") return "Carregando...";
+  if (status === "loading") return "";
   function scrollToFooter() {
     const footer = document.getElementById("footer");
     if (footer) {
@@ -54,31 +54,9 @@ export default function Header() {
             </div>
           </li>
 
-          {/* <a
-              href="https://maps.app.goo.gl/QQSbdw2sD8LH5sAk8"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Localização
-            </a> */}
-
           <li className={styles["nav-item"]}>
-            <button onClick={scrollToFooter} className={styles["nav-link"]}>
-              Localização
-            </button>
+            <Link href="/galeria">Galeria</Link>
           </li>
-          <li className={styles["nav-item"]}>
-            <button onClick={scrollToFooter} className={styles["nav-link"]}>
-              Contato
-            </button>
-          </li>
-
-          {/* Galeria visível para ADMIN e COMUNIC */}
-          {(role === "ADMIN" || role === "COMUNIC") && (
-            <li className={styles["nav-item"]}>
-              <Link href="/galeria">Galeria</Link>
-            </li>
-          )}
 
           {/* Escala visível para ADMIN, COMUNIC, VOLUNT, USER */}
           {["ADMIN", "COMUNIC", "VOLUNT", "USER"].includes(role ?? "") && (
@@ -93,6 +71,16 @@ export default function Header() {
               <Link href="/usuarios">Usuários</Link>
             </li>
           )}
+          <li className={styles["nav-item"]}>
+            <button onClick={scrollToFooter} className={styles["nav-link"]}>
+              Localização
+            </button>
+          </li>
+          <li className={styles["nav-item"]}>
+            <button onClick={scrollToFooter} className={styles["nav-link"]}>
+              Contato
+            </button>
+          </li>
         </ul>
 
         <div className={styles["login-container"]}>

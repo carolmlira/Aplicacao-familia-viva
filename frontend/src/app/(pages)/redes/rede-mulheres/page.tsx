@@ -1,7 +1,15 @@
+"use client";
 import Image from "next/image";
 import styles from "../rede-mulheres/mulheres.module.css"; // Importando o CSS
+import { MdOutlineModeEdit } from "react-icons/md";
+import { useSession } from "next-auth/react";
 
 export default function Mulheres() {
+  const { data: session } = useSession();
+
+  const userRole = session?.user?.role;
+  const podeEditar = userRole === "ADMIN" || userRole === "COMUNIC";
+
   return (
     <div className={styles.mulheres}>
       {/* Título */}
@@ -9,6 +17,14 @@ export default function Mulheres() {
         <h1>Rede Mulheres</h1>
       </div>
 
+      {podeEditar && (
+        <button className={styles.botaoEdit}>
+          <MdOutlineModeEdit
+            className={`${styles.icon} ${styles.iconCultos}`}
+          />
+          Editar
+        </button>
+      )}
       {/* Logo */}
       <div className={styles.logoMulher}>
         <Image

@@ -3,8 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ValidationError } from "next/dist/compiled/amphtml-validator";
 
 interface User {
   id: string;
@@ -40,6 +38,15 @@ export default function Usuarios() {
   const [editFormErrors, setEditFormErrors] = useState<ValidationErrors>({});
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // Estado para o modal de editar
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  const totalPages = Math.ceil(users.length / usersPerPage);
 
   const [newUser, setNewUser] = useState({
     name: "",
@@ -147,7 +154,16 @@ export default function Usuarios() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Validação com erro
+        // Tratamento específico para erro de conflito
+        if (res.status === 409) {
+          setFormErrors({
+            ...formErrors,
+            email: "Este e-mail já está em uso",
+          });
+          return;
+        }
+
+        // Validação de erros genéricos
         if (res.status === 400 && Array.isArray(data.message)) {
           const errors = parseValidationErrors(data.message);
           setFormErrors(errors);
@@ -286,13 +302,13 @@ export default function Usuarios() {
                 <th className="px-4 py-3">Telefone</th>
                 <th className="px-4 py-3">Nível</th>
                 <th className="px-4 py-3">Ativo</th>
-                <th className="px-4 py-3">WhatsApp</th>
+                <th className="px-4 py-3">WhatsApp Ativo</th>
                 <th className="px-4 py-3">Ministerio</th>
                 <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {users.map((user, index) => (
+              {currentUsers.map((user, index) => (
                 <tr
                   key={user.id || index}
                   className="border-b hover:bg-gray-50 transition"
@@ -324,6 +340,35 @@ export default function Usuarios() {
               ))}
             </tbody>
           </table>
+          <div className="flex justify-center mt-6 space-x-4">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                currentPage === 1
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              Anterior
+            </button>
+            <span className="flex items-center px-4 py-2 text-gray-700 font-medium">
+              Página {currentPage} de {totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                currentPage === totalPages
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              Próxima
+            </button>
+          </div>
         </div>
       </main>
 
@@ -393,7 +438,7 @@ export default function Usuarios() {
                 value={newUser.ministryId || ""}
                 onChange={handleInputChange}
                 className="border text-black p-2 rounded"
-                placeholder="ID do Ministério"
+                placeholder="Ministério"
               />
               <input
                 name="photo"
@@ -533,7 +578,7 @@ export default function Usuarios() {
                 }
                 maxLength={100}
                 className="border text-black p-2 rounded"
-                placeholder="ID do Ministério"
+                placeholder="Ministério"
               />
               <input
                 name="photo"
