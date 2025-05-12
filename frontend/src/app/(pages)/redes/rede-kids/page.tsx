@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 "use client";
 
-=======
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
 import Image from "next/image";
 import styles from "../rede-kids/kids.module.css"; // Importando o CSS
 
@@ -16,26 +13,17 @@ export default function Kids() {
 
       {/* Logo */}
       <div className={styles.logoKids}>
-<<<<<<< HEAD
         <Image 
           src="/kids_logo.png" 
           alt="Rede Kids Logo" 
           width={300} 
           height={300} 
-=======
-        <Image
-          src="/kids_logo.png"
-          alt="Rede Kids Logo"
-          width={300}
-          height={300}
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
         />
       </div>
 
       {/* Texto */}
       <div className={styles.textoKids}>
         <p>
-<<<<<<< HEAD
           Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem
           Ipsum has been the industrys standard dummy text ever since the 1500s, when an
           unknown printer took a galley of type and scrambled it to make a type specimen
@@ -48,22 +36,6 @@ export default function Kids() {
         <p>
           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
           Ipsum has been the industrys standard dummy text ever since the 1500s.
-=======
-          Lorem ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the industrys standard dummy text ever
-          since the 1500s, when an unknown printer took a galley of type and
-          scrambled it to make a type specimen book.
-        </p>
-        <p>
-          It has survived not only five centuries, but also the leap into
-          electronic typesetting, remaining essentially unchanged. It was
-          popularised in the 1960s.
-        </p>
-        <p>
-          Lorem Ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the industrys standard dummy text ever
-          since the 1500s.
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
         </p>
       </div>
 
@@ -76,13 +48,5 @@ export default function Kids() {
     </div>
   );
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> 11ba172 (Finalização das pages Admin, inserção da page 'Esqueceu a senha', e ajustes em algumas pages)
-=======
 
-=======
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
->>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
