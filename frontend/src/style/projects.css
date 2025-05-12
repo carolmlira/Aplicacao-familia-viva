@@ -52,7 +52,7 @@
 .projeto-img img {
   width: var(--size-max-width-img);
   height: var(--size-max-heigth-img);
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   margin-left: 1rem;
 }

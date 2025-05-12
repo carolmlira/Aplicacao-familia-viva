@@ -24,11 +24,14 @@ export default function RedesList() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
 
-    if (!session || (session.user as any)?.role !== 'ADMIN') {
-      router.push('/');
-      return;
+    // Se o usuário estiver logado, mas não tiver permissão, redireciona
+    if (session) {
+      const role = (session.user as any)?.role;
+      if (role !== "ADMIN") {
+        router.push("/");
+      }
     }
 
     fetchRedes();

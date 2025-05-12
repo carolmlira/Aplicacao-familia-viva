@@ -22,10 +22,16 @@ export default function NewRede() {
   });
 
   useEffect(() => {
-    if (status === 'loading') return;
-    if (!session || (session.user as any).role !== 'ADMIN') {
-      router.push('/');
+    if (status === "loading") return;
+
+    // Se o usuário estiver logado, mas não tiver permissão, redireciona
+    if (session) {
+      const role = (session.user as any)?.role;
+      if (role !== "ADMIN") {
+        router.push("/");
+      }
     }
+
   }, [session, status, router]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
