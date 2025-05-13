@@ -77,7 +77,6 @@ export class AuthService {
       ministryId: user.ministryId,
     };
 
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
     return {
       access_token: this.jwtService.sign(payload),
     };

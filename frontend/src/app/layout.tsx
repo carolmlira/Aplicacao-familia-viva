@@ -2,14 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionWrapper from "@/components/SessionWrapper";
-<<<<<<< HEAD
-<<<<<<< HEAD
 import LayoutWrapper from "@/components/LayoutWrapper";
-=======
->>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
-=======
-import LayoutWrapper from "@/components/LayoutWrapper";
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,19 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-<<<<<<< HEAD
-<<<<<<< HEAD
         <SessionWrapper>
           <LayoutWrapper>{children}</LayoutWrapper>
         </SessionWrapper>
-=======
-        <SessionWrapper>{children}</SessionWrapper>
->>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
-=======
-        <SessionWrapper>
-          <LayoutWrapper>{children}</LayoutWrapper>
-        </SessionWrapper>
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
       </body>
     </html>
   );

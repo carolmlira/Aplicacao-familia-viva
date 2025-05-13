@@ -7,20 +7,11 @@ import {
   MinLength,
   Matches,
   IsEnum,
-<<<<<<< HEAD
-<<<<<<< HEAD
+
   Length,
   IsEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-=======
-} from 'class-validator';
->>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
-=======
-  Length,
-} from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
->>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 import { Role } from 'src/auth/role.enum';
 
 export class CreateUserDto {
@@ -92,10 +83,6 @@ export class CreateUserDto {
   @ApiProperty({ description: 'Notificao wpp do Usuario' })
   @IsBoolean()
   whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 
   @ApiProperty({ description: 'id do ministerio' })
   @IsString()
@@ -129,9 +116,6 @@ export class CreateUserDto {
 >>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
 =======
   ministryId: string;
-<<<<<<< HEAD
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
-=======
 
   //Tokens para usuario alterar sua senha.
   @ApiProperty({ description: 'Token de reset' })
@@ -143,6 +127,6 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   resetExpires?: string | null;
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
+
 }
 >>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)

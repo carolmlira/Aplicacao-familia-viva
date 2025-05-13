@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -13,10 +12,6 @@
     --background: #030303;
     --foreground: #ededed;
   }
-}
-html, body {
-  height: 100%;
-  margin: 0;
 }
 
 body {

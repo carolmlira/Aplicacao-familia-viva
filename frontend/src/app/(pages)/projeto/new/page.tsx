@@ -192,4 +192,8 @@ export default function NewProject() {
     </>
   );
   
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0109c19 (Ajuste dos conflitos)
