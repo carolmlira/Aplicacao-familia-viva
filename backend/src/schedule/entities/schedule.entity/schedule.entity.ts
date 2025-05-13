@@ -3,7 +3,6 @@
   export class ScheduleEntity {
     id: string;
     date: string; // ISO format: YYYY-MM-DD
-    members: string[]; // nomes ou IDs de pessoas que foram escaladas
     description: string; // descrição do que o usuario tem que fazer naquele dia.
     available: boolean; // Se o usuario tem disponibilidade
     confirmed?: boolean; // quem se disponibilizou

@@ -52,12 +52,12 @@ export class ScheduleController {
   }
 
   @Get('/available/all')
-  findAllAvailable() {
-    return this.scheduleService.findAllAvailable();
-  }
+findAllAvailable() {
+  return this.scheduleService.findAllAvailable();
+}
 
-  @Get('/confirmed/all')
-  findAllConfirmed() {
-    return this.scheduleService.findAllConfirmed();
-  }
+@Get('/confirmed/all')
+findAllConfirmed() {
+  return this.scheduleService.findAllConfirmed();
+}
 }

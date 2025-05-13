@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./header.module.css";
@@ -22,7 +21,7 @@ export default function Header() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  if (status === "loading") return "Carregando...";
+  if (status === "loading") return "";
 
   const role = session?.user?.role;
 
@@ -35,28 +34,72 @@ export default function Header() {
 
   const renderMenuItems = () => (
     <>
-      <li><Link href="/" onClick={() => setShowDropdown(false)}>Home</Link></li>
-      <li><Link href="/#sobre" onClick={() => setShowDropdown(false)}>Sobre</Link></li>
-      <li><Link href="/#programacao" onClick={() => setShowDropdown(false)}>Cultos</Link></li>
-      <li><Link href="/projeto" onClick={() => setShowDropdown(false)}>Projetos</Link></li>
-      <li><Link href="/redes" onClick={() => setShowDropdown(false)}>Redes</Link></li>
-      <li><Link href="/galeria" onClick={() => setShowDropdown(false)}>Galeria</Link></li>
       <li>
-        <button onClick={() => { scrollToFooter(); setShowDropdown(false); }} className={styles.navButton}>
+        <Link href="/" onClick={() => setShowDropdown(false)}>
+          Home
+        </Link>
+      </li>
+      <li>
+        <Link href="/#sobre" onClick={() => setShowDropdown(false)}>
+          Sobre
+        </Link>
+      </li>
+      <li>
+        <Link href="/#programacao" onClick={() => setShowDropdown(false)}>
+          Cultos
+        </Link>
+      </li>
+      <li>
+        <Link href="/projeto" onClick={() => setShowDropdown(false)}>
+          Projetos
+        </Link>
+      </li>
+      <li>
+        <Link href="/redes" onClick={() => setShowDropdown(false)}>
+          Redes
+        </Link>
+      </li>
+      <li>
+        <Link href="/galeria" onClick={() => setShowDropdown(false)}>
+          Galeria
+        </Link>
+      </li>
+      <li>
+        <button
+          onClick={() => {
+            scrollToFooter();
+            setShowDropdown(false);
+          }}
+          className={styles.navButton}
+        >
           Localização
         </button>
       </li>
       <li>
-        <button onClick={() => { scrollToFooter(); setShowDropdown(false); }} className={styles.navButton}>
+        <button
+          onClick={() => {
+            scrollToFooter();
+            setShowDropdown(false);
+          }}
+          className={styles.navButton}
+        >
           Contato
         </button>
       </li>
 
       {["ADMIN", "COMUNIC", "VOLUNT", "USER"].includes(role ?? "") && (
-        <li><Link href="/escala" onClick={() => setShowDropdown(false)}>Escalas</Link></li>
+        <li>
+          <Link href="/escala" onClick={() => setShowDropdown(false)}>
+            Escalas
+          </Link>
+        </li>
       )}
       {role === "ADMIN" && (
-        <li><Link href="/usuarios" onClick={() => setShowDropdown(false)}>Usuários</Link></li>
+        <li>
+          <Link href="/usuarios" onClick={() => setShowDropdown(false)}>
+            Usuários
+          </Link>
+        </li>
       )}
     </>
   );
@@ -97,11 +140,22 @@ export default function Header() {
                       }}
                     >
                       {session.user?.name}
-                      <Image src="/images/seta.svg" alt="Seta" width={12} height={12} />
+                      <Image
+                        src="/images/seta.svg"
+                        alt="Seta"
+                        width={12}
+                        height={12}
+                      />
                     </button>
 
                     {showMobileUserMenu && (
-                      <ul style={{ listStyle: "none", paddingLeft: 0, marginTop: 8 }}>
+                      <ul
+                        style={{
+                          listStyle: "none",
+                          paddingLeft: 0,
+                          marginTop: 8,
+                        }}
+                      >
                         <li>
                           <Link
                             href="/perfil"
@@ -139,9 +193,7 @@ export default function Header() {
           </div>
         ) : (
           <>
-            <ul className={styles["nav-menu"]}>
-              {renderMenuItems()}
-            </ul>
+            <ul className={styles["nav-menu"]}>{renderMenuItems()}</ul>
 
             <div className={styles["login-container"]}>
               {session ? (

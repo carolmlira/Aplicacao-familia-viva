@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (res?.ok) {
       router.push("/");
     } else {
-      setError("Login inválido");
+      setError("Login ou Senha Inválida");
     }
   };
 

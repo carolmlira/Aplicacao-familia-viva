@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import "@/style/redes.css";
 
 interface PagesRedes {
@@ -19,29 +19,19 @@ export default function RedesList() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [category] = useState('redes');
+  const [category] = useState("redes");
   const [redes, setRedes] = useState<PagesRedes[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    // Se o usuário estiver logado, mas não tiver permissão, redireciona
-    if (session) {
-      const role = (session.user as any)?.role;
-      if (role !== "ADMIN") {
-        router.push("/");
-      }
-    }
-
-    fetchRedes();
-  }, [session, status, router]);
-
   async function fetchRedes() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`
+      );
       const data = await res.json();
-      const rawRedes: PagesRedes[] = Array.isArray(data.pages) ? data.pages : [];
+      const rawRedes: PagesRedes[] = Array.isArray(data.pages)
+        ? data.pages
+        : [];
 
       const redesWithImages = await Promise.all(
         rawRedes.map(async (rede) => {
@@ -53,7 +43,9 @@ export default function RedesList() {
             );
             const imageData = await imageRes.json();
             const imageUrl =
-              Array.isArray(imageData.files) && imageData.files.length > 0 ? imageData.files[0] : undefined;
+              Array.isArray(imageData.files) && imageData.files.length > 0
+                ? imageData.files[0]
+                : undefined;
 
             return { ...rede, imageUrl };
           } catch (err) {
@@ -65,35 +57,41 @@ export default function RedesList() {
 
       setRedes(redesWithImages);
     } catch (error) {
-      console.error('Erro ao buscar redes:', error);
+      console.error("Erro ao buscar redes:", error);
     }
   }
   async function deleteRede(id: string) {
-    if (!confirm('Tem certeza que deseja excluir esta rede?')) return;
-  
+    if (!confirm("Tem certeza que deseja excluir esta rede?")) return;
+
     try {
       setLoading(true);
-  
+
       // Deleta pasta de imagens no storage
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete-folder?category=pages&subgrup=redes&pageId=${id}`, {
-        method: 'DELETE',
-      });
-  
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/firebase/delete-folder?category=pages&subgrup=redes&pageId=${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       // Deleta a rede no banco
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`, {
-        method: 'DELETE',
-      });
-  
-      if (!res.ok) throw new Error('Erro ao deletar rede');
-  
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!res.ok) throw new Error("Erro ao deletar rede");
+
       fetchRedes();
     } catch (error) {
-      console.error('Erro ao excluir rede:', error);
+      console.error("Erro ao excluir rede:", error);
     } finally {
       setLoading(false);
     }
   }
-  
+
   return (
     <div className="redes-container">
       <div className="redes-header">
@@ -104,9 +102,9 @@ export default function RedesList() {
             </span>
           </h1>
 
-          {(session?.user as any)?.role === 'ADMIN' && (
+          {(session?.user as any)?.role === "ADMIN" && (
             <button
-              onClick={() => router.push('/redes/new')}
+              onClick={() => router.push("/redes/new")}
               className="ml-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Nova Rede
@@ -128,7 +126,7 @@ export default function RedesList() {
               <div className="rede-card">
                 <div className="rede-img">
                   <img
-                    src={rede.imageUrl || 'images/placeholder.svg'}
+                    src={rede.imageUrl || "images/placeholder.svg"}
                     alt={rede.title}
                   />
                 </div>
@@ -136,10 +134,10 @@ export default function RedesList() {
                   <h2>{rede.title}</h2>
                   <p>
                     {rede.content?.slice(0, 150)}
-                    {rede.content?.length > 150 && '...'}
+                    {rede.content?.length > 150 && "..."}
                   </p>
 
-                  {(session?.user as any)?.role === 'ADMIN' && (
+                  {(session?.user as any)?.role === "ADMIN" && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();
@@ -149,7 +147,7 @@ export default function RedesList() {
                       className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                       disabled={loading}
                     >
-                      {loading ? 'Excluindo...' : 'Excluir'}
+                      {loading ? "Excluindo..." : "Excluir"}
                     </button>
                   )}
                 </div>
@@ -157,7 +155,6 @@ export default function RedesList() {
             </Link>
           ))}
         </div>
-
       )}
     </div>
   );

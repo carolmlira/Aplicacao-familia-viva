@@ -9,6 +9,8 @@ export default function RedefinirSenha() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const [erroSenha, setErroSenha] = useState("");
+  const [senhaCoincidem, setSenhaCoincidem] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -20,9 +22,15 @@ export default function RedefinirSenha() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErroSenha("");
+    setSenhaCoincidem("");
+    if (novaSenha.length < 6) {
+      setErroSenha("A senha deve conter no mínimo 6 caracteres.");
+      return;
+    }
 
     if (novaSenha !== confirmarSenha) {
-      alert("As senhas não coincidem!");
+      setSenhaCoincidem("As senhas não coincidem!");
       return;
     }
 
@@ -83,7 +91,10 @@ export default function RedefinirSenha() {
             onChange={(e) => setConfirmarSenha(e.target.value)}
             required
           />
-          <p>* A senha deve conter no mínimo 6 caracteres</p>
+          {senhaCoincidem && (
+            <div className={styles.erro}>{senhaCoincidem}</div>
+          )}
+          {erroSenha && <div className={styles.erro}>{erroSenha}</div>}
           <button type="submit" className={styles.button}>
             Redefinir
           </button>
