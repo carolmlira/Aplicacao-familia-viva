@@ -7,7 +7,6 @@ import {
   MinLength,
   Matches,
   IsEnum,
-
   Length,
   IsEmpty,
 } from 'class-validator';
@@ -30,41 +29,13 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'A senha é obrigatória' })
   @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
   password: string; // Senha do usuário (mínimo de 6 caracteres)
-<<<<<<< HEAD
-=======
 
   @ApiProperty({ description: 'A role do Usuario' })
   @IsNotEmpty()
   @IsEnum(Role, { message: 'Nível de acesso inválido' })
   level: Role; // O Enum está em Auth.
->>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  @ApiProperty({ description: 'A role do Usuario' })
-=======
-=======
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
-<<<<<<< HEAD
-  @ApiProperty({description: "A role do Usuario"})
->>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
-  @IsNotEmpty()
-  @IsEnum(Role, { message: 'Nível de acesso inválido' })
-  level: Role; // O Enum está em Auth.
-
-<<<<<<< HEAD
   @ApiProperty({ description: 'Se está ativo do Usuario' })
-=======
-=======
->>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
-  @ApiProperty({description: "Se está ativo do Usuario"})
-<<<<<<< HEAD
->>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
-=======
-=======
-  @ApiProperty({ description: 'Se está ativo do Usuario' })
->>>>>>> 5f138ea (Correção Telas, Implem Escala, Exceções em Usuarios)
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
   @IsBoolean()
   active: boolean; // Indica se o usuário está ativo no sistema
 
@@ -87,34 +58,6 @@ export class CreateUserDto {
   @ApiProperty({ description: 'id do ministerio' })
   @IsString()
   @Length(3, 100)
-<<<<<<< HEAD
-  ministryId: string;
-=======
-<<<<<<< HEAD
-  ministryId: string; 
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-  //Tokens para usuario alterar sua senha.
-  @ApiProperty({ description: 'Token de reset' })
-  @IsOptional()
-  @IsString()
-  resetToken?: string | null;
-
-  @ApiProperty({ description: 'Data de expiração do reset' })
-  @IsOptional()
-  @IsString()
-  resetExpires?: string | null;
-}
-=======
-=======
->>>>>>> 8f12c0c (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
-=======
->>>>>>> 626a55d (Login e Auth do Front. Correção Usuarios e Auth do back)
-=======
->>>>>>> 5a69e9e (Auth front, back e banco. Tabela de usuario(ADD,EDIT,Delet))
-=======
   ministryId: string;
 
   //Tokens para usuario alterar sua senha.
@@ -127,6 +70,4 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   resetExpires?: string | null;
-
 }
->>>>>>> fddd392 (Login e Auth do Front. Correção Usuarios e Auth do back)

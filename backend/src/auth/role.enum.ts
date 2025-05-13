@@ -3,8 +3,4 @@ export enum Role {
   VOLUNT = 'VOLUNT', // Voluntario altera Escala
   ADMIN = 'ADMIN', // Lider
   USER = 'USER', // Usuario COMUM
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)

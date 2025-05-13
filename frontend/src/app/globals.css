@@ -15,46 +15,15 @@
 }
 
 body {
-<<<<<<< HEAD
-<<<<<<< HEAD
   background: #030303;
   color: #ededed;
   font-family: Arial, Helvetica, sans-serif;
-=======
-=======
->>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
-  background-color: black;
-  display: flex;
-  flex-direction: column;
-  font-family: "Poppins", sans-serif;
-  color: white;
-}
-
-main {
-  flex: 1;
-}
-
-footer {
-  margin-top: auto;
-<<<<<<< HEAD
->>>>>>> 8dea4da (Front parcialmente feito)
-=======
-=======
-  background: #030303;
-  color: #ededed;
-  font-family: Arial, Helvetica, sans-serif;
->>>>>>> 0efbb5e (Recuperação de senha, Module Email, Correções telas)
->>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
 }
 
 .react-calendar {
   font-size: 1rem; /* Aumenta a fonte */
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 0594157 (Recuperação de senha, Module Email, Correções telas)
 html {
   scroll-behavior: smooth;
 }
@@ -63,9 +32,3 @@ html {
   height: 50px !important; /* Altura dos quadrados */
   /* Largura dos quadrados */
 }
-=======
-.react-calendar__tile {
-  height: 50px !important; /* Altura dos quadrados */
-  /* Largura dos quadrados */
-}
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
