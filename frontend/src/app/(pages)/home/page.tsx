@@ -9,9 +9,16 @@ import Link from "next/link";
 
 export default function Home() {
   const [projects, setProjects] = useState<PagesProject[]>([]);
+  const [files, setFiles] = useState<string[]>([]);
+  const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BASE}`;
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const imagesPerPage = 4;
+
+  const visibleFiles = files.slice(currentIndex, currentIndex + imagesPerPage);
 
   useEffect(() => {
     fetchProjects();
+    fetchFiles('gallery');
   }, []);
   
   async function fetchProjects() {
@@ -46,7 +53,37 @@ export default function Home() {
       console.error('Erro ao buscar projetos:', error);
     }
   }
+  
+  async function fetchFiles(category: string) {
+    if (!category) return;
 
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
+      const data = await res.json();
+      console.log('Arquivos recebidos:', data.files);
+
+      // Aqui você ajusta os caminhos, gerando a URL completa
+      const fileUrls = data.files.map((filePath: string) => {
+        return `${baseUrl}${encodeURIComponent(filePath)}?alt=media`;
+      });
+      console.log("filrurl: ", fileUrls);
+
+      setFiles(fileUrls || []);
+    } catch (error) {
+      console.error('Erro ao listar arquivos:', error);
+    }
+  }
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => {
+      // Impede que ultrapasse o final da lista com base na largura visível (4 imagens)
+      const maxIndex = files.length - 4;
+      return Math.min(prev + 1, maxIndex);
+    });
+  };
 
   return (
     <>
@@ -147,7 +184,7 @@ export default function Home() {
             {projects.slice(0, 2).map((project) => (
               <Link
                 key={project.id}
-                href={`/projeto/${project.id}`}
+                href={`/projeto/id/items/${project.id}`}
                 className={styles.projetoCard}
               >
                 <div className={styles.projetoImg}>
@@ -174,17 +211,50 @@ export default function Home() {
 
       {/* Galeria */}
       <div className={styles.galeria}>
-        <h2>Galeria</h2>
-        <Link className={styles.linkGaleria} href="/galeria">Ver mais</Link>
-        <div className={styles.cultosImages}>
-          <AiOutlineCaretLeft className={styles.icon} />
-          <Image src="/Culto_1.png" alt="Culto 1" width={300} height={200} />
-          <Image src="/Culto_2.png" alt="Culto 2" width={300} height={200} />
-          <Image src="/Culto_3.png" alt="Culto 3" width={300} height={200} />
-          <Image src="/Culto_4.png" alt="Culto 4" width={300} height={200} />
-          <AiOutlineCaretLeft className={`${styles.icon} ${styles.iconInvert}`} />
+        <div className={styles.galeriaHeader}>
+          <h2>Galeria</h2>
+          <Link className={styles.linkGaleria} href="/galeria">Ver mais</Link>
         </div>
+
+        <div className={styles.carouselWrapper}>
+          <AiOutlineCaretLeft className={styles.iconLeft} onClick={goToPrevious} />
+
+          <div className={styles.carouselContainer}>
+            <div
+              className={styles.carouselTrack}
+                style={{
+                  transform: `translateX(-${currentIndex * 250}px)`,
+                }}
+            >
+              {files.map((file, index) => (
+                <div key={index} className={styles.carouselItem}>
+                  {file && file.startsWith("http") ? (
+                    <Image
+                      src={file}
+                      alt={`Imagem ${index + 1}`}
+                      width={250}
+                      height={250}
+                      className={styles.fotoGaleria}
+                    />
+                  ) : (
+                    <Image
+                      src="/images/placeholder.svg"
+                      alt="Imagem não disponível"
+                      width={250}
+                      height={250}
+                      className={styles.fotoGaleria}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <AiOutlineCaretLeft className={styles.iconRight} onClick={goToNext} />
+        </div>
+
       </div>
+
     </>
   );
 }
