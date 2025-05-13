@@ -1,9 +1,53 @@
+"use client";
+
 import styles from "../home/home.module.css";
 import { AiOutlineCaretLeft } from "react-icons/ai";
+import { useEffect, useState } from 'react';
+import { PagesProject } from "@/app/types/PageProjects";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
+  const [projects, setProjects] = useState<PagesProject[]>([]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+  
+  async function fetchProjects() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`);
+      const data = await res.json();
+      console.log("Pages API response:", data);
+      const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
+
+      const projectsWithImages = await Promise.all(
+        rawProjects.map(async (project) => {
+          if (!project.id) return project;
+
+          try {
+            const imageRes = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/projects/files?pageId=${project.id}`
+            );
+            const imageData = await imageRes.json();
+            const imageUrl =
+              Array.isArray(imageData.files) && imageData.files.length > 0 ? imageData.files[0] : undefined;
+
+            return { ...project, imageUrl };
+          } catch (err) {
+            console.warn(`Erro ao buscar imagem de ${project.title}:`, err);
+            return { ...project };
+          }
+        })
+      );
+
+      setProjects(projectsWithImages);
+    } catch (error) {
+      console.error('Erro ao buscar projetos:', error);
+    }
+  }
+
+
   return (
     <>
       {/* Banner principal da home */}
@@ -91,54 +135,41 @@ export default function Home() {
 
       {/* Projetos */}
       <div className={styles.projetos}>
-        <h2>Projetos</h2>
-        <Link className={styles.linkProjeto} href="/projeto">Ver mais</Link>
-
-        <div className={styles.projetoCard}>
-          <Image
-            src="/projeto.svg"
-            alt="Fotos do projeto"
-            className={styles.fotoProjeto}
-            width={200}
-            height={200}
-          />
-          <Link href="/projeto" className={styles.projetoDescricao}>
-            <div>
-              <h3>Arrecadação de alimentos</h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-                mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-                consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-                architecto magnam ut.
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente maiores quo obcaecati exercitationem, repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et commodi voluptatibus non sit debitis, laudantium veniam assumenda beatae nihil.
-              </p>
-            </div>
-          </Link>
+        <div className={styles.projetosHeader}>
+          <h1>Projetos</h1>
+          <Link className={styles.linkProjeto} href="/projeto">Ver mais</Link>
         </div>
 
-        <div className={styles.projetoCard}>
-          <Image
-            src="/projeto.svg"
-            alt="Fotos do projeto"
-            className={styles.fotoProjeto}
-            width={200}
-            height={200}
-          />
-          <Link href="/projeto" className={styles.projetoDescricao}>
-            <div>
-              <h3>Arrecadação de roupas</h3>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-                mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-                consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-                architecto magnam ut.
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit, ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum consectetur magnam officiis enim dignissimos accusamus.
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos recusandae pariatur corrupti reprehenderit repudiandae voluptatem numquam mollitia ad, provident eaque possimus? Provident repudiandae dolor rerum unde, quo recusandae?
-              </p>
-            </div>
-          </Link>
-        </div>
+        {projects.length === 0 ? (
+          <p className="text-gray-400 text-center">Nenhum projeto encontrado.</p>
+        ) : (
+          <div className={styles.projetosContent}>
+            {projects.slice(0, 2).map((project) => (
+              <Link
+                key={project.id}
+                href={`/projeto/${project.id}`}
+                className={styles.projetoCard}
+              >
+                <div className={styles.projetoImg}>
+                  <Image
+                    src={project.imageUrl || '/images/placeholder.svg'}
+                    alt={project.title}
+                    width={200}
+                    height={200}
+                    className={styles.fotoProjeto}
+                  />
+                </div>
+                  <div className={styles.projetoTexto}>
+                    <h2>{project.title}</h2>
+                    <p>
+                      {project.content?.slice(0, 150)}
+                      {project.content?.length > 150 && '...'}
+                    </p>
+                  </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Galeria */}

@@ -13,6 +13,7 @@ interface PagesProject {
   icon: string;
   active: boolean;
   imageUrl?: string;
+  
 }
 
 export default function ProjectsList() {
