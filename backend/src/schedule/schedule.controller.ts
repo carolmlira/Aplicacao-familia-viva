@@ -52,7 +52,6 @@ export class ScheduleController {
   }
 
   @Get('/available/all')
-<<<<<<< HEAD
   findAllAvailable() {
     return this.scheduleService.findAllAvailable();
   }
@@ -61,14 +60,4 @@ export class ScheduleController {
   findAllConfirmed() {
     return this.scheduleService.findAllConfirmed();
   }
-=======
-findAllAvailable() {
-  return this.scheduleService.findAllAvailable();
-}
-
-@Get('/confirmed/all')
-findAllConfirmed() {
-  return this.scheduleService.findAllConfirmed();
-}
->>>>>>> 47f7474 (Correção Telas, Implem Escala, Exceções em Usuarios)
 }
