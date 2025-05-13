@@ -12,4 +12,17 @@ export class AuthController {
     const user = await this.authService.validateUser(body.email, body.password);
     return this.authService.login(user);
   } //
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    const token = await this.authService.generateResetToken(body.email);
+    await this.authService.sendResetEmail(body.email, token);
+    return { message: 'Link enviado para o e-mail.' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() dto: { token: string; password: string }) {
+    await this.authService.resetPassword(dto.token, dto.password);
+    return { message: 'Senha atualizada com sucesso.' };
+  }
 }

@@ -52,9 +52,11 @@
 .projeto-img img {
   width: var(--size-max-width-img);
   height: var(--size-max-heigth-img);
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   margin-left: 1rem;
+    background-color: #0a0a0a;
+  border: 1px solid rgba(255, 234, 0, 0.927);
 }
 
 .projeto-texto {
@@ -82,7 +84,3 @@
   font-size: 0.9rem;
 }
 
-.footer-contato,
-.footer-localizacao {
-  margin: 0.5rem 0;
-}

@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Put, Delete, Param, UploadedFile, UseInterceptors, Body, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Param, UploadedFile, UseInterceptors, UploadedFiles, Query, BadRequestException } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FirebaseService } from './firebase.service';
 import { v4 as uuidv4 } from 'uuid'; 
@@ -7,42 +8,69 @@ import { v4 as uuidv4 } from 'uuid';
 export class FirebaseController {
   constructor(private readonly firebaseService: FirebaseService) {}
 
-  @Post('upload')
-@UseInterceptors(FileInterceptor('file'))
-async uploadFile(
-  @UploadedFile() file: Express.Multer.File,
-  @Query('category') category: string,
-  @Query('pageId') pageId?: string,
-) {
-  // Verifica se a categoria é 'pages' e valida a presença do pageId
-  if (category === 'pages') {
-    if (!pageId) {
+  @Post('upload-gallery')
+  @UseInterceptors(FilesInterceptor('files'))
+  async uploadMultipleFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Query('category') category: string,
+    @Query('pageId') pageId?: string,
+  ) {
+    if (category === 'pages' && !pageId) {
       throw new BadRequestException('pageId é obrigatório para uploads na categoria "pages".');
     }
 
-    // Pega a extensão do arquivo
-    const ext = file.originalname.split('.').pop();
-    // Gera um ID único para o arquivo
-    const generatedId = uuidv4();
-    // Cria o caminho completo com o ID gerado e a extensão
-    const filename = `pages/${category}/${pageId}/${generatedId}.${ext}`;
+    const uploadResults: { url: string; filename: string }[] = [];
 
-    // Realiza o upload e obtém a URL do arquivo
+    for (const file of files) {
+      const ext = file.originalname.split('.').pop();
+      const generatedId = uuidv4();
+      const filename = category === 'pages'
+        ? `pages/${category}/${pageId}/${generatedId}.${ext}`
+        : `${category}/${generatedId}.${ext}`;
+
+      const url = await this.firebaseService.uploadFile(file, filename);
+      uploadResults.push({ url, filename });
+    }
+
+    return uploadResults;
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('category') category: string,
+    @Query('pageId') pageId?: string,
+  ) {
+    // Verifica se a categoria é 'pages' e valida a presença do pageId
+    if (category === 'pages') {
+      if (!pageId) {
+        throw new BadRequestException('pageId é obrigatório para uploads na categoria "pages".');
+      }
+
+      // Pega a extensão do arquivo
+      const ext = file.originalname.split('.').pop();
+      // Gera um ID único para o arquivo
+      const generatedId = uuidv4();
+      // Cria o caminho completo com o ID gerado e a extensão
+      const filename = `pages/${category}/${pageId}/${generatedId}.${ext}`;
+
+      // Realiza o upload e obtém a URL do arquivo
+      const url = await this.firebaseService.uploadFile(file, filename);
+      return { url, filename }; // Retorna a URL e o nome do arquivo
+    }
+
+    // Para outras categorias, o processo é similar
+    const ext = file.originalname.split('.').pop();
+    const generatedId = uuidv4();
+    const filename = `${category}/${generatedId}.${ext}`;
+
+    // Faz o upload do arquivo e retorna a URL
     const url = await this.firebaseService.uploadFile(file, filename);
     return { url, filename }; // Retorna a URL e o nome do arquivo
   }
 
-  // Para outras categorias, o processo é similar
-  const ext = file.originalname.split('.').pop();
-  const generatedId = uuidv4();
-  const filename = `${category}/${generatedId}.${ext}`;
 
-  // Faz o upload do arquivo e retorna a URL
-  const url = await this.firebaseService.uploadFile(file, filename);
-  return { url, filename }; // Retorna a URL e o nome do arquivo
-}
-
-  
   @Get('file/:filename')
   async getFile(@Param('filename') filename: string) {
     const url = await this.firebaseService.getFileUrl(filename);
@@ -85,7 +113,6 @@ async uploadFile(
     const url = await this.firebaseService.uploadFile(file, newPath);
     return { url };
   }
-  
   
   @Get('pages')
   async getPagesByCategory(@Query('category') category: string) {
@@ -140,6 +167,10 @@ async uploadFile(
     }
   }
   
+  @Delete('delete-gallery')
+  async delete(@Query('filename') filename: string) {
+    return this.firebaseService.deleteFile(filename);
+  }
 
   @Delete('delete-folder')
   async deleteFolder(
@@ -158,10 +189,11 @@ async uploadFile(
   
   @Get('list')
   async listFiles(@Query('category') category: string) {
-    const files = await this.firebaseService.listFilesInCategory(category);
+    const prefix = `${category}/`; // lista tudo dentro de gallery/
+    const files = await this.firebaseService.listFiles(prefix);
     return { files };
   }
-  
+
   @Get('pages/:category/files')
   async getPageFilesByCategory(
     @Param('category') category: string,

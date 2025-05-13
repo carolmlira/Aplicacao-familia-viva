@@ -5,8 +5,8 @@ import {
   Length,
   IsBoolean,
   IsDate,
-  Matches,
-  IsArray
+  IsNotEmpty,
+  Matches
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -18,13 +18,24 @@ export class CreatePageDto {
   @IsString()
   @Length(10, 10000)
   content: string; // Conteúdo principal em HTML. Obrigatório, mínimo de 10 e máximo de 10000 caracteres.
+
+  @IsOptional()
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'Slug deve conter apenas letras minúsculas, números e hífens',
+  })
+  slug?: string; // Ele vai funcionar como o link dentro da página e direcionar o usuário até a seção
   
+
   @IsOptional()
   @IsString()
   icon?: string; // Pode armazenar um nome de ícone (ex: "home", "info", "team"), útil pra exibir um ícone no frontend.
 
-  @IsString()
-  active: string; //Indica se a página está ativa/publicada.
+  @IsBoolean()
+  active: boolean; //Indica se a página está ativa/publicada.
+
+  @IsOptional()
+  @IsUrl()
+  imageUrl?: string; // URL da imagem de capa associada à página.
 
   @IsOptional()
   @IsString()
@@ -39,10 +50,4 @@ export class CreatePageDto {
   @IsDate()
   @Type(() => Date)
   updatedAt?: Date; // Data da última atualização.
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  images?: string[];
-
 }

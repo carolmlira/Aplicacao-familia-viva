@@ -1,0 +1,190 @@
+
+import Link from "next/link";
+import Image from "next/image";
+import styles from "./header.module.css";
+import { useSession, signOut } from "next-auth/react";
+import { useState, useEffect } from "react";
+
+export default function Header() {
+  const { data: session, status } = useSession();
+  const [isMobile, setIsMobile] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileUserMenu, setShowMobileUserMenu] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 1000);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  if (status === "loading") return "Carregando...";
+
+  const role = session?.user?.role;
+
+  function scrollToFooter() {
+    const footer = document.getElementById("footer");
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
+  const renderMenuItems = () => (
+    <>
+      <li><Link href="/" onClick={() => setShowDropdown(false)}>Home</Link></li>
+      <li><Link href="/#sobre" onClick={() => setShowDropdown(false)}>Sobre</Link></li>
+      <li><Link href="/#programacao" onClick={() => setShowDropdown(false)}>Cultos</Link></li>
+      <li><Link href="/projeto" onClick={() => setShowDropdown(false)}>Projetos</Link></li>
+      <li><Link href="/redes" onClick={() => setShowDropdown(false)}>Redes</Link></li>
+      <li><Link href="/galeria" onClick={() => setShowDropdown(false)}>Galeria</Link></li>
+      <li>
+        <button onClick={() => { scrollToFooter(); setShowDropdown(false); }} className={styles.navButton}>
+          Localização
+        </button>
+      </li>
+      <li>
+        <button onClick={() => { scrollToFooter(); setShowDropdown(false); }} className={styles.navButton}>
+          Contato
+        </button>
+      </li>
+
+      {["ADMIN", "COMUNIC", "VOLUNT", "USER"].includes(role ?? "") && (
+        <li><Link href="/escala" onClick={() => setShowDropdown(false)}>Escalas</Link></li>
+      )}
+      {role === "ADMIN" && (
+        <li><Link href="/usuarios" onClick={() => setShowDropdown(false)}>Usuários</Link></li>
+      )}
+    </>
+  );
+
+  return (
+    <header className={styles.header}>
+      <nav className={styles.navbar}>
+        <Link href="/" className={!showDropdown ? "" : styles.logoHidden}>
+          <Image src="/logo.svg" alt="Logo" width={70} height={70} />
+        </Link>
+
+        {isMobile ? (
+          <div className={styles.mobileMenu}>
+            <Image
+              src="/images/list.svg"
+              alt="Menu"
+              width={30}
+              height={30}
+              onClick={() => {
+                setShowDropdown(!showDropdown);
+                setShowMobileUserMenu(false);
+              }}
+              className={styles.menuIcon}
+            />
+
+            {showDropdown && (
+              <ul className={styles.dropdownMenu}>
+                {renderMenuItems()}
+                {session ? (
+                  <li>
+                    <button
+                      onClick={() => setShowMobileUserMenu(!showMobileUserMenu)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      {session.user?.name}
+                      <Image src="/images/seta.svg" alt="Seta" width={12} height={12} />
+                    </button>
+
+                    {showMobileUserMenu && (
+                      <ul style={{ listStyle: "none", paddingLeft: 0, marginTop: 8 }}>
+                        <li>
+                          <Link
+                            href="/perfil"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              setShowMobileUserMenu(false);
+                            }}
+                          >
+                            Editar Perfil
+                          </Link>
+                        </li>
+                        <li>
+                          <button
+                            onClick={() => {
+                              signOut();
+                              setShowDropdown(false);
+                              setShowMobileUserMenu(false);
+                            }}
+                          >
+                            Sair
+                          </button>
+                        </li>
+                      </ul>
+                    )}
+                  </li>
+                ) : (
+                  <li>
+                    <Link href="/login" onClick={() => setShowDropdown(false)}>
+                      Login
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <>
+            <ul className={styles["nav-menu"]}>
+              {renderMenuItems()}
+            </ul>
+
+            <div className={styles["login-container"]}>
+              {session ? (
+                <div className={styles.userMenu}>
+                  <Image
+                    src={session.user?.photo || "/images/icon-user.svg"}
+                    alt="Foto do usuário"
+                    width={40}
+                    height={40}
+                    className={styles.userImage}
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                  />
+                  {showUserMenu && (
+                    <div className={styles.userDropdown}>
+                      <p className={styles.userName}>{session.user?.name}</p>
+                      <Link
+                        href="/perfil"
+                        onClick={() => setShowUserMenu(false)}
+                        className={styles.userLink}
+                      >
+                        Editar Perfil
+                      </Link>
+                      <button
+                        onClick={() => {
+                          signOut();
+                          setShowUserMenu(false);
+                        }}
+                        className={styles.userLink}
+                      >
+                        Sair
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link href="/login" className={styles.botaoLogin}>
+                  Login
+                </Link>
+              )}
+            </div>
+          </>
+        )}
+      </nav>
+    </header>
+  );
+}

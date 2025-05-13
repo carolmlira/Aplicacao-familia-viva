@@ -4,13 +4,14 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
-interface CustomUser {
-  id: string;
-  email: string;
-  role: string;
-  access_token: string;
-  name: string;
-}
+// interface CustomUser {
+//   id: string;
+//   email: string;
+//   role: string;
+//   access_token: string;
+//   name: string;
+//   ministryId: string;
+// }
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,22 +23,20 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch('http://localhost:3000/auth/login', {
-            method: 'POST',
+          const res = await fetch("http://localhost:3000/auth/login", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify({
               email: credentials?.email,
               password: credentials?.password,
             }),
           });
-        
-  
 
           let data;
           try {
-             data = await res.json(); // Protege caso o backend não retorne nada
+            data = await res.json(); // Protege caso o backend não retorne nada
           } catch (err) {
             console.error("Resposta da API não é JSON:", err);
             return null;
@@ -49,12 +48,12 @@ export const authOptions: NextAuthOptions = {
           }
 
           const accessToken = data.access_token;
-          if (!accessToken || accessToken.split('.').length !== 3) {
+          if (!accessToken || accessToken.split(".").length !== 3) {
             console.error("Token mal formado:", accessToken);
             return null;
           }
 
-          const payload: any = JSON.parse(atob(accessToken.split('.')[1]));
+          const payload: any = JSON.parse(atob(accessToken.split(".")[1]));
           // console.log("Payload decodificado do token:", payload);
           // const user: CustomUser = {
           //   id: payload.sub,
@@ -63,7 +62,7 @@ export const authOptions: NextAuthOptions = {
           //   access_token: accessToken,
           //   name: payload.name,
           // };
-          
+
           // console.log('Usuário autenticado:', user.name);
           // console.log('Role do Usuário autenticado:', user.role);
 
@@ -73,9 +72,10 @@ export const authOptions: NextAuthOptions = {
             role: payload.role,
             token: accessToken,
             name: payload.name,
+            ministryId: payload.ministryId,
           };
         } catch (error) {
-          console.error('Erro na autenticação com Nest:', error);
+          console.error("Erro na autenticação com Nest:", error);
           return null;
         }
       },
@@ -90,6 +90,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.accessToken = user.token;
         token.name = user.name;
+        token.ministryId = user.ministryId;
       }
       return token;
     },
@@ -100,6 +101,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).email = token.email;
         (session.user as any).role = token.role;
         (session.user as any).name = token.name;
+        (session.user as any).ministryId = token.ministryId;
       }
       (session as any).accessToken = token.accessToken;
       return session;
@@ -108,10 +110,10 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
+    maxAge: 30 * 60,
   },
 
-  secret: 'c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=',
-
+  secret: "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
 
   pages: {
     signIn: "/login", // ou a página que você usa
@@ -119,5 +121,4 @@ export const authOptions: NextAuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };

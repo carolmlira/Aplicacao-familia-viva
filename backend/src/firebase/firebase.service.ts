@@ -6,6 +6,7 @@ import { Injectable } from '@nestjs/common';
  export class FirebaseService {
    private storage;
    private messaging;
+   private bucket;
    private firestore: FirebaseFirestore.Firestore;
 
    constructor() {
@@ -19,6 +20,7 @@ import { Injectable } from '@nestjs/common';
     }
   
     this.storage = admin.storage();
+    this.bucket = this.storage.bucket();
     this.messaging = admin.messaging();
     this.firestore = admin.firestore();  
   }
@@ -50,7 +52,7 @@ import { Injectable } from '@nestjs/common';
     });
   }
   
-   async getFileUrl(filename: string): Promise<string> {
+  async getFileUrl(filename: string): Promise<string> {
     const bucket = this.storage.bucket();
     const file = bucket.file(filename);
   
@@ -82,11 +84,22 @@ import { Injectable } from '@nestjs/common';
   }
   
 
-  async listFilesInCategory(category: string): Promise<string[]> {
-    const bucket = this.storage.bucket();
-    const [files] = await bucket.getFiles({ prefix: category });
-  
+  async listFiles(prefix: string): Promise<string[]> {
+    const [files] = await this.bucket.getFiles({ prefix });
     return files.map(file => file.name);
+  }
+
+  async listFilesInCategory(category: string, subgrup: string): Promise<string[]> {
+    const bucket = this.storage.bucket();
+    const prefix = `${category}/${subgrup}/`;
+
+    const [files] = await bucket.getFiles({ prefix });
+
+    // Filtra para garantir que estamos listando apenas arquivos e não subdiretórios
+    return files
+      .filter(file => !file.name.endsWith('/'))
+      .map(file => file.name.replace(/^gallery\//, ''));
+
   }
 
   async getCollectionByPath(path: string) {
