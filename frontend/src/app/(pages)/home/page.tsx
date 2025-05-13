@@ -3,7 +3,7 @@
 import styles from "../home/home.module.css";
 import { AiOutlineCaretLeft } from "react-icons/ai";
 import { useEffect, useState } from 'react';
-import { PagesProject } from "@/app/types/PageProjects";
+import { PagesProject } from "@/app/types/pageProjects";
 import Image from "next/image";
 import Link from "next/link";
 
