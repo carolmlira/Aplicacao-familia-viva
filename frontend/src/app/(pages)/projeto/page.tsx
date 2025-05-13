@@ -25,14 +25,11 @@ export default function ProjectsList() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
-    // Se o usuário estiver logado, mas não tiver permissão, redireciona
-    if (session) {
-      const role = (session.user as any)?.role;
-      if (role !== "ADMIN") {
-        router.push("/");
-      }
+    if (!session || (session.user as any)?.role !== 'ADMIN') {
+      router.push('/');
+      return;
     }
 
     fetchProjects();
@@ -107,7 +104,7 @@ export default function ProjectsList() {
 
           {(session?.user as any)?.role === 'ADMIN' && (
             <button
-              onClick={() => router.push('/projeto/new')}
+              onClick={() => router.push('/projects/new')}
               className="ml-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
               Novo Projeto
@@ -123,7 +120,7 @@ export default function ProjectsList() {
           {projects.map((project) => (
             <Link
               key={project.id}
-              href={`/projeto/id/items/${project.id}`}
+              href={`/projects/id/items/${project.id}`}
               className="block"
             >
               <div className="projeto-card">
@@ -160,5 +157,6 @@ export default function ProjectsList() {
         </div>
       )}
     </div>
+
   );
 }
