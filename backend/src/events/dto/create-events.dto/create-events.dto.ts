@@ -1,6 +1,5 @@
 import {
     IsArray,
-    IsBoolean,
     IsNotEmpty,
     IsOptional,
     IsString,
@@ -25,20 +24,5 @@ import {
       message: 'O horário deve estar no formato HH:mm (ex: 19:30)',
     })
     time: string;
-  
-    @IsOptional()
-    @IsString()
-    location?: string;
-  
-    @IsBoolean()
-    hasSchedule: boolean;
-  
-    @IsOptional()
-    @IsString()
-    ministry?: string;
-  
-    @IsOptional()
-    @IsString()
-    recurrenceRule?: string; // RFC5545 se quiser usar iCal padrão (ex: "FREQ=WEEKLY;BYDAY=TU") - integração com o calendário
   }
   

@@ -2,11 +2,7 @@ export interface EventEntity {
     id: string;
     title: string;
     description?: string;
-    days: string[]; // Ex: ["Tuesday", "Sunday"]
+    days: string[]; 
     time: string;
-    location?: string;
-    hasSchedule: boolean;
-    ministry?: string;
-    recurrenceRule?: string; 
-    createdAt: Date;
+
 }
