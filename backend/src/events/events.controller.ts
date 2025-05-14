@@ -1,6 +1,7 @@
-import { Controller, Post, Body, Get, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Patch, NotFoundException } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-events.dto/create-events.dto';
+import { EventEntity } from './entities/event.entity/event.entity';
 
 @Controller('events')
 export class EventsController {
@@ -27,8 +28,9 @@ export class EventsController {
   // Atualizar evento
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEventDto: Partial<CreateEventDto>) {
-    return this.eventsService.update(id, updateEventDto);
+    return this.eventsService.update(id, updateEventDto); // Chama o serviço para atualizar
   }
+
 
   // Remover evento por ID
   @Delete(':id')
