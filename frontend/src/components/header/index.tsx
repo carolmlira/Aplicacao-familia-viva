@@ -10,6 +10,8 @@ export default function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false);
+  const [showLogoUploader, setShowLogoUploader] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -20,6 +22,26 @@ export default function Header() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/logo`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.url) {
+          // força o browser a baixar a imagem atualizada
+          setLogoUrl(`${data.url}?t=${Date.now()}`);
+        }
+      })
+      .catch((err) => console.error("Erro ao carregar logo:", err));
+  }, []);
+
+  const handleLogoClick = () => {
+    if (!session || role !== "ADMIN") {
+      window.location.href = "/";
+    } else {
+      setShowLogoUploader(true);
+    }
+  };
 
   if (status === "loading") return "";
 
@@ -104,12 +126,57 @@ export default function Header() {
     </>
   );
 
+  async function uploadSobreImage(file: File): Promise<string | null> {
+    const formData = new FormData();
+    formData.append("file", file); // nome do campo esperado no backend
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/logo`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao fazer upload da imagem da logo");
+    }
+
+    const data = await res.json();
+    console.log("data ",data.url)
+    return data.url; // supondo que o backend retorna { url: string }
+  }
+
   return (
     <header className={styles.header}>
       <nav className={styles.navbar}>
-        <Link href="/" className={!showDropdown ? "" : styles.logoHidden}>
-          <Image src="/logo.svg" alt="Logo" width={70} height={70} />
-        </Link>
+        <button
+          onClick={handleLogoClick}
+          className={!showDropdown ? "" : styles.logoHidden}
+          style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+        >
+          <Image src={logoUrl || "/logo.svg"} alt="Logo" width={70} height={70} />
+        </button>
+        {showLogoUploader && (
+          <div className={styles.logoModal}>
+            <div className={styles.logoModalContent}>
+              <h3 style={{ fontWeight: "bold", color: "orangered" }}>Enviar nova logo</h3>
+              <input
+                type="file"
+                style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const url = await uploadSobreImage(file);
+                    if (url) {
+                      setLogoUrl(url);
+                      setShowLogoUploader(false);
+                    }
+                  }
+                }}
+              />
+              <button className={styles.buttonCancele} onClick={() => setShowLogoUploader(false)}>Cancelar</button>
+            </div>
+          </div>
+        )}
 
         {isMobile ? (
           <div className={styles.mobileMenu}>

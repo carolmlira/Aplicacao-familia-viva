@@ -115,12 +115,13 @@ export function Footer() {
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h2>Editar Footer</h2>
+            <h2 style={{ fontWeight:"bold", color: "orangered" }}>Editar Footer</h2>
             <form onSubmit={handleSubmit}>
               <label>
                 Instagram:
                 <input
                   type="text"
+                  style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
                   name="contato"
                   value={formData.contato}
                   onChange={handleChange}
@@ -130,15 +131,17 @@ export function Footer() {
                 Localização:
                 <input
                   type="text"
+                  style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
                   name="localizacao"
                   value={formData.localizacao}
                   onChange={handleChange}
                 />
               </label>
               <div className={styles.modalActions}>
-                <button type="submit">Salvar</button>
+                <button style={{ backgroundColor: 'green', borderRadius: '5px', padding: '8px 12px' }} type="submit">Salvar</button>
                 <button
                   type="button"
+                  style={{ backgroundColor: 'red', borderRadius: '5px', padding: '8px 12px' }}
                   onClick={() => setShowModal(false)}
                   className={styles.cancelButton}
                 >

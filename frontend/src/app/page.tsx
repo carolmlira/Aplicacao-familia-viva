@@ -8,7 +8,6 @@ import { PagesProject } from "@/app/types/pageProjects";
 
 import Image from "next/image";
 import Link from "next/link";
-import { BiBorderRadius } from "react-icons/bi";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -16,24 +15,28 @@ export default function Home() {
   const [projects, setProjects] = useState<PagesProject[]>([]);
 
   const [events, setEvents] = useState<any[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [showModalProgramacaoAdd, setShowModalProgramacaoAdd] = useState(false);
+  const [showModalProgramacaoEdit, setShowModalProgramacaoEdit] = useState(false);
+  const [formEdit, setFormEdit] = useState({ title: "", description: "", time: "", days: [] as string[] });
+
   const [files, setFiles] = useState<string[]>([]);
 
-
+  const [showModalEditSobre, setShowModalEditSobre] = useState(false);
   const [sobreList, setSobreList] = useState<Sobre[]>([]);
+  const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
+  const [imgTimestamp, setImgTimestamp] = useState("");
   
   const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BASE}`;
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const [banner, setBanner] = useState<BannerType | null>(null);
   const [showModalBanner, setShowModalBanner] = useState(false);
-  const [showModalEditSobre, setShowModalEditSobre] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null);
+  const [bannerText, setBannerText] = useState('');
 
 
-  const [showModalProgramacaoAdd, setShowModalProgramacaoAdd] = useState(false);
-  const [showModalProgramacaoEdit, setShowModalProgramacaoEdit] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
-
-  const [formEdit, setFormEdit] = useState({ title: "", description: "", time: "", days: [] as string[] });
-  const [imgTimestamp, setImgTimestamp] = useState("");
 
   useEffect(() => {
     // quando `sobreList` for atualizado, mude o timestamp
@@ -46,13 +49,6 @@ export default function Home() {
     description: "",
     days: "",
     time: "",
-  });
-
-  const [newSobre, setNewSobre] = useState({
-    id: "",
-    titulo: "",
-    content: "",
-    imagem: "", 
   });
 
   const [editSobre, setEditSobre] = useState({
@@ -69,18 +65,15 @@ export default function Home() {
     imagem?: string;
   };
 
-
-const [logoFile, setLogoFile] = useState<File | null>(null);
-const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
-const [logoPreview, setLogoPreview] = useState<string>("/familiaVIVA.svg");
-const [backgroundPreview, setBackgroundPreview] = useState<string>("/banner.svg");
-const [bannerText, setBannerText] = useState<string>("Um Lugar de Adoração ao Deus Vivo");
-
-const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
-
-  
+  type BannerType = {
+    id: string;
+    imagemLogo?: string;
+    imagemBanner?: string;
+    frase?: string;
+    imagemLogoFile?: File;
+    imagemBannerFile?: File;
+  };  
   const imagesPerPage = 4;
-
   const visibleFiles = files.slice(currentIndex, currentIndex + imagesPerPage);
 
   useEffect(() => {
@@ -88,6 +81,7 @@ const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
     fetchFiles('gallery');
     fetchEvents();
     fetchSobre();
+    fetchBanner();
   }, []);
   
   async function fetchProjects() {
@@ -154,7 +148,6 @@ const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
     }
   }
 
-
   async function fetchSobre() {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sobre`);
@@ -163,6 +156,19 @@ const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
       }
       const data = await res.json();
       setSobreList(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function fetchBanner() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/banner`);
+      if (!res.ok) throw new Error("Erro ao buscar dados do Banner");
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setBanner(data[0]); // pega só o primeiro
+      }
     } catch (error) {
       console.error(error);
     }
@@ -320,30 +326,6 @@ const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
     return data.url; // supondo que o backend retorna { url: string }
   }
 
-  async function updateSobre(id:string, data:any) {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sobre/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        throw new Error("Erro ao atualizar sobre");
-      }
-
-      const updated = await res.json();
-      return updated;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  }
-
-
-
   const goToPrevious = () => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   };
@@ -383,41 +365,63 @@ const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
     return `${todosMenosUltimo} e ${ultimo}`;
   }
 
-
-
-
-function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
-  const file = e.target.files?.[0];
-  if (file) {
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
+  function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSobreImageFile(file);
+    }
   }
-}
 
-function handleBackgroundChange(e: React.ChangeEvent<HTMLInputElement>) {
-  const file = e.target.files?.[0];
-  if (file) {
-    setBackgroundFile(file);
-    setBackgroundPreview(URL.createObjectURL(file));
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBanner(prev => {
+        if (!prev) return prev; 
+        return {
+          ...prev,
+          imagemLogo: URL.createObjectURL(file),
+          imagemLogoFile: file,
+        };
+      });
+    }
   }
-}
 
-function handleSave() {
-  // Aqui você pode implementar o upload e salvar no Firebase ou outro backend
-  console.log("Salvar alterações:");
-  console.log("Logo:", logoFile);
-  console.log("Imagem de fundo:", backgroundFile);
-  console.log("Frase:", bannerText);
-  setShowModalBanner(false);
-}
-function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-  const file = e.target.files?.[0];
-  if (file) {
-    setSobreImageFile(file);
+  function handleBackgroundChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBanner(prev => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          imagemBanner: URL.createObjectURL(file),
+          imagemBannerFile: file,
+        };
+      });
+    }
   }
-}
 
+  async function handleSaveBanner() {
+    try {
+      const formData = new FormData();
+      if (banner?.imagemLogoFile) formData.append('imagemLogo', banner.imagemLogoFile);
+      if (banner?.imagemBannerFile) formData.append('imagemBanner', banner.imagemBannerFile);
+      if (banner?.frase) formData.append('frase', banner.frase);
+      if (!banner) return;
 
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/banner/${banner.id}`, {
+        method: 'PATCH',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error('Erro ao atualizar o banner');
+
+      await fetchBanner();
+      setShowModalBanner(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   return (
     <>
@@ -437,67 +441,76 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         </div>
       )}
       {showModalBanner && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <button className={styles.modalClose} onClick={() => setShowModalBanner(false)}>×</button>
+        <div className={styles.modalOverlayBanner}>
+          <div className={styles.modalContentBanner}>
 
-            <h2>Editar Banner Principal</h2>
+            <h2 style={{ fontWeight: "bold", color: "orangered"}}>Editar Banner</h2>
 
             {/* Upload da Logo */}
-            <div className={styles.modalSection}>
-              <label htmlFor="logoUpload">Logo:</label>
-              <input type="file" id="logoUpload" accept="image/*" onChange={handleLogoChange} />
-              {logoPreview && (
+            <div className={styles.modalSectionBanner}>
+              <label htmlFor="logoUpload">Imagem da logo:</label>
+              <input style={{ marginTop: "10px",boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }} type="file" id="logoUpload" accept="image/*" onChange={handleLogoChange} />
+              {logoPreview ? (
                 <Image src={logoPreview} alt="Logo preview" width={300} height={100} />
-              )}
+              ) : banner?.imagemLogo ? (
+                <Image src={banner.imagemLogo} alt="Logo atual" width={300} height={100} />
+              ) : null}
             </div>
 
             {/* Upload da Imagem de Fundo */}
-            <div className={styles.modalSection}>
+            <div className={styles.modalSectionBanner}>
               <label htmlFor="backgroundUpload">Imagem de fundo:</label>
-              <input type="file" id="backgroundUpload" accept="image/*" onChange={handleBackgroundChange} />
-              {backgroundPreview && (
-                <Image src={backgroundPreview} alt="Background preview" width={400} height={150} />
-              )}
+              <input style={{ marginTop: "10px",boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }} type="file" id="backgroundUpload" accept="image/*" onChange={handleBackgroundChange} />
+              {backgroundPreview ? (
+                <Image src={backgroundPreview} alt="Background preview" width={200} height={200} />
+              ) : banner?.imagemBanner ? (
+                <Image src={banner.imagemBanner} alt="Background atual" width={200} height={200} />
+              ) : null}
             </div>
 
             {/* Frase editável */}
-            <div className={styles.modalSection}>
+            <div className={styles.modalSectionBanner}>
               <label htmlFor="bannerText">Frase:</label>
               <input
                 type="text"
                 id="bannerText"
-                value={bannerText}
-                onChange={(e) => setBannerText(e.target.value)}
+                value={banner?.frase || ''}
+                onChange={(e) =>
+                  setBanner((prev) =>
+                    prev ? { ...prev, frase: e.target.value } : prev
+                  )
+                }
                 placeholder="Digite a frase do banner"
                 className={styles.inputText}
               />
             </div>
 
-            <div className={styles.modalActions}>
-              <button onClick={handleSave}>Salvar</button>
-              <button onClick={() => setShowModalBanner(false)}>Cancelar</button>
+            <div className={styles.modalActionsBanner}>
+              <button style={{ backgroundColor: "green", padding: "8px 12px", borderRadius: "8px"}} onClick={handleSaveBanner}>Salvar</button>
+              <button style={{ backgroundColor: "red", padding: "8px 12px", borderRadius: "8px"}} onClick={() => setShowModalBanner(false)}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-      <div className="relative w-full h-[400px] overflow-hidden">
-        <Image
-          src="/banner.svg"
-          alt="Banner de fundo"
-          fill
-          className={styles.banner}
-        />
-        <div className={styles.logoPrincipal}>
+      {banner?.imagemBanner && banner?.imagemLogo && (
+        <div className="relative w-full h-[500px] overflow-hidden">
           <Image
-            src="/familiaVIVA.svg"
-            alt="Logo principal"
-            width={700}
-            height={200}
+            src={banner.imagemBanner}
+            alt="Banner de fundo"
+            fill
+            className={styles.banner}
           />
-          <h1>Um Lugar de Adoração ao Deus Vivo</h1>
+          <div className={styles.logoPrincipal}>
+            <Image
+              src={banner.imagemLogo}
+              alt="Logo principal"
+              width={700}
+              height={200}
+            />
+            <h1>{banner.frase || 'Um Lugar de Adoração ao Deus Vivo'}</h1>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Sobre a igreja */}
       {isAdmin && sobreList.length > 0 && (
@@ -521,41 +534,48 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         </div>
       )}
 
+      {/* Sobre Modal Editar */}
       {showModalEditSobre && editSobre && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <button onClick={() => setShowModalEditSobre(false)}>×</button>
+        <div className={styles.modalOverlaySobre}>
+          <div className={styles.modalContentSobre}>
+            <h2 style={{ fontWeight: "bold", color: "orangered"}}>Editar Seção: </h2>
 
-            <h2>Editar Seção "Quem Somos"</h2>
-
+            <label>Título:</label>
             <input
               type="text"
+              style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }} 
               value={editSobre.titulo}
               onChange={(e) =>
                 setEditSobre({ ...editSobre, titulo: e.target.value })
               }
             />
-            <textarea
+
+            <label>Conteúdo:</label>
+            <textarea 
+              style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }} 
               value={editSobre.content}
               onChange={(e) =>
                 setEditSobre({ ...editSobre, content: e.target.value })
               }
             />
-            <input type="file" onChange={handleSobreImageChange} />
+            <label>Imagem:</label>
+            <input style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}  type="file" onChange={handleSobreImageChange} />
             {editSobre.imagem && (
               <Image               src={
                   editSobre.imagem?.startsWith("http")
                     ? `${editSobre.imagem}?t=${imgTimestamp}`
                     : "/images/Placeholder.svg"
-                } alt="Preview" width={200} height={200} />
+                } alt="Preview" width={200} height={200} style={{ border: "2px solid orange", margin: "0 auto", borderRadius: "8px" }} />
             )}
-
-            <button onClick={() => handleSaveSobre(editSobre.id)}>Salvar</button>
-            <button onClick={() => setShowModalEditSobre(false)}>Cancelar</button>
+            <div className={styles.modalActionsBanner}>
+              <button style={{ backgroundColor: "green", padding: "8px 12px", borderRadius: "8px"}} onClick={() => handleSaveSobre(editSobre.id)}>Salvar</button>
+              <button style={{ backgroundColor: "red", padding: "8px 12px", borderRadius: "8px"}} onClick={() => setShowModalEditSobre(false)}>Cancelar</button>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Sobre a igreja layout */}
       <div className={styles.sobre} id="sobre">
         {sobreList.map((sobre) => (
           <div key={sobre.id} className={styles.conteudoSobre}>
@@ -563,7 +583,14 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
               <h2 className="bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent">
                 {sobre.titulo || "Quem somos?"}
               </h2>
-              <p>{sobre.content}</p>
+              {sobre.content
+                .split('\n') // Quebra por linhas
+                .filter((paragraph) => paragraph.trim() !== '') // Remove vazios
+                .map((paragraph, index) => (
+                  <p key={index} className="mb-4 text-justify">
+                    {paragraph}
+                  </p>
+                ))}
             </div>
             <div className={styles.imageContainer}>
               <Image
@@ -582,7 +609,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         ))}
       </div>
 
-      {/*Programação*/}
+      {/* Programação Button Add */}
       {isAdmin && (
         <div className="container-programacao-add">
           <button className={styles.botaoAdd} onClick={() => setShowModalProgramacaoAdd(true)}>
@@ -598,14 +625,14 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         </div>
       )}
 
+      {/* Programação Modal Add */}
       {showModalProgramacaoAdd && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
+        <div className={styles.modalOverlayEvent}>
+          <div className={styles.modalContentEvent}>
   
-            <h2 style={{ fontWeight: 'bold' }}>Novo Evento</h2>
+            <h2 style={{ fontWeight: 'bold', color: "orangered" }}>Novo Evento</h2>
 
-
-            <div className={styles.modalSection}>
+            <div className={styles.modalSectionEvent}>
               <label htmlFor="eventTitle">Título:</label>
               <input
                 id="eventTitle"
@@ -617,7 +644,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
               />
             </div>
 
-            <div className={styles.modalSection}>
+            <div className={styles.modalSectionEvent}>
               <label htmlFor="eventDescription">Descrição:</label>
               <textarea
                 id="eventDescription"
@@ -628,7 +655,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
               />
             </div>
 
-            <div className={styles.modalSection}>
+            <div className={styles.modalSectionEvent}>
               <label htmlFor="eventDays">Dias (separados por vírgula):</label>
               <input
                 id="eventDays"
@@ -640,7 +667,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
               />
             </div>
 
-            <div className={styles.modalSection}>
+            <div className={styles.modalSectionEvent}>
               <label htmlFor="eventTime">Horário:</label>
               <input
                 id="eventTime"
@@ -651,28 +678,32 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
               />
             </div>
 
-            <div className={styles.modalActions}>
+            <div className={styles.modalActionsBanner}>
               <button style={{ backgroundColor: 'green', borderRadius: '5px', padding: '8px 12px' }} onClick={handleCreateEvent}>Salvar</button>
               <button style={{ backgroundColor: 'red', borderRadius: '5px', padding: '8px 12px' }} onClick={() => setShowModalProgramacaoAdd(false)}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Programação Modal Edit */}
       {showModalProgramacaoEdit && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3 style={{ fontWeight: 'bold'}}>Editar Evento</h3>
+        <div className={styles.modalOverlaySobre}>
+          <div className={styles.modalContentSobre}>
+            <h3 style={{ fontWeight: 'bold', color: "orangered"}}>Editar Evento</h3>
 
             <label>Título</label>
             <input
               type="text"
               value={formEdit.title}
+              style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
               onChange={(e) => setFormEdit({ ...formEdit, title: e.target.value })}
             />
 
             <label>Descrição</label>
             <textarea
               value={formEdit.description}
+              style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
               onChange={(e) => setFormEdit({ ...formEdit, description: e.target.value })}
             />
 
@@ -680,6 +711,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
             <input
               type="text"
               value={formEdit.time}
+              style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
               onChange={(e) => setFormEdit({ ...formEdit, time: e.target.value })}
             />
 
@@ -687,6 +719,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
             <input
               type="text"
               value={formEdit.days.join(", ")}
+              style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
               onChange={(e) =>
                 setFormEdit({
                   ...formEdit,
@@ -695,18 +728,21 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
               }
             />
 
-            <div className={styles.modalButtons}>
+            <div className={styles.modalActionsBanner}>
               <button style={{ backgroundColor: 'green', borderRadius: '5px', padding: '8px 12px' }} onClick={handleSubmitUpdate}>Salvar</button>
               <button style={{ backgroundColor: 'red', borderRadius: '5px', padding: '8px 12px' }} onClick={() => setShowModalProgramacaoEdit(false)}>Cancelar</button>
             </div>
           </div>
         </div>
       )}
-      {/* Programação */}
+      {/* Programação layout */}
       <div className={styles.programacao}>
-        <h2 className="bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent">
-          Nossa Programação
-        </h2>
+        <div className="w-full text-center">
+          <h2 className="text-4xl font-bold w-full bg-gradient-to-r from-[#FE3012] via-[#FE3011] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent">
+            Nossa Programação
+          </h2>
+        </div>
+
         <div className={styles.botoesDias}>
           {events.length === 0 ? (
             <p>Nenhum evento encontrado.</p>
@@ -756,7 +792,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         </div>
       </div>
 
-      {/* Projetos */}
+      {/* Projetos layout */}
       <div className={styles.projetos}>
         <div className={styles.projetosHeader}>
           <h1>Projetos</h1>
@@ -795,7 +831,7 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         )}
       </div>
 
-      {/* Galeria */}
+      {/* Galeria layout */}
       <div className={styles.galeria}>
         <div className={styles.galeriaHeader}>
           <h2>Galeria</h2>

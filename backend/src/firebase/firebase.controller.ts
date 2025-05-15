@@ -77,6 +77,20 @@ export class FirebaseController {
     return { url };
   }
 
+  @Post('upload/logo')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLogoImage(@UploadedFile() file: Express.Multer.File) {
+    const url = await this.firebaseService.uploadFile(file, 'logo');
+    return { url };
+  }
+
+  @Post('upload/user')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImage(@UploadedFile() file: Express.Multer.File) {
+    const url = await this.firebaseService.uploadFile(file, 'user');
+    return { url };
+  }
+
   @Get('file/:filename')
   async getFile(@Param('filename') filename: string) {
     const url = await this.firebaseService.getFileUrl(filename);
@@ -117,6 +131,12 @@ export class FirebaseController {
   
     // 2. Faz upload com novo nome
     const url = await this.firebaseService.uploadFile(file, newPath);
+    return { url };
+  }
+
+  @Get('logo')
+  async getLogoUrl() {
+    const url = await this.firebaseService.getFileUrl('logo');
     return { url };
   }
   
