@@ -1,7 +1,7 @@
-import { CreateBanner } from './create-banner';
+import { CreateBannerDto } from './create-banner';
 
 describe('CreateBanner', () => {
   it('should be defined', () => {
-    expect(new CreateBanner()).toBeDefined();
+    expect(new CreateBannerDto()).toBeDefined();
   });
 });
