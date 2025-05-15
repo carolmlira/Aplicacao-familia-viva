@@ -34,7 +34,6 @@
   transition: filter 0.3s;
 }
 
-
 .botaoEditar:hover .iconeEditar {
   filter: invert(0); 
 }
@@ -118,9 +117,6 @@
 
 /* SOBRE */
 
-.container-sobre {
-  position: relative;
-}
 
 .botaoEditarSobre {
   position: absolute;
@@ -150,50 +146,86 @@
   color: #0a0a0a;
 }
 
-.sobre {
-  margin-top: 20vh;
-  margin-left: 10vh;
+#sobre {
+  position: relative;
+  margin-top: 10vh;
+  padding: 0 5vw;
 }
 
-.sobreImagem{
-  width: 40%;
-  height: auto;
-  margin-left: 30vh;
-  margin-bottom: 10vh;
-}
-
-.sobre h2 {
-  font-size: 40px;
-  text-decoration: none;
-  padding: 10px 0;
-  transition: 0.2s ease;
-  font-weight: bold;
-  background: linear-gradient(to right, #fe8719, #fe3012);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-left: 10vh;
-  
-}
 .conteudoSobre {
   display: flex;
   align-items: center;
-  flex-wrap: wrap; 
-  margin-bottom: 10vh;
+  gap: 4rem;
+  margin-top: 10%;
 }
 
-.conteudoSobre p {
+/* texto fica do lado esquerdo */
+.textContainer {
+  order: 1;
+  flex: 1 1 400px;
+}
+
+/* imagem fica do lado direito */
+.imageContainer {
+  order: 2;
+  flex-shrink: 0;
+  margin-left: 7%;
+}
+
+.sobreImagem {
+  max-height: 500px;
+  max-width: 700px;
+  object-fit: contain;
+  height: auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.textContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centraliza verticalmente o bloco texto */
   max-width: 500px;
-  font-size: 18px;
+  margin-left: 10%;
+  flex: 1 1 300px;
+}
+
+.textContainer h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  margin-left: -50px;
+}
+
+.textContainer p {
+  font-size: 1.125rem; /* 18px */
   line-height: 1.6;
   text-indent: 2.5em;
+  text-align: justify;
+  margin: 0;
 }
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .conteudoSobre {
+    flex-direction: column;
+  }
+  .textContainer, .imageContainer {
+    order: unset;
+    width: 100%;
+  }
+  .sobreImagem {
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
 
 /* BOTÕES DA ÁREA DEPROGRAMAÇÃO */
 
 .botaoAdd {
   position: absolute;
-  top: 220%;
+  top: 210%;
   right: 130px;
   z-index: 10;
   display: flex;

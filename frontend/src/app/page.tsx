@@ -8,6 +8,7 @@ import { PagesProject } from "@/app/types/pageProjects";
 
 import Image from "next/image";
 import Link from "next/link";
+import { BiBorderRadius } from "react-icons/bi";
 
 export default function Home() {
   const { data: session } = useSession();
@@ -16,17 +17,28 @@ export default function Home() {
 
   const [events, setEvents] = useState<any[]>([]);
   const [files, setFiles] = useState<string[]>([]);
+
+
+  const [sobreList, setSobreList] = useState<Sobre[]>([]);
   
   const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BASE}`;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [showModalBanner, setShowModalBanner] = useState(false);
-  const [showModalSobre, setShowModalSobre] = useState(false);
+  const [showModalEditSobre, setShowModalEditSobre] = useState(false);
+
+
   const [showModalProgramacaoAdd, setShowModalProgramacaoAdd] = useState(false);
   const [showModalProgramacaoEdit, setShowModalProgramacaoEdit] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
   const [formEdit, setFormEdit] = useState({ title: "", description: "", time: "", days: [] as string[] });
+  const [imgTimestamp, setImgTimestamp] = useState("");
+
+  useEffect(() => {
+    // quando `sobreList` for atualizado, mude o timestamp
+    setImgTimestamp(Date.now().toString());
+  }, [sobreList]);
 
 
   const [newEvent, setNewEvent] = useState({
@@ -36,15 +48,36 @@ export default function Home() {
     time: "",
   });
 
+  const [newSobre, setNewSobre] = useState({
+    id: "",
+    titulo: "",
+    content: "",
+    imagem: "", 
+  });
+
+  const [editSobre, setEditSobre] = useState({
+    id: "",
+    titulo: "",
+    content: "",
+    imagem: "",
+  });
+
+  type Sobre = {
+    id: string;
+    titulo: string;
+    content: string;
+    imagem?: string;
+  };
+
 
 const [logoFile, setLogoFile] = useState<File | null>(null);
 const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
 const [logoPreview, setLogoPreview] = useState<string>("/familiaVIVA.svg");
 const [backgroundPreview, setBackgroundPreview] = useState<string>("/banner.svg");
 const [bannerText, setBannerText] = useState<string>("Um Lugar de Adoração ao Deus Vivo");
-const [sobreText, setSobreText] = useState<string>("Lorem Ipsum is simply dummy text...");
+
 const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
-const [sobreImagePreview, setSobreImagePreview] = useState<string>("/sobre.svg");
+
   
   const imagesPerPage = 4;
 
@@ -54,6 +87,7 @@ const [sobreImagePreview, setSobreImagePreview] = useState<string>("/sobre.svg")
     fetchProjects();
     fetchFiles('gallery');
     fetchEvents();
+    fetchSobre();
   }, []);
   
   async function fetchProjects() {
@@ -117,6 +151,20 @@ const [sobreImagePreview, setSobreImagePreview] = useState<string>("/sobre.svg")
       setEvents(data); // data deve ser um array de eventos
     } catch (error) {
       console.error("Erro ao buscar eventos:", error);
+    }
+  }
+
+
+  async function fetchSobre() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sobre`);
+      if (!res.ok) {
+        throw new Error("Erro ao buscar dados do Sobre");
+      }
+      const data = await res.json();
+      setSobreList(data);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -216,6 +264,86 @@ const [sobreImagePreview, setSobreImagePreview] = useState<string>("/sobre.svg")
     }
   }
 
+  async function handleSaveSobre(id: string) {
+    try {
+      let imageUrl = editSobre.imagem;
+
+      if (sobreImageFile) {
+        const url = await uploadSobreImage(sobreImageFile);
+        console.log("data image: ", url)
+        if (url) imageUrl = url;
+      }
+
+      const updatedData = {
+        titulo: editSobre.titulo,
+        content: editSobre.content,
+        imagem: imageUrl,
+      };
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sobre/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!res.ok) throw new Error("Erro ao atualizar dados do Sobre");
+
+      const updatedSobre = await res.json();
+
+      // Atualiza a lista no estado
+      setSobreList((prev) =>
+        prev.map((item) => (item.id === id ? updatedSobre : item))
+      );
+
+      setShowModalEditSobre(false);
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao salvar dados da seção Sobre");
+    }
+  }
+
+  async function uploadSobreImage(file: File): Promise<string | null> {
+    const formData = new FormData();
+    formData.append("file", file); // nome do campo esperado no backend
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/sobre`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao fazer upload da imagem do Sobre");
+    }
+
+    const data = await res.json();
+    console.log("data ",data.url)
+    return data.url; // supondo que o backend retorna { url: string }
+  }
+
+  async function updateSobre(id:string, data:any) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sobre/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao atualizar sobre");
+      }
+
+      const updated = await res.json();
+      return updated;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+
+
   const goToPrevious = () => {
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   };
@@ -286,15 +414,10 @@ function handleSobreImageChange(e: React.ChangeEvent<HTMLInputElement>) {
   const file = e.target.files?.[0];
   if (file) {
     setSobreImageFile(file);
-    setSobreImagePreview(URL.createObjectURL(file));
   }
 }
 
-function handleSaveSobre() {
-  console.log("Texto sobre:", sobreText);
-  console.log("Imagem sobre:", sobreImageFile);
-  setShowModalSobre(false);
-}
+
 
   return (
     <>
@@ -377,9 +500,15 @@ function handleSaveSobre() {
       </div>
 
       {/* Sobre a igreja */}
-      {isAdmin && (
+      {isAdmin && sobreList.length > 0 && (
         <div className="container-sobre">
-          <button className={styles.botaoEditarSobre} onClick={() => setShowModalSobre(true)}>
+          <button
+            className={styles.botaoEditarSobre}
+            onClick={() => {
+              setEditSobre({ ...sobreList[0], imagem: sobreList[0].imagem || "" });
+              setShowModalEditSobre(true);
+            }}
+          >
             <Image
               src="/images/pen.svg"
               alt="Editar"
@@ -391,65 +520,66 @@ function handleSaveSobre() {
           </button>
         </div>
       )}
-      {showModalSobre && (
+
+      {showModalEditSobre && editSobre && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
-            <button className={styles.modalClose} onClick={() => setShowModalSobre(false)}>×</button>
+            <button onClick={() => setShowModalEditSobre(false)}>×</button>
 
             <h2>Editar Seção "Quem Somos"</h2>
 
-            {/* Campo de texto */}
-            <div className={styles.modalSection}>
-              <label htmlFor="sobreText">Texto:</label>
-              <textarea
-                id="sobreText"
-                value={sobreText}
-                onChange={(e) => setSobreText(e.target.value)}
-                className={styles.inputText}
-                rows={6}
-              />
-            </div>
+            <input
+              type="text"
+              value={editSobre.titulo}
+              onChange={(e) =>
+                setEditSobre({ ...editSobre, titulo: e.target.value })
+              }
+            />
+            <textarea
+              value={editSobre.content}
+              onChange={(e) =>
+                setEditSobre({ ...editSobre, content: e.target.value })
+              }
+            />
+            <input type="file" onChange={handleSobreImageChange} />
+            {editSobre.imagem && (
+              <Image               src={
+                  editSobre.imagem?.startsWith("http")
+                    ? `${editSobre.imagem}?t=${imgTimestamp}`
+                    : "/images/Placeholder.svg"
+                } alt="Preview" width={200} height={200} />
+            )}
 
-            {/* Upload da Imagem */}
-            <div className={styles.modalSection}>
-              <label htmlFor="sobreImageUpload">Imagem:</label>
-              <input type="file" id="sobreImageUpload" accept="image/*" onChange={handleSobreImageChange} />
-              {sobreImagePreview && (
-                <Image src={sobreImagePreview} alt="Sobre preview" width={400} height={200} />
-              )}
-            </div>
-
-            {/* Ações */}
-            <div className={styles.modalActions}>
-              <button onClick={handleSaveSobre}>Salvar</button>
-              <button onClick={() => setShowModalSobre(false)}>Cancelar</button>
-            </div>
+            <button onClick={() => handleSaveSobre(editSobre.id)}>Salvar</button>
+            <button onClick={() => setShowModalEditSobre(false)}>Cancelar</button>
           </div>
         </div>
       )}
 
       <div className={styles.sobre} id="sobre">
-        <h2>Quem somos?</h2>
-        <div className={styles.conteudoSobre}>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industrys standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularized in the 1960s with
-            the release of Letraset sheets containing Lorem Ipsum passages, and
-            more recently with desktop publishing software like Aldus PageMaker
-            including versions of Lorem Ipsum.
-          </p>
-          <Image
-            src="/sobre.svg"
-            alt="Sobre a igreja"
-            className={styles.sobreImagem}
-            width={600}
-            height={200}
-          />
-        </div>
+        {sobreList.map((sobre) => (
+          <div key={sobre.id} className={styles.conteudoSobre}>
+            <div className={styles.textContainer}>
+              <h2 className="bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent">
+                {sobre.titulo || "Quem somos?"}
+              </h2>
+              <p>{sobre.content}</p>
+            </div>
+            <div className={styles.imageContainer}>
+              <Image
+                src={
+                  sobre.imagem?.startsWith("http")
+                    ? `${sobre.imagem}?t=${imgTimestamp}`
+                    : "/images/Placeholder.svg"
+                }
+                alt="Sobre a igreja"
+                className={styles.sobreImagem}
+                width={600}
+                height={200}
+              />
+            </div>
+          </div>
+        ))}
       </div>
 
       {/*Programação*/}
