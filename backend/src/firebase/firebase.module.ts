@@ -13,6 +13,7 @@ import * as multer from 'multer';
   ],
   controllers: [FirebaseController],
   providers: [FirebaseService],
+  exports: [FirebaseService],
 })
 export class FirebaseModule {
   static forRoot(): import("@nestjs/common").Type<any> | import("@nestjs/common").DynamicModule | Promise<import("@nestjs/common").DynamicModule> | import("@nestjs/common").ForwardReference<any> {

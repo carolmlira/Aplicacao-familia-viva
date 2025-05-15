@@ -70,6 +70,12 @@ export class FirebaseController {
     return { url, filename }; // Retorna a URL e o nome do arquivo
   }
 
+  @Post('upload/sobre')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadSobreImage(@UploadedFile() file: Express.Multer.File) {
+    const url = await this.firebaseService.uploadFile(file, 'sobre');
+    return { url };
+  }
 
   @Get('file/:filename')
   async getFile(@Param('filename') filename: string) {
