@@ -13,6 +13,7 @@ interface PagesProject {
   icon: string;
   active: boolean;
   imageUrl?: string;
+  imageUrls?: string[];
   
 }
 
@@ -40,35 +41,27 @@ export default function ProjectsList() {
 
   async function fetchProjects() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`
+      );
       const data = await res.json();
       const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
 
-      const projectsWithImages = await Promise.all(
-        rawProjects.map(async (project) => {
-          if (!project.id) return project;
+      const projectsWithImages = rawProjects.map((project) => {
+        const imageUrl =
+          Array.isArray(project.imageUrls) && project.imageUrls.length > 0
+            ? project.imageUrls[0]
+            : undefined;
 
-          try {
-            const imageRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/${category}/files?pageId=${project.id}`
-            );
-            const imageData = await imageRes.json();
-            const imageUrl =
-              Array.isArray(imageData.files) && imageData.files.length > 0 ? imageData.files[0] : undefined;
-
-            return { ...project, imageUrl };
-          } catch (err) {
-            console.warn(`Erro ao buscar imagem de ${project.title}:`, err);
-            return { ...project };
-          }
-        })
-      );
+        return { ...project, imageUrl };
+      });
 
       setProjects(projectsWithImages);
     } catch (error) {
       console.error('Erro ao buscar projetos:', error);
     }
   }
+
   async function deleteProject(id: string) {
     if (!confirm('Tem certeza que deseja excluir este projeto?')) return;
   
@@ -134,7 +127,7 @@ export default function ProjectsList() {
                   />
                 </div>
                 <div className="projeto-texto">
-                  <h2>{project.title}</h2>
+                  <h2 style={{ color:"#FFA500" }}>{project.title}</h2>
                   <p>
                     {project.content?.slice(0, 150)}
                     {project.content?.length > 150 && '...'}

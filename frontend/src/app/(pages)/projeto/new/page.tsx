@@ -74,7 +74,7 @@ export default function NewProject() {
   
       const created = await res.json();
       console.log('Projeto criado com imagens:', created);
-      router.push('/projects');
+      router.push('/projeto');
     } catch (error) {
       console.error(error);
     } finally {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GrLocation } from "react-icons/gr";
+import { useSession } from "next-auth/react"; 
 import { FaInstagram } from "react-icons/fa";
 import styles from "./footer.module.css";
 import Image from "next/image";
@@ -7,15 +8,18 @@ import Image from "next/image";
 type FooterData = {
   contato:string;
   localizacao: string;
+  telefone: string;
 };
 
 export function Footer() {
+  const { data: session } = useSession(); 
   const [isMobile, setIsMobile] = useState(false);
   const [footerData, setFooterData] = useState<FooterData | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<FooterData>({
     contato: "",
     localizacao: "",
+    telefone: "",
   });
 
   useEffect(() => {
@@ -31,9 +35,13 @@ export function Footer() {
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/footer`)
       .then((res) => res.json())
-      .then((data) => setFooterData(data))
+      .then((data) => {
+        console.log("Dados do footer:", data); // 👈 veja aqui se telefone vem
+        setFooterData(data);
+      })
       .catch((err) => console.error("Erro ao buscar footer:", err));
   }, []);
+
 
   // Atualizar dados (exemplo: PATCH)
   const updateFooter = async (data: Partial<FooterData>) => {
@@ -77,6 +85,19 @@ export function Footer() {
                 {footerData?.contato || "Não informado"}
               </a>
             </div>
+            {/* NOVO CAMPO TELEFONE */}
+            {footerData?.telefone && (
+              <div className={styles.info}>
+                <Image
+                  src="/images/telephone.svg"
+                  alt="Telefone"
+                  width={20}
+                  height={20}
+                  className={styles.iconPhone}
+                />
+                <span>{footerData.telefone}</span>
+              </div>
+            )}
           </li>
 
           <li className={styles.localizacao}>
@@ -97,19 +118,30 @@ export function Footer() {
           </li>
         </ul>
         {/* Botão para abrir o modal */}
-        <button
-          className={styles.editButton}
-          onClick={() => setShowModal(true)}
-        >
-          <Image
-            src="/images/pen.svg"
-            alt="Editar"
-            width={20}
-            height={20}
-            className={styles.iconeEditar}
-          />
-          <span>Editar</span>
-        </button>
+        {(session?.user as any)?.role === "ADMIN" && (
+          <button
+            className={styles.editButton}
+            onClick={() => {
+              if (footerData) {
+                setFormData({
+                  contato: footerData.contato,
+                  localizacao: footerData.localizacao,
+                  telefone: footerData.telefone
+                });
+              }
+              setShowModal(true);
+            }}
+          >
+            <Image
+              src="/images/pen.svg"
+              alt="Editar"
+              width={20}
+              height={20}
+              className={styles.iconeEditar}
+            />
+            <span>Editar</span>
+          </button>
+        )}
       </nav>
       {/* Modal de edição */}
       {showModal && (
@@ -127,6 +159,17 @@ export function Footer() {
                   onChange={handleChange}
                 />
               </label>
+              <label>
+                Telefone:
+                <input
+                  type="text"
+                  style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
+                  name="telefone" // <-- aqui estava errado
+                  value={formData.telefone}
+                  onChange={handleChange}
+                />
+              </label>
+
               <label>
                 Localização:
                 <input

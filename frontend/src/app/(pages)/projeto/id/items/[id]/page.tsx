@@ -1,14 +1,14 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import styles from './projetoId.module.css';
 import { useEffect, useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Page() {
-  const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [project, setProject] = useState<any | null>(null);
   const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -23,7 +23,7 @@ export default function Page() {
   useEffect(() => {
     if (typeof id === 'string') {
       fetchProject(id);
-      fetchProjectImage(id);
+      //fetchProjectImage(id);
     }
   }, [id]);
 
@@ -32,23 +32,21 @@ export default function Page() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`);
       const data = await res.json();
       setProject(data);
-      setFormData({ title: data.title, content: data.content, active: data.active === 'true' || data.active === true});
+      setFormData({ 
+        title: data.title, 
+        content: data.content, 
+        active: data.active === 'true' || data.active === true 
+      });
+
+      // Se as imagens vierem do Firestore (array de URLs)
+      if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
+        setImageUrls(data.imageUrls);
+      }
+
     } catch (err) {
       console.error("Erro ao buscar projeto:", err);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function fetchProjectImage(id: string) {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/projects/files?pageId=${id}`);
-      const data = await res.json();
-      if (Array.isArray(data.files)) {
-        setImageUrls(data.files); 
-      }
-    } catch (err) {
-      console.error("Erro ao buscar imagem do projeto:", err);
     }
   }
 
@@ -78,8 +76,6 @@ export default function Page() {
       },
       body: JSON.stringify(projectData),
     });
-  
-    console.log('Update response body:', await response.text());
   
     if (!response.ok) {
       throw new Error('Erro ao atualizar o projeto');
@@ -138,15 +134,15 @@ export default function Page() {
   // Função para salvar as imagens e os dados
   const handleSave = async () => {
     setLoading(true);
-
     try {
       const uploadedUrls: string[] = [];
 
-      // Faz o upload das novas imagens se houverem
       for (const file of newImages) {
         const url = await uploadImage(file, id); 
         uploadedUrls.push(url);
       }
+
+      const updatedImageUrls = [...imageUrls, ...uploadedUrls];
 
       await updateProject(id, {
         ...formData,
@@ -154,12 +150,10 @@ export default function Page() {
         images: [...imageUrls, ...uploadedUrls],
       });
 
-      // Atualiza o estado com as URLs de imagem
-      setImageUrls((prev) => [...prev, ...uploadedUrls]);
-
+      setImageUrls(updatedImageUrls);
       setNewImages([]);
-      
       setEditing(false);
+
     } catch (err) {
       console.error("Erro ao atualizar projeto:", err);
     } finally {
@@ -233,46 +227,42 @@ export default function Page() {
     setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
   
-  // Função para mover a imagem para cima
-  const moveImageUp = (index: number) => {
-    if (index === 0) return; // Não mover se já estiver na primeira posição
-    const newImageUrls = [...imageUrls];
-    const temp = newImageUrls[index];
-    newImageUrls[index] = newImageUrls[index - 1];
-    newImageUrls[index - 1] = temp;
-    setImageUrls(newImageUrls);
-  };
+  function moveImage(fromIndex: number, toIndex: number) {
+    setImageUrls((prev) => {
+      const updated = [...prev];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+      return updated;
+    });
+  }
 
-  // Função para mover a imagem para baixo
-  const moveImageDown = (index: number) => {
-    if (index === imageUrls.length - 1) return; // Não mover se já estiver na última posição
-    const newImageUrls = [...imageUrls];
-    const temp = newImageUrls[index];
-    newImageUrls[index] = newImageUrls[index + 1];
-    newImageUrls[index + 1] = temp;
-    setImageUrls(newImageUrls);
-  };
-
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <div style={{ textAlign: "center" }}>Carregando...</div>;
   if (!project) return <div>Projeto não encontrado.</div>;
 
-return (
+  return (
     <div className="p-4">
-      {(session?.user as any)?.role === 'ADMIN' && (
-        <div className="flex items-center space-x-2">
-          <img
-            src="/images/pencil-square.svg"
-            alt="Editar"
-            className="w-5 h-5 invert cursor-pointer"
-            onClick={() => setEditing(!editing)}
-          />
-          <h1 className="text-xl font-bold">{project.title}</h1>
+      {/* Título e botão de edição para ADMIN */}
+      {(session?.user as any)?.role === 'ADMIN' ? (
+       <div>
+          <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
+            <img
+              src="/images/pen.svg"
+              alt="Editar"
+              width={20}
+              height={20}
+              className={styles.iconeEditar}
+            />
+            <span>Editar</span>
+          </div>
         </div>
+      ) : (
+        <h1 className="text-xl font-bold">{project.title}</h1>
       )}
-  
+
+      {/* Conteúdo modo visualização */}
       {!editing && (
         <>
-          {imageUrls && imageUrls.length > 0 && (
+          {imageUrls?.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
               {imageUrls.map((url, index) => (
                 <img
@@ -284,21 +274,31 @@ return (
               ))}
             </div>
           )}
+
+          <div className="p-4 mx-auto text-justify max-w-5xl">
+            {project.content
+              .split('\n')
+              .filter((paragraph: string) => paragraph.trim() !== '')
+              .map((paragraph: string, index: number) => (
+                <p key={index} className="mb-4 indent-8">
+                  {paragraph}
+                </p>
+              ))}
+          </div>
         </>
       )}
-  
-      {editing ? (
-        <div className="mt-4 space-y-2">
+
+      {/* Conteúdo modo edição */}
+      {editing && (
+        <div className="mt-4 space-y-4">
           <input
             type="text"
             className="border p-2 w-full"
             value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Título"
           />
-  
+
           <textarea
             className="border p-2 w-full"
             value={formData.content}
@@ -308,7 +308,8 @@ return (
             placeholder="Conteúdo"
             rows={6}
           />
-          <label>
+
+          <label className="flex items-center space-x-2">
             <input
               type="checkbox"
               checked={formData.active}
@@ -316,9 +317,11 @@ return (
                 setFormData({ ...formData, active: e.target.checked })
               }
             />
-            Página ativa
+            <span>Página ativa</span>
           </label>
-          <div className="mt-2">
+
+          {/* Upload de novas imagens */}
+          <div>
             <input
               type="file"
               accept="image/*"
@@ -327,35 +330,41 @@ return (
                 if (e.target.files) {
                   const filesArray = Array.from(e.target.files);
                   setNewImages((prev) => [...prev, ...filesArray]);
-
-                  // Gera previews
-                  const previews = filesArray.map((file) => URL.createObjectURL(file));
+                  const previews = filesArray.map((file) =>
+                    URL.createObjectURL(file)
+                  );
                   setPreviewImages((prev) => [...prev, ...previews]);
                 }
               }}
             />
+
             {previewImages.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
                 {previewImages.map((url, index) => (
                   <div key={index} className="relative">
                     <img
                       src={url}
-                      alt={`Nova imagem ${index + 1}`}
+                      alt={`Preview ${index + 1}`}
                       className="w-full rounded shadow object-cover"
                     />
                     <button
                       onClick={() => handleRemovePreviewImage(index)}
                       className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <img
+                        src="/images/x.svg"
+                        alt="Remover"
+                        className="w-4 h-4"
+                      />
                     </button>
                   </div>
                 ))}
               </div>
             )}
           </div>
-  
-          {imageUrls && imageUrls.length > 0 && (
+
+          {/* Imagens existentes com botões de mover, substituir e deletar */}
+          {imageUrls.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
               {imageUrls.map((url, index) => (
                 <div key={index} className="relative group">
@@ -366,10 +375,27 @@ return (
                     onClick={() => handleImageClick(index)}
                   />
 
+                  <div className="flex justify-between mt-1">
+                    <button
+                      disabled={index === 0}
+                      onClick={() => moveImage(index, index - 1)}
+                      className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50"
+                    >
+                      ←
+                    </button>
+                    <button
+                      disabled={index === imageUrls.length - 1}
+                      onClick={() => moveImage(index, index + 1)}
+                      className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50"
+                    >
+                      →
+                    </button>
+                  </div>
+
                   <input
                     type="file"
                     accept="image/*"
-                    style={{ display: 'none' }}
+                    hidden
                     ref={(el) => {
                       if (el) fileInputs.current[index] = el;
                     }}
@@ -394,8 +420,6 @@ return (
             Salvar
           </button>
         </div>
-      ) : (
-        <p className="mt-4">{project.content}</p>
       )}
     </div>
   );

@@ -71,6 +71,17 @@ export default function Home() {
     imagemLogoFile?: File;
     imagemBannerFile?: File;
   };  
+
+  interface PagesProject {
+    id: string;
+    title: string;
+    content: string;
+    icon: string;
+    active: boolean;
+    imageUrl?: string;
+    imageUrls?: string[];
+    
+  }
   const imagesPerPage = 4;
   const visibleFiles = files.slice(currentIndex, currentIndex + imagesPerPage);
 
@@ -81,33 +92,24 @@ export default function Home() {
     fetchSobre();
     fetchBanner();
   }, []);
-  
+
+
   async function fetchProjects() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`
+      );
       const data = await res.json();
-      console.log("Pages API response:", data);
       const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
 
-      const projectsWithImages = await Promise.all(
-        rawProjects.map(async (project) => {
-          if (!project.id) return project;
+      const projectsWithImages = rawProjects.map((project) => {
+        const imageUrl =
+          Array.isArray(project.imageUrls) && project.imageUrls.length > 0
+            ? project.imageUrls[0]
+            : undefined;
 
-          try {
-            const imageRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/projects/files?pageId=${project.id}`
-            );
-            const imageData = await imageRes.json();
-            const imageUrl =
-              Array.isArray(imageData.files) && imageData.files.length > 0 ? imageData.files[0] : undefined;
-
-            return { ...project, imageUrl };
-          } catch (err) {
-            console.warn(`Erro ao buscar imagem de ${project.title}:`, err);
-            return { ...project };
-          }
-        })
-      );
+        return { ...project, imageUrl };
+      });
 
       setProjects(projectsWithImages);
     } catch (error) {
