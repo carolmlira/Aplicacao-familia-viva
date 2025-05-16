@@ -1,14 +1,10 @@
 import { MdOutlineModeEdit } from "react-icons/md";
 import styles from "../admin-galeria/admin-galeria.module.css";
-import Image from "next/image"; // Importando o componente Image para carregar as imagens de forma otimizada
+import Image from "next/image"; 
 
-export default function Galeria() {
+export default function AdminGaleria() {
   return (
     <div className={styles.galeria} id="galeria">
-      {/* Galeria */}
-      <div className={styles.tituloGaleria}>
-        
-      </div>
 
       {/* Cultos */}
       <div className={styles.tituloCultos}>

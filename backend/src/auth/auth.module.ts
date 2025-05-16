@@ -6,11 +6,13 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
     UsersModule,
     ConfigModule,
+    EmailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -20,8 +22,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           secret,
           signOptions: { expiresIn: '1d' },
         };
-      }
-      
+      },
     }),
   ],
   controllers: [AuthController],

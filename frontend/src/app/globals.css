@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,23 +13,22 @@
     --foreground: #ededed;
   }
 }
-html, body {
-  height: 100%;
-  margin: 0;
-}
 
 body {
-  background-color: black;
-  display: flex;
-  flex-direction: column;
-  font-family: "Poppins", sans-serif;
-  color: white;
+  background: #030303;
+  color: #ededed;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-main {
-  flex: 1;
+.react-calendar {
+  font-size: 1rem; /* Aumenta a fonte */
 }
 
-footer {
-  margin-top: auto;
+html {
+  scroll-behavior: smooth;
+}
+
+.react-calendar__tile {
+  height: 50px !important; /* Altura dos quadrados */
+  /* Largura dos quadrados */
 }
