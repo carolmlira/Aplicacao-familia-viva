@@ -22,14 +22,14 @@ export default function Page() {
 
   useEffect(() => {
     if (typeof id === 'string') {
-      fetchProjeto(id);
+      fetchProject(id);
       //fetchProjectImage(id);
     }
   }, [id]);
 
-  async function fetchProjeto(id: string) {
+  async function fetchProject(id: string) {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projetos/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`);
       const data = await res.json();
       setProject(data);
       setFormData({ 
@@ -54,7 +54,7 @@ export default function Page() {
     const formData = new FormData();
     formData.append('file', file);
   
-    const categoryWithId = `pages/projetos/${pageId}`;
+    const categoryWithId = `pages/projects/${pageId}`;
   
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${encodeURIComponent(categoryWithId)}`,
@@ -68,27 +68,27 @@ export default function Page() {
     return data.url;
   }
 
-  async function updateProjeto(id: string, projetoData: any): Promise<void> {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projetos/${id}`, {
+  async function updateProject(id: string, projectData: any): Promise<void> {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(projetoData),
+      body: JSON.stringify(projectData),
     });
   
     if (!response.ok) {
       throw new Error('Erro ao atualizar o projeto');
     }
   }
-
+  // Função para substituir a imagem no Firebase Storage (usando PUT)
   const updateImage = async (file: File, imageId: string): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
     const cleanImageId = imageId.replace(/\.png$/, '');
     const newName = `${uuidv4()}.png`;
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=projetos&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=projects&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
       {
         method: 'PUT',
         body: formData,
@@ -104,24 +104,25 @@ export default function Page() {
     const filename = `${imageId}.png`;
     const params = new URLSearchParams({
       category,      
-      subgrup: 'projetos',
+      subgrup: 'projects',
       pageId,        
       filename,       
     });
-
+  
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete?${params.toString()}`,
         { method: 'DELETE' }
       );
-
+  
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Erro ao deletar imagem: ${errorText}`);
       }
-
+  
       const data = await res.json();
       console.log('Imagem deletada com sucesso:', data);
-
+  
+      // Atualiza o estado para remover a imagem da lista
       setImageUrls((prev) => prev.filter((url, i) => {
         return !url.includes(filename);
       }));
@@ -130,6 +131,7 @@ export default function Page() {
     }
   };
 
+  // Função para salvar as imagens e os dados
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -142,7 +144,7 @@ export default function Page() {
 
       const updatedImageUrls = [...imageUrls, ...uploadedUrls];
 
-      await updateProjeto(id, {
+      await updateProject(id, {
         ...formData,
         active: String(formData.active),
         images: [...imageUrls, ...uploadedUrls],
@@ -167,22 +169,27 @@ export default function Page() {
       console.log("Input não encontrado no índice", index);
     }
   };
-
+  
+  // Função para substituir a imagem na interface
   const handleReplaceImage = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
+      // Se estivermos substituindo uma imagem existente, usaremos o `updateImage`
       const imageUrl = imageUrls[index];
       const imageId = imageUrl.split('/').pop()?.split('?')[0];
       let updatedUrl: string;
 
       if (imageId) {
+        // Atualiza a imagem existente
         updatedUrl = await updateImage(file, imageId);
       } else {
+        // Se não encontrarmos um ID, consideramos como nova imagem e fazemos upload
         updatedUrl = await uploadImage(file, id);
       }
 
+      // Atualiza a URL da imagem no estado
       setImageUrls((prev) => {
         const updated = [...prev];
         updated[index] = `${updatedUrl}?t=${Date.now()}`
@@ -192,21 +199,23 @@ export default function Page() {
       console.error("Erro ao substituir imagem:", err);
     }
   };
-
+  
   const handleDeleteImage = async (index: number) => {
     const imageUrl = imageUrls[index];
     if (!imageUrl) return;
-
+  
     try {
+      // Extrair o nome do arquivo da URL
       const urlParts = imageUrl.split('/');
       const filenameWithToken = urlParts[urlParts.length - 1];
       const filename = filenameWithToken.split('?')[0]; 
-      const filenameWithoutExtension = filename.split('.')[0];
+      const filenameWithoutExtension = filename.split('.')[0]; // Remove extensão .png ou outra
       const confirmed = window.confirm('Tem certeza que deseja excluir esta imagem?');
       if (confirmed) {
         await deleteImage(category, id, filenameWithoutExtension);
       }
-
+  
+      // Atualizar estado removendo a imagem
       setImageUrls((prev) => prev.filter((_, i) => i !== index));
     } catch (err) {
       console.error('Erro ao deletar imagem:', err);
@@ -289,7 +298,6 @@ export default function Page() {
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Título"
           />
-
 
           <textarea
             className="border p-2 w-full"
@@ -407,7 +415,7 @@ export default function Page() {
 
           <button
             onClick={handleSave}
-            className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             Salvar
           </button>
@@ -416,3 +424,4 @@ export default function Page() {
     </div>
   );
 }
+  

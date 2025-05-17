@@ -83,6 +83,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: "/login",
+    signOut: `${process.env.NEXT_PUBLIC_API_URL}`
   },
 };
 
