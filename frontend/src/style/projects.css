@@ -1,0 +1,86 @@
+:root {
+  --size-max-width-img: 240px;
+  --size-max-heigth-img: 180px;
+  --size-max-heigth-card: 100px;
+  --font-size-h2-card: 1.5rem;
+  --font-size-p: 1rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --size-max-width-img: 500px;
+    --size-max-heigth-img: 140px;
+    --font-size-h2-card: 1.3rem;
+    --font-size-p: 0.8rem;
+  }
+}
+
+.projetos-header h1 {
+  font-size: 2.5rem;
+}
+  
+.projetos-container {
+  background-color: #0a0a0a;
+  color: white;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.projetos-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+}
+
+.projeto-card {
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  max-width: 1300px;
+}
+
+.projeto-card:hover {
+  transform: translateY(-5px);
+}
+
+.projeto-img img {
+  width: var(--size-max-width-img);
+  height: var(--size-max-heigth-img);
+  object-fit: contain;
+  border-radius: 10px;
+  margin-left: 1rem;
+    background-color: #0a0a0a;
+  border: 1px solid rgba(255, 234, 0, 0.927);
+}
+
+.projeto-texto {
+  margin-left: 4rem;
+}
+
+.projeto-texto h2 {
+  margin: 0;
+  margin-bottom: 0.5rem;
+  font-size: var(--font-size-h2-card);
+  color: white;
+}
+
+.projeto-texto p {
+  margin: 0;
+  font-size: var(--font-size-p);
+  color: #cccccc;
+  max-width: 900px;
+}
+
+.projetos-footer {
+  margin-top: 4rem;
+  text-align: center;
+  color: #FFA500;
+  font-size: 0.9rem;
+}
+

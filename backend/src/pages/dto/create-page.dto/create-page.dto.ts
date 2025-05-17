@@ -50,6 +50,4 @@ export class CreatePageDto {
   @IsDate()
   @Type(() => Date)
   updatedAt?: Date; // Data da última atualização.
-
-
 }

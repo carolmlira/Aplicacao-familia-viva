@@ -1,3 +1,11 @@
+:root {
+  --size-max-width-img: 240px;
+  --size-max-heigth-img: 180px;
+  --size-max-heigth-card: 100px;
+  --font-size-h2-card: 1.5rem;
+  --font-size-p: 1rem;
+}
+
 /* BANNER */
 .banner {
     width: 100%;
@@ -70,9 +78,11 @@
 
 
 /* PROGRAMAÇÃO */
+
 .programacao {
     margin-top: 20vh;
 }
+
 .programacao h2 {
     font-size: 35px;
     text-decoration: none;
@@ -86,6 +96,7 @@
     align-items: center;
     margin-left: 80vh;
 }
+
 .dias {
     background: linear-gradient(to right, #fe8719, #fe3012);
     color: #ffff;
@@ -97,6 +108,7 @@
     transition: transform 0.2s ease, opacity 0.2s ease;
     font-size: 27px;
 }
+
 .botoesDias {
     display: flex;
     flex-wrap: wrap;
@@ -105,113 +117,244 @@
     margin-top: 50px;
     margin-left: 30vh;
 }
+
 .botoesDias a:hover {
     color: #f1a99e;
 }
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+    margin: 8px;
+  }
+  
+.tooltipText {
+    visibility: hidden;
+    background: linear-gradient(to right, #fe8719, #fe3012);
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: -125%; 
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+  
+.tooltip:hover .tooltipText {
+    visibility: visible;
+    opacity: 1;
+}
+  
 /* PROJETOS */
 
-.projetos {
-    margin-top: 40vh;
-    margin-left: 10vh;
-    margin-right: 10vh;
-    position: relative;
+@media (max-width: 768px) {
+  :root {
+    --size-max-width-img: 500px;
+    --size-max-heigth-img: 140px;
+    --font-size-h2-card: 1.3rem;
+    --font-size-p: 0.8rem;
+  }
 }
 
-.projetos h2 {
-    font-size: 40px;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 10px 0;
-    transition: 0.2s ease;
-    font-weight: bold;
-    background: linear-gradient(to right, #fe8719, #fe3012);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
+.projetos {
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+  max-width: 1300px;
+  margin: 0 auto; 
+  margin-top: 100px;
+}
+
+.projetosHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
 .linkProjeto {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin-top: 20px;
-    font-size: 25px;
+  font-size: 1.1rem;
+  color: #fe8719;
+  text-decoration: none;
+  font-weight: 500;
+  margin-right: 2rem; /* opcional para ajustar o espaçamento da borda direita */
+  transition: color 0.2s ease;
 }
 
 .linkProjeto:hover {
-    color:  #a39797;
+  color: #fe3012;
 }
 
-.projetos h3 {
-    font-size: 30px;
-    font-weight: bold;
+.projetos h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: left;
+  margin-bottom: 2rem;
+  left: 4rem;
+  background: linear-gradient(to right, #fe8719, #fe3012);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.projetoTexto {
+  margin: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.projetos-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  width: 100%;
 }
 
 .projetoCard {
-    display: flex;
-    align-items: center;
-    background-color: #D9D9D925;
-    padding: 20px;
-    border-radius: 9px;
-    gap: 20px;
-    margin-bottom: 10vh;
-    margin-left: 30px;
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  padding: 1rem;
+  max-width: 1300px;
+  width: 100%;
+  margin-bottom: 10px;
 }
-  
+
+.projetoCard:hover {
+  transform: translateY(-5px);
+}
+
 .fotoProjeto {
-    width: auto;
-    height: auto;
-    object-fit: cover;
-}
-  
-.projetoCard p {
-
-    font-size: 16px;
-    line-height: 1.6;
-    text-align: justify;
-    margin-left: 10vh;
-}  
-.projetoDescricao h3 {
-    text-align: center;
-    margin-left: 10%;
-    margin-bottom: 5%;
+  width: var(--size-max-width-img);
+  height: var(--size-max-heigth-img);
+  object-fit: contain;
+  border-radius: 10px;
+  margin-left: 1rem;
+  background-color: #0a0a0a;
+  border: 1px solid rgba(255, 234, 0, 0.927);
 }
 
+.projetoDescricao {
+  margin-left: 2rem;
+}
 
+.projetoTexto h2 {
+  font-size: var(--font-size-h2-card);
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.projetoTexto p {
+  font-size: var(--font-size-p);
+  color: #cccccc;
+  max-width: 900px;
+  text-align: justify;
+}
 
 /* GALERIA */
 
 .galeria {
-    margin-top: 10%;
-    margin-left: 10vh;
-    margin-right: 10vh;
-    position: relative;
+  margin-top: 10%;
+  margin-left: 10vh;
+  margin-right: 10vh;
+  margin-bottom: 10vh;
+  position: relative;
+}
+.galeriaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0px 60px 20px;
 }
 
-.galeria h2 {
-    font-size: 40px;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 10px 0;
-    transition: 0.2s ease;
-    font-weight: bold;
-    background: linear-gradient(to right, #fe8719, #fe3012);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
-} 
+.cultosImages {
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.galeriaHeader h2 {
+  font-size: 35px;
+  font-weight: bold;
+  background: linear-gradient(to right, #fe8719, #fe3012);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+}
 
 .linkGaleria {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin-top: 20px;
-    font-size: 25px;
+  font-size: 1.1rem;
+  color: #fe8719;
+  text-decoration: none;
 }
 
 .linkGaleria:hover {
-    color:  #a39797;
+  color: #fe3012;
+}
+
+.fotoGaleria {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.fotoGaleriaPlaceholder img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.carouselWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.carouselContainer {
+  width: 1170px; /* 4 imagens de 250px */
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.carouselTrack {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carouselItem {
+  min-width: 250px;
+  height: 250px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+}
+
+/* Setas (ícone esquerda e direita) */
+.iconLeft,
+.iconRight {
+  font-size: 40px;
+  cursor: pointer;
+  color: #fe3012;
+  user-select: none;
+}
+
+.iconRight {
+  transform: rotate(180deg);
 }

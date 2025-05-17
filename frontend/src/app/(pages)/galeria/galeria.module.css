@@ -1,35 +1,69 @@
 .galeria {
-    margin-top: 20px;
-  }
-  
-  .tituloGaleria, .tituloCultos, .tituloRedes {
-    text-align: left;
-    margin-bottom: 20px;
-    margin-left: 10vh;
-  }
-  
-  .tituloGaleria h1, .tituloCultos h2, .tituloRedes h2 {
-    font-size: 40px;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 10px 0;
-    transition: 0.2s ease;
-    font-weight: bold;
-    background: linear-gradient(to right, #fe8719, #fe3012);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  
-  
-  .galeriaImages, .cultosImages, .redesImages {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  .galeriaImages img, .cultosImages img, .redesImages img {
-    object-fit: cover;
-    border-radius: 10px;
-  }
-  
+  align-items: center;
+  margin-bottom: 8%;
+  margin-top: 10%;
+}
+
+.galeria h2 {
+  font-size: 40px;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px 0;
+  transition: 0.2s ease;
+  background: linear-gradient(to right, #fe8719, #fe3012);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-left: 5%;
+}
+
+.galeria p {
+  font-size: 30px;
+}
+
+.cultosImages {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-left: 5%;
+}
+
+.redesImages {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-left: 5%;
+}
+
+.tituloRedes h2 {
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+/* ICON EDIÇÃO */
+
+.icon {
+  font-size: 35px;
+  cursor: pointer;
+}
+
+.botaoEdit {
+  background-color: #fe3012;
+  color: #ffff;
+  padding: 12px 30px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 27px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-left: 80%;
+  position: relative;
+  top: -50px;
+}
+
+.botaoEdit:hover {
+  color: #f1a99e;
+}

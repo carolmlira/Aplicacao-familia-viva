@@ -23,7 +23,7 @@ export default function LoginPage() {
     if (res?.ok) {
       router.push("/");
     } else {
-      setError("Login inválido");
+      setError("Login ou Senha Inválida");
     }
   };
 
@@ -87,12 +87,9 @@ export default function LoginPage() {
           </button>
 
           <div className="text-center">
-            <a
-              href="#"
-              className="text-sm text-zinc-400 hover:text-white underline transition"
-            >
-              Esqueceu a senha?
-            </a>
+          <Link href="/esqueceu-senha" className="text-sm text-zinc-400 hover:text-white underline transition"> 
+          Esqueceu a senha?
+          </Link>
           </div>
         </div>
       </form>

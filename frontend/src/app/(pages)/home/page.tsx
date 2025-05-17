@@ -1,8 +1,90 @@
+"use client";
+
 import styles from "../home/home.module.css";
+import { AiOutlineCaretLeft } from "react-icons/ai";
+import { useEffect, useState } from 'react';
+import { PagesProject } from "@/app/types/pageProjects";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
+  const [projects, setProjects] = useState<PagesProject[]>([]);
+  const [files, setFiles] = useState<string[]>([]);
+  const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BASE}`;
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const imagesPerPage = 4;
+
+  const visibleFiles = files.slice(currentIndex, currentIndex + imagesPerPage);
+
+  useEffect(() => {
+    fetchProjects();
+    fetchFiles('gallery');
+  }, []);
+  
+  async function fetchProjects() {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`);
+      const data = await res.json();
+      console.log("Pages API response:", data);
+      const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
+
+      const projectsWithImages = await Promise.all(
+        rawProjects.map(async (project) => {
+          if (!project.id) return project;
+
+          try {
+            const imageRes = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/projects/files?pageId=${project.id}`
+            );
+            const imageData = await imageRes.json();
+            const imageUrl =
+              Array.isArray(imageData.files) && imageData.files.length > 0 ? imageData.files[0] : undefined;
+
+            return { ...project, imageUrl };
+          } catch (err) {
+            console.warn(`Erro ao buscar imagem de ${project.title}:`, err);
+            return { ...project };
+          }
+        })
+      );
+
+      setProjects(projectsWithImages);
+    } catch (error) {
+      console.error('Erro ao buscar projetos:', error);
+    }
+  }
+  
+  async function fetchFiles(category: string) {
+    if (!category) return;
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
+      const data = await res.json();
+      console.log('Arquivos recebidos:', data.files);
+
+      // Aqui você ajusta os caminhos, gerando a URL completa
+      const fileUrls = data.files.map((filePath: string) => {
+        return `${baseUrl}${encodeURIComponent(filePath)}?alt=media`;
+      });
+      console.log("filrurl: ", fileUrls);
+
+      setFiles(fileUrls || []);
+    } catch (error) {
+      console.error('Erro ao listar arquivos:', error);
+    }
+  }
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => {
+      // Impede que ultrapasse o final da lista com base na largura visível (4 imagens)
+      const maxIndex = files.length - 4;
+      return Math.min(prev + 1, maxIndex);
+    });
+  };
+
   return (
     <>
       {/* Banner principal da home */}
@@ -53,66 +135,126 @@ export default function Home() {
       <div className={styles.programacao}>
         <h2>Nossa Programação</h2>
         <div className={styles.botoesDias}>
-          <Link href="/cultos" className={styles.dias}>Terça-feira</Link>
-          <Link href="/cultos" className={styles.dias}>Quarta e quinta</Link>
-          <Link href="/cultos" className={styles.dias}>Sexta-feira</Link>
-          <Link href="/cultos" className={styles.dias}>Domingo</Link>
+          <div className={styles.tooltip}>
+            <Link href="/programacao" className={styles.dias}>Terça-feira</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Culto de Ensino</strong></p>
+              <p> 19h</p>
+              <p>Igreja Família Viva</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/programacao" className={styles.dias}>Quarta e quinta</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Programação:</strong></p>
+              <p> Ensaio do grupo</p>
+              <p> Reunião de liderança</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/cultos" className={styles.dias}>Sexta-feira</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Culto da Juventude</strong></p>
+              <p>Louvor jovem</p>
+              <p>19h30</p>
+            </div>
+          </div>
+          <div className={styles.tooltip}>
+            <Link href="/cultos" className={styles.dias}>Domingo</Link>
+            <div className={styles.tooltipText}>
+              <p><strong>Culto da Família</strong></p>
+              <p>Ministério Infantil</p>
+              <p>18h</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Projetos */}
       <div className={styles.projetos}>
-        <h2>Projetos</h2>
-        <Link className={styles.linkProjeto} href="/projeto">Ver mais</Link>
-
-        <div className={styles.projetoCard}>
-          <Image
-            src="/projeto.svg"
-            alt="Fotos do projeto"
-            className={styles.fotoProjeto}
-            width={200}
-            height={200}
-          />
-          <div className={styles.projetoDescricao}>
-            <h3>Arrecadação de alimentos</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-              mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-              consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-              architecto magnam ut.
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente maiores quo obcaecati exercitationem, repellendus dignissimos nobis deleniti aspernatur nemo vitae dolorem aliquid minima molestiae nisi? Porro, optio. Neque, cupiditate quae.
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam tenetur maiores corrupti vitae dicta nisi veniam rem mollitia nulla! Et commodi voluptatibus non sit debitis, laudantium veniam assumenda beatae nihil.
-            </p>
-          </div>
+        <div className={styles.projetosHeader}>
+          <h1>Projetos</h1>
+          <Link className={styles.linkProjeto} href="/projeto">Ver mais</Link>
         </div>
 
-        <div className={styles.projetoCard}>
-          <Image
-            src="/projeto.svg"
-            alt="Fotos do projeto"
-            className={styles.fotoProjeto}
-            width={200}
-            height={200}
-          />
-          <div className={styles.projetoDescricao}>
-            <h3>Arrecadação de roupas</h3>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam
-              mollitia illo quo nam doloribus quod sit, sequi qui id repellendus
-              consectetur quidem. Pariatur explicabo nam fuga, laboriosam
-              architecto magnam ut.
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Adipisci non ratione quo accusantium, vitae fugit, ea nihil deleniti laboriosam ut dolorem, minus architecto dolorum consectetur magnam officiis enim dignissimos accusamus.
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui soluta, dignissimos recusandae pariatur corrupti reprehenderit repudiandae voluptatem numquam mollitia ad, provident eaque possimus? Provident repudiandae dolor rerum unde, quo recusandae?
-            </p>
+        {projects.length === 0 ? (
+          <p className="text-gray-400 text-center">Nenhum projeto encontrado.</p>
+        ) : (
+          <div className={styles.projetosContent}>
+            {projects.slice(0, 2).map((project) => (
+              <Link
+                key={project.id}
+                href={`/projeto/id/items/${project.id}`}
+                className={styles.projetoCard}
+              >
+                <div className={styles.projetoImg}>
+                  <Image
+                    src={project.imageUrl || '/images/placeholder.svg'}
+                    alt={project.title}
+                    width={200}
+                    height={200}
+                    className={styles.fotoProjeto}
+                  />
+                </div>
+                  <div className={styles.projetoTexto}>
+                    <h2>{project.title}</h2>
+                    <p>
+                      {project.content?.slice(0, 150)}
+                      {project.content?.length > 150 && '...'}
+                    </p>
+                  </div>
+              </Link>
+            ))}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Galeria */}
       <div className={styles.galeria}>
-        <h2>Galeria</h2>
-        <Link className={styles.linkGaleria} href="/galeria">Ver mais</Link>
+        <div className={styles.galeriaHeader}>
+          <h2>Galeria</h2>
+          <Link className={styles.linkGaleria} href="/galeria">Ver mais</Link>
+        </div>
+
+        <div className={styles.carouselWrapper}>
+          <AiOutlineCaretLeft className={styles.iconLeft} onClick={goToPrevious} />
+
+          <div className={styles.carouselContainer}>
+            <div
+              className={styles.carouselTrack}
+                style={{
+                  transform: `translateX(-${currentIndex * 250}px)`,
+                }}
+            >
+              {files.map((file, index) => (
+                <div key={index} className={styles.carouselItem}>
+                  {file && file.startsWith("http") ? (
+                    <Image
+                      src={file}
+                      alt={`Imagem ${index + 1}`}
+                      width={250}
+                      height={250}
+                      className={styles.fotoGaleria}
+                    />
+                  ) : (
+                    <Image
+                      src="/images/placeholder.svg"
+                      alt="Imagem não disponível"
+                      width={250}
+                      height={250}
+                      className={styles.fotoGaleria}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <AiOutlineCaretLeft className={styles.iconRight} onClick={goToNext} />
+        </div>
+
       </div>
+
     </>
   );
-} 
+}
