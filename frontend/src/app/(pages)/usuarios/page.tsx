@@ -19,6 +19,7 @@ interface User {
   resetExpires?: null;
 }
 
+
 interface ValidationErrors {
   [key: string]: string | undefined;
   name?: string;
@@ -72,7 +73,7 @@ export default function Usuarios() {
     }
 
     const fetchUsers = async () => {
-      const res = await fetch("http://localhost:3000/users", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         headers: {
           Authorization: `Bearer ${(session as any).accessToken}`,
         },
@@ -88,7 +89,7 @@ export default function Usuarios() {
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
-    await fetch(`http://localhost:3000/users/${id}`, {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${(session as any).accessToken}`,
@@ -142,7 +143,7 @@ export default function Usuarios() {
 
   const handleAddUser = async () => {
     try {
-      const res = await fetch("http://localhost:3000/users", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -229,7 +230,7 @@ export default function Usuarios() {
 
   const handleEditUser = async () => {
     if (editUser) {
-      const res = await fetch(`http://localhost:3000/users/${editUser.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

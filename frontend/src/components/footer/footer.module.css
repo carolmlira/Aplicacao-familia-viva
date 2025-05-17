@@ -1,86 +1,170 @@
 .footer {
-    border-top: 1px solid white;
-    height: 100px;
+  border-top: 1px solid white;
+  height: 100px;
 }
 
 .footerbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px 5px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 5px; 
 }
 
 .footerbar .footer-menu {
-    display: flex;
-    align-items: center;
-    list-style: none;
-    gap: 50vh;
-    justify-content: flex-start; 
-    flex-grow: 1; 
+  display: flex;
+  align-items: flex-start; /* alinhamento dos h1s */
+  list-style: none;
+  gap: 80px; /* ajuste visual entre as colunas */
+  justify-content: flex-start;
+  flex-grow: 1;
 }
 
+
 .footerbar .footer-menu h1 {
-    font-size: 20px;
-    text-decoration: none;
-    padding: 10px 0;
-    transition: 0.2s ease;
-    font-weight: bold;
-    background: linear-gradient(to right, #fe8719, #fe3012);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  font-size: 20px;
+  text-decoration: none;
+  padding: 10px 0;
+  transition: 0.2s ease;
+  font-weight: bold;
+  background: linear-gradient(to right, #fe8719, #fe3012);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .footerbar .footer-menu a {
-    font-size: 15px;
-    text-decoration: none;
-    padding: 10px 0;
-    transition: 0.2s ease;
-    font-weight: bold;
-    text-align: center;
-    display: flex;
-    align-items: center; 
-    color: #ffff;
+  font-size: 15px;
+  text-decoration: none;
+  padding: 10px 0;
+  transition: 0.2s ease;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  align-items: center; 
+  color: #ffff;
 }
 
 .footerbar .footer-menu a:hover {
-    color: #a39797;
+  color: #a39797;
 }
 
 .footerbar .footer-menu .icon {
-    font-size: 26px;
-    margin-right: 10px;
+  font-size: 26px;
+  margin-right: 10px;
 }
 
 .footerbar .footer-menu .contato,
 .footerbar .footer-menu .localizacao {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .footerbar .footer-menu .contato .info,
 .footerbar .footer-menu .localizacao .info {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+}
+
+.localizacao{
+  margin-left: 40%;
 }
 
 .footerbar.mobile {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .footerbar.mobile .footer-menu {
-    flex-direction: column;
-    gap: 20px;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .footerbar.mobile .footer-menu .contato,
 .footerbar.mobile .footer-menu .localizacao {
-    align-items: center;
+  align-items: center;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: rgb(223, 222, 222);
+  color: black;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.modal input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cancelButton {
+  background-color: #ff0000;
+}
+
+.editButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  cursor: pointer;
+  background-color: red;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.iconeEditar{
+  filter: invert(1);
+}
+
+.iconPhone{
+  filter: invert(1);
+  margin-right: 15px; 
+}
+
+.editButton:hover .iconeEditar {
+  filter: invert(0); 
+}
+
+.editButton:hover{
+  background-color: #fff;
+  color: #0a0a0a;
 }

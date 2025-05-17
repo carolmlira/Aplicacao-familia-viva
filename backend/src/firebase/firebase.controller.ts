@@ -2,6 +2,7 @@ import { Controller, Post, Get, Put, Delete, Param, UploadedFile, UseInterceptor
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FirebaseService } from './firebase.service';
+import { firestore } from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid'; 
 
 @Controller('firebase')
@@ -70,6 +71,41 @@ export class FirebaseController {
     return { url, filename }; // Retorna a URL e o nome do arquivo
   }
 
+  @Post('upload/sobre')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadSobreImage(@UploadedFile() file: Express.Multer.File) {
+    const url = await this.firebaseService.uploadFile(file, 'sobre');
+    return { url };
+  }
+
+  @Post('upload/logo')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadLogoImage(@UploadedFile() file: Express.Multer.File) {
+    const url = await this.firebaseService.uploadFile(file, 'logo');
+    return { url };
+  }
+
+  @Post('upload/user/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadUserImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    const userData = await this.firebaseService.getUserById(id);
+
+    if (userData?.filename) {
+      await this.firebaseService.deleteFile(userData.filename);
+    }
+
+    const ext = file.originalname.split('.').pop();
+    const filename = `user/${id}/${uuidv4()}.${ext}`;
+    const url = await this.firebaseService.uploadFile(file, filename);
+
+    await this.firebaseService.updateUserImage(id, url, filename);
+
+    return { url };
+  }
+
 
   @Get('file/:filename')
   async getFile(@Param('filename') filename: string) {
@@ -111,6 +147,12 @@ export class FirebaseController {
   
     // 2. Faz upload com novo nome
     const url = await this.firebaseService.uploadFile(file, newPath);
+    return { url };
+  }
+
+  @Get('logo')
+  async getLogoUrl() {
+    const url = await this.firebaseService.getFileUrl('logo');
     return { url };
   }
   

@@ -5,10 +5,11 @@ import {
   Length,
   IsBoolean,
   IsDate,
-  IsNotEmpty,
+  IsArray,
   Matches
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
+
 
 export class CreatePageDto {
   @IsString()
@@ -30,12 +31,14 @@ export class CreatePageDto {
   @IsString()
   icon?: string; // Pode armazenar um nome de ícone (ex: "home", "info", "team"), útil pra exibir um ícone no frontend.
 
+  @Transform(({ value }) => value === 'true')
   @IsBoolean()
   active: boolean; //Indica se a página está ativa/publicada.
 
   @IsOptional()
-  @IsUrl()
-  imageUrl?: string; // URL da imagem de capa associada à página.
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[]; // URL da imagem de capa associada à página.
 
   @IsOptional()
   @IsString()

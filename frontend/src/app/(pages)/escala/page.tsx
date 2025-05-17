@@ -28,7 +28,7 @@ export default function EscalaPublicaPage() {
 
   useEffect(() => {
     // Aqui a chamada para API 
-    fetch('/api/escalas')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/escala`)
       .then((res) => res.json())
       .then((data) => setEscalas(data))
       .catch((err) => console.error('Erro ao buscar escalas:', err))

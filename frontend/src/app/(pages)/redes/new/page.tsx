@@ -123,6 +123,7 @@ export default function NewRede() {
               value={formData.title}
               onChange={handleChange}
               required
+              style={{ color:"black" }}
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>
@@ -135,6 +136,7 @@ export default function NewRede() {
               onChange={handleChange}
               rows={5}
               required
+              style={{ color:"black" }}
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>

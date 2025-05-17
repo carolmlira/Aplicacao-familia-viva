@@ -70,7 +70,7 @@ export default function NewProjeto() {
 
       const created = await res.json();
       console.log('Projeto criado com imagens:', created);
-      router.push('/projetos');
+      router.push('/projeto');
     } catch (error) {
       console.error(error);
     } finally {

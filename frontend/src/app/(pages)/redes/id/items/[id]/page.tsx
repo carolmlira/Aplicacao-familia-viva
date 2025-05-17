@@ -1,14 +1,17 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import {  useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
+import styles from './redeId.module.css';
 import { v4 as uuidv4 } from 'uuid';
+import Slider from "react-slick";
 
 export default function Rede() {
-  const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [rede, setRede] = useState<any | null>(null);
   const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -23,7 +26,6 @@ export default function Rede() {
   useEffect(() => {
     if (typeof id === 'string') {
       fetchRede(id);
-      fetchRedeImage(id);
     }
   }, [id]);
 
@@ -32,23 +34,22 @@ export default function Rede() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`);
       const data = await res.json();
       setRede(data);
-      setFormData({ title: data.title, content: data.content, active: data.active === 'true' || data.active === true});
+      setFormData({ 
+        title: data.title, 
+        content: data.content, 
+        active: data.active === 'true' || data.active === true,
+
+      });
+
+      // Se imagens não vierem do Firestore, usa o fallback do Storage
+      if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
+        setImageUrls(data.imageUrls);
+      } 
+
     } catch (err) {
       console.error("Erro ao buscar rede:", err);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function fetchRedeImage(id: string) {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/redes/files?pageId=${id}`);
-      const data = await res.json();
-      if (Array.isArray(data.files)) {
-        setImageUrls(data.files); 
-      }
-    } catch (err) {
-      console.error("Erro ao buscar imagem desta rede:", err);
     }
   }
 
@@ -76,15 +77,16 @@ export default function Rede() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(redeData),
+      body: JSON.stringify(redeData, imageUrls),
     });
-  
+
     console.log('Update response body:', await response.text());
-  
+
     if (!response.ok) {
       throw new Error('Erro ao atualizar a rede');
     }
   }
+
   // Função para substituir a imagem no Firebase Storage (usando PUT)
   const updateImage = async (file: File, imageId: string): Promise<string> => {
     const formData = new FormData();
@@ -141,24 +143,20 @@ export default function Rede() {
 
     try {
       const uploadedUrls: string[] = [];
-
-      // Faz o upload das novas imagens se houverem
       for (const file of newImages) {
-        const url = await uploadImage(file, id); 
+        const url = await uploadImage(file, id);
         uploadedUrls.push(url);
       }
 
       await updateRede(id, {
         ...formData,
-        active: String(formData.active),
         images: [...imageUrls, ...uploadedUrls],
+        active: !!formData.active, 
       });
 
-      // Atualiza o estado com as URLs de imagem
+      // Atualiza imagens exibidas (não é enviado para backend)
       setImageUrls((prev) => [...prev, ...uploadedUrls]);
-
       setNewImages([]);
-      
       setEditing(false);
     } catch (err) {
       console.error("Erro ao atualizar rede:", err);
@@ -233,60 +231,93 @@ export default function Rede() {
     setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
   
-  // Função para mover a imagem para cima
-  /*const moveImageUp = (index: number) => {
-    if (index === 0) return; // Não mover se já estiver na primeira posição
-    const newImageUrls = [...imageUrls];
-    const temp = newImageUrls[index];
-    newImageUrls[index] = newImageUrls[index - 1];
-    newImageUrls[index - 1] = temp;
-    setImageUrls(newImageUrls);
-  };
+  function moveImage(fromIndex: number, toIndex: number) {
+    setImageUrls((prev) => {
+      const updated = [...prev];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+      return updated;
+    });
+  }
 
-  // Função para mover a imagem para baixo
-  const moveImageDown = (index: number) => {
-    if (index === imageUrls.length - 1) return; // Não mover se já estiver na última posição
-    const newImageUrls = [...imageUrls];
-    const temp = newImageUrls[index];
-    newImageUrls[index] = newImageUrls[index + 1];
-    newImageUrls[index + 1] = temp;
-    setImageUrls(newImageUrls);
-  };*/
-
-  if (loading) return <div>Carregando...</div>;
+  if (loading) return <div style={{ textAlign:"center" }}>Carregando...</div>;
   if (!rede) return <div>Rede não encontrado.</div>;
 
 return (
     <div className="p-4">
       {(session?.user as any)?.role === 'ADMIN' && (
-        <div className="flex items-center space-x-2">
-          <img
-            src="/images/pencil-square.svg"
-            alt="Editar"
-            className="w-5 h-5 invert cursor-pointer"
-            onClick={() => setEditing(!editing)}
-          />
-          <h1 className="text-xl font-bold">{rede.title}</h1>
+        <div>
+          <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
+            <img
+              src="/images/pen.svg"
+              alt="Editar"
+              width={20}
+              height={20}
+              className={styles.iconeEditar}
+            />
+            <span>Editar</span>
+          </div>
         </div>
       )}
   
       {!editing && (
-        <>
-          {imageUrls && imageUrls.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-              {imageUrls.map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt={`Imagem ${index + 1}`}
-                  className="w-full rounded shadow object-cover"
-                />
-              ))}
+        <div className="my-4 space-y-4">
+          <span className="text-3xl font-bold bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent mt-8">
+            {rede.title}
+          </span>
+
+          {/* LOGO (só se tiver imagem) */}
+          {imageUrls.length > 0 && (
+            <div className={styles.logoContainer}>
+              <img
+                src={imageUrls[0]}
+                alt="Logo da Rede"
+                className={styles.logoImage}
+              />
             </div>
           )}
-        </>
+
+          <div className="p-4 mx-auto text-justify max-w-5xl">
+            {rede.content
+              .split('\n')
+              .filter((paragraph: string) => paragraph.trim() !== '')
+              .map((paragraph: string, index: number) => (
+                <p key={index} className="mb-4 indent-8">
+                  {paragraph}
+                </p>
+              ))}
+          </div>
+
+          {/* CARROSSEL (se tiver + de uma imagem) */}
+          {imageUrls.length > 1 && (
+            <Slider
+              dots={true}
+              infinite={true}
+              speed={500}
+              slidesToShow={5}
+              slidesToScroll={1}
+              className={styles.carousel}
+              responsive={[
+                { breakpoint: 1024, settings: { slidesToShow: 2 } },
+                { breakpoint: 640, settings: { slidesToShow: 1 } },
+              ]}
+            >
+              {imageUrls.slice(1).map((url, index) => (
+                <div key={index} className="px-2">
+                  <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
+                    <img
+                      src={url}
+                      alt={`Imagem ${index + 2}`}
+                      className="object-cover w-full h-full rounded"
+                    />
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          )}
+        </div>
       )}
-  
+
       {editing ? (
         <div className="mt-4 space-y-2">
           <input
@@ -300,14 +331,14 @@ return (
           />
   
           <textarea
-            className="border p-2 w-full"
+            className="w-full rounded-md border p-2"
+            rows={6}
             value={formData.content}
             onChange={(e) =>
-              setFormData({ ...formData, content: e.target.value })
+              setFormData((prev) => ({ ...prev, content: e.target.value }))
             }
-            placeholder="Conteúdo"
-            rows={6}
           />
+
           <label>
             <input
               type="checkbox"
@@ -354,38 +385,59 @@ return (
               </div>
             )}
           </div>
-  
-          {imageUrls && imageUrls.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-              {imageUrls.map((url, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={url}
-                    alt={`Imagem ${index + 1}`}
-                    className="w-full rounded shadow object-cover cursor-pointer"
-                    onClick={() => handleImageClick(index)}
-                  />
+            {imageUrls && imageUrls.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
+                {imageUrls.map((url, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Imagem ${index + 1}`}
+                      className="w-full rounded shadow object-cover cursor-pointer"
+                      onClick={() => handleImageClick(index)}
+                    />
 
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    ref={(el) => {
-                      if (el) fileInputs.current[index] = el;
-                    }}
-                    onChange={(e) => handleReplaceImage(e, index)}
-                  />
+                    {/* Substituir imagem */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      ref={(el) => {
+                        if (el) fileInputs.current[index] = el;
+                      }}
+                      onChange={(e) => handleReplaceImage(e, index)}
+                    />
 
-                  <button
-                    onClick={() => handleDeleteImage(index)}
-                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+                    {/* Botões de reorder */}
+                    <div className="absolute bottom-1 left-1 flex gap-1">
+                      {index > 0 && (
+                        <button
+                          onClick={() => moveImage(index, index - 1)}
+                          className="bg-white p-1 rounded shadow"
+                        >
+                          ⬅️
+                        </button>
+                      )}
+                      {index < imageUrls.length - 1 && (
+                        <button
+                          onClick={() => moveImage(index, index + 1)}
+                          className="bg-white p-1 rounded shadow"
+                        >
+                          ➡️
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Remover imagem */}
+                    <button
+                      onClick={() => handleDeleteImage(index)}
+                      className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
           <button
             onClick={handleSave}
@@ -394,9 +446,7 @@ return (
             Salvar
           </button>
         </div>
-      ) : (
-        <p className="mt-4">{rede.content}</p>
-      )}
+      ) : ( null)}
     </div>
   );
 }

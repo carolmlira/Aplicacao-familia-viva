@@ -13,7 +13,7 @@ export class EventsService {
     const newEvent: EventEntity = {
       id: uuidv4(),
       ...event,
-      createdAt: new Date(),
+
     };
     await this.collection.doc(newEvent.id).set(newEvent);
     return newEvent;
@@ -38,16 +38,19 @@ export class EventsService {
   async update(id: string, updateEventDto: Partial<CreateEventDto>): Promise<EventEntity> {
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
+
     if (!doc.exists) {
       throw new NotFoundException(`Evento com ID ${id} não encontrado`);
     }
-    const updatedEvent = {
-      ...doc.data(),
-      ...updateEventDto,
-    };
-    await docRef.set(updatedEvent);
-    return updatedEvent as EventEntity;
+
+    // Atualiza o documento diretamente
+    await docRef.update(updateEventDto); // Usa .update() para atualizar apenas os campos fornecidos
+
+    // Retorna os dados atualizados
+    const updatedDoc = await docRef.get(); // Pega o documento atualizado
+    return updatedDoc.data() as EventEntity; // Retorna como EventEntity
   }
+  
 
   // Deletar evento
   async remove(id: string): Promise<{ message: string; deleted: EventEntity }> {

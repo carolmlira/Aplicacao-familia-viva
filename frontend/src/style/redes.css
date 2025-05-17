@@ -55,6 +55,8 @@
   object-fit: contain;
   border-radius: 10px;
   margin-left: 1rem;
+  border: 1px solid rgb(255, 64, 0);
+  background-color: #0a0a0a;
 }
 
 .rede-texto {

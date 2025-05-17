@@ -10,8 +10,14 @@ import { PagesModule } from './pages/pages.module';
 import { FirebaseService } from './firebase/firebase.service';
 import { FirebaseModule } from './firebase/firebase.module';
 import { FirebaseController } from './firebase/firebase.controller';
-import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
+import { SobreModule } from './sobre/sobre.module';
+import { FooterController } from './footer/footer.controller';
+import { FooterService } from './footer/footer.service';
+import { FooterModule } from './footer/footer.module';
+import { BannerService } from './banner/banner.service';
+import { BannerController } from './banner/banner.controller';
+import { BannerModule } from './banner/banner.module';
 
 @Module({
   imports: [
@@ -26,10 +32,13 @@ import { EmailModule } from './email/email.module';
     MinistriesModule,
     ScheduleModule,
     PagesModule,
-    EmailModule
+    EmailModule,
+    SobreModule,
+    FooterModule,
+    BannerModule
 
   ],
-  controllers: [PagesController, FirebaseController,],
-  providers: [FirebaseService],
+  controllers: [PagesController, FirebaseController, FooterController, BannerController,],
+  providers: [FirebaseService, FooterService, BannerService],
 })
 export class AppModule {}

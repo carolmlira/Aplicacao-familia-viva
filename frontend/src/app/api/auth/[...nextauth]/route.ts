@@ -4,15 +4,6 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
-// interface CustomUser {
-//   id: string;
-//   email: string;
-//   role: string;
-//   access_token: string;
-//   name: string;
-//   ministryId: string;
-// }
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -23,59 +14,32 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch("http://localhost:3000/auth/login", {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: credentials?.email,
               password: credentials?.password,
             }),
           });
 
-          let data;
-          try {
-            data = await res.json(); // Protege caso o backend não retorne nada
-          } catch (err) {
-            console.error("Resposta da API não é JSON:", err);
+          const user = await res.json();
+
+          if (!res.ok || !user?.id) {
+            console.error("Falha ao autenticar:", user?.message || "Erro desconhecido");
             return null;
           }
-
-          if (!res.ok || !data.access_token) {
-            console.error("Erro ao autenticar:", data);
-            return null;
-          }
-
-          const accessToken = data.access_token;
-          if (!accessToken || accessToken.split(".").length !== 3) {
-            console.error("Token mal formado:", accessToken);
-            return null;
-          }
-
-          const payload: any = JSON.parse(atob(accessToken.split(".")[1]));
-          // console.log("Payload decodificado do token:", payload);
-          // const user: CustomUser = {
-          //   id: payload.sub,
-          //   email: payload.email,
-          //   role: payload.role,
-          //   access_token: accessToken,
-          //   name: payload.name,
-          // };
-
-          // console.log('Usuário autenticado:', user.name);
-          // console.log('Role do Usuário autenticado:', user.role);
 
           return {
-            id: payload.sub,
-            email: payload.email,
-            role: payload.role,
-            token: accessToken,
-            name: payload.name,
-            ministryId: payload.ministryId,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role || user.level, // ajuste conforme vier
+            ministryId: user.ministryId || "",
+            accessToken: user.accessToken || null,
           };
         } catch (error) {
-          console.error("Erro na autenticação com Nest:", error);
+          console.error("Erro ao autenticar:", error);
           return null;
         }
       },
@@ -87,10 +51,11 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        token.role = user.role;
-        token.accessToken = user.token;
         token.name = user.name;
+        token.role = user.role;
+        token.photo = user.photo;
         token.ministryId = user.ministryId;
+        token.accessToken = user.accessToken;
       }
       return token;
     },
@@ -99,9 +64,10 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).email = token.email;
-        (session.user as any).role = token.role;
         (session.user as any).name = token.name;
+        (session.user as any).role = token.role;
         (session.user as any).ministryId = token.ministryId;
+        (session.user as any).photo = token.photo;
       }
       (session as any).accessToken = token.accessToken;
       return session;
@@ -110,13 +76,14 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 60,
+    maxAge: 30 * 60, // 30 minutos
   },
 
-  secret: "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
+  secret: `${process.env.NEXTAUTH_SECRET_ROUTER}`,
 
   pages: {
-    signIn: "/login", // ou a página que você usa
+    signIn: "/login",
+    signOut: `${process.env.NEXT_PUBLIC_API_URL}`
   },
 };
 
