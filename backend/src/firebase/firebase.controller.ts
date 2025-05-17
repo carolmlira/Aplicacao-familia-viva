@@ -2,6 +2,7 @@ import { Controller, Post, Get, Put, Delete, Param, UploadedFile, UseInterceptor
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FirebaseService } from './firebase.service';
+import { firestore } from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid'; 
 
 @Controller('firebase')
@@ -84,12 +85,27 @@ export class FirebaseController {
     return { url };
   }
 
-  @Post('upload/user')
+  @Post('upload/user/:id')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadUserImage(@UploadedFile() file: Express.Multer.File) {
-    const url = await this.firebaseService.uploadFile(file, 'user');
+  async uploadUserImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    const userData = await this.firebaseService.getUserById(id);
+
+    if (userData?.filename) {
+      await this.firebaseService.deleteFile(userData.filename);
+    }
+
+    const ext = file.originalname.split('.').pop();
+    const filename = `user/${id}/${uuidv4()}.${ext}`;
+    const url = await this.firebaseService.uploadFile(file, filename);
+
+    await this.firebaseService.updateUserImage(id, url, filename);
+
     return { url };
   }
+
 
   @Get('file/:filename')
   async getFile(@Param('filename') filename: string) {

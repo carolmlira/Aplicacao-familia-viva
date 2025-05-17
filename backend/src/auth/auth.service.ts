@@ -8,6 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { randomBytes } from 'crypto';
 import { EmailService } from 'src/email/email.service';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class AuthService {
@@ -17,13 +19,17 @@ export class AuthService {
     private emailService: EmailService,
   ) {}
 
+
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
-    }
-    throw new UnauthorizedException('Credenciais inválidas');
+
+    if (!user) throw new UnauthorizedException('Usuário não encontrado');
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new UnauthorizedException('Senha incorreta');
+
+    const { password: _, ...result } = user;
+    return result;
   }
 
   async login(user: any) {
@@ -37,6 +43,11 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.level,
+      ministryId: user.ministryId,
     };
   }
 
