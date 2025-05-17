@@ -140,7 +140,6 @@ export default function Header() {
     }
 
     const data = await res.json();
-    console.log("data ",data.url)
     return data.url; // supondo que o backend retorna { url: string }
   }
 
@@ -238,9 +237,11 @@ export default function Header() {
                         <li>
                           <button
                             onClick={() => {
-                              signOut();
                               setShowDropdown(false);
                               setShowMobileUserMenu(false);
+                              signOut({ redirect: false }).then(() => {
+                                window.location.href = "http://localhost:3001";
+                              });
                             }}
                           >
                             Sair
@@ -284,15 +285,17 @@ export default function Header() {
                       >
                         Editar Perfil
                       </Link>
-                      <button
-                        onClick={() => {
-                          signOut();
-                          setShowUserMenu(false);
-                        }}
-                        className={styles.userLink}
-                      >
-                        Sair
-                      </button>
+                        <button
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            signOut({ redirect: false }).then(() => {
+                              window.location.href = "http://localhost:3001";
+                            });
+                          }}
+                          className={styles.userLink}
+                        >
+                          Sair
+                        </button>
                     </div>
                   )}
                 </div>

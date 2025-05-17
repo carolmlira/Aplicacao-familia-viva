@@ -7,4 +7,8 @@ export class CreateFooter {
   @IsString()
   @IsNotEmpty()
   localizacao: string;
+
+  @IsString()
+  @IsNotEmpty()
+  telefone: string;
 }

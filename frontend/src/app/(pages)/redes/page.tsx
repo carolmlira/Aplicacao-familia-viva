@@ -13,6 +13,7 @@ interface PagesRedes {
   icon: string;
   active: boolean;
   imageUrl?: string;
+  imageUrls?: string[];
 }
 
 export default function RedesList() {
@@ -23,43 +24,37 @@ export default function RedesList() {
   const [redes, setRedes] = useState<PagesRedes[]>([]);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    fetchRedes(); // <-- aqui chamamos a função ao montar
+  }, []);
+
   async function fetchRedes() {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`
+        `${process.env.NEXT_PUBLIC_API_URL}/pages?category=${category}`
       );
       const data = await res.json();
+
       const rawRedes: PagesRedes[] = Array.isArray(data.pages)
         ? data.pages
         : [];
 
-      const redesWithImages = await Promise.all(
-        rawRedes.map(async (rede) => {
-          if (!rede.id) return rede;
+      const redesWithImages = rawRedes.map((rede) => {
+        // Usa a primeira imagem salva em imageUrls, se existir
+        const imageUrl =
+          Array.isArray(rede.imageUrls) && rede.imageUrls.length > 0
+            ? rede.imageUrls[0]
+            : undefined;
 
-          try {
-            const imageRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages/${category}/files?pageId=${rede.id}`
-            );
-            const imageData = await imageRes.json();
-            const imageUrl =
-              Array.isArray(imageData.files) && imageData.files.length > 0
-                ? imageData.files[0]
-                : undefined;
-
-            return { ...rede, imageUrl };
-          } catch (err) {
-            console.warn(`Erro ao buscar imagem de ${rede.title}:`, err);
-            return { ...rede };
-          }
-        })
-      );
+        return { ...rede, imageUrl };
+      });
 
       setRedes(redesWithImages);
     } catch (error) {
       console.error("Erro ao buscar redes:", error);
     }
   }
+
   async function deleteRede(id: string) {
     if (!confirm("Tem certeza que deseja excluir esta rede?")) return;
 
@@ -131,7 +126,7 @@ export default function RedesList() {
                   />
                 </div>
                 <div className="rede-texto">
-                  <h2>{rede.title}</h2>
+                  <h2 style={{ color: "#FF8C00" }}>{rede.title}</h2>
                   <p>
                     {rede.content?.slice(0, 150)}
                     {rede.content?.length > 150 && "..."}

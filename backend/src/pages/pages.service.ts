@@ -21,18 +21,19 @@ export class PagesService {
           const generatedId = uuidv4(); // gera um ID único
           const filename = `pages/${category}/${id}/${generatedId}.${ext}`;
           const imageUrl = await this.firebaseService.uploadFile(file, filename);
-          console.log('URL da imagem:', imageUrl);
           imageUrls.push(imageUrl);
         }
       }
     
       // Criação do objeto
-      const newPage: any = {
+      const newPage: any = removeUndefinedFields({
         id,
         ...createPageDto,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+        imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
+      });
+
     
       if (imageUrls.length > 0) {
         newPage.imageUrls = imageUrls;
@@ -55,7 +56,6 @@ export class PagesService {
       return newPage;
     }
     
-
     // Função para buscar todas as páginas dentro de uma categoria
     async findAll(category: string) {
       const categoryCollection = this.collection.doc(category).collection('items');
@@ -73,7 +73,6 @@ export class PagesService {
         ...doc.data(),
       }));
     }
-    
 
     // Função para buscar uma página específica dentro de uma categoria
     async findOne(id: string, category: string) {
@@ -129,5 +128,10 @@ export class PagesService {
       await docRef.delete();
       return { deleted: true };
     }
-    
+}
+
+function removeUndefinedFields(obj: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, value]) => value !== undefined)
+  );
 }

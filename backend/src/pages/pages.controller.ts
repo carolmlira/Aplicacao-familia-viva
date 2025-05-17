@@ -15,10 +15,9 @@ export class PagesController {
     @UploadedFiles() images: Express.Multer.File[], // Agora um array
     @Body() createPageDto: CreatePageDto
   ) {
-    console.log('Imagens recebidas:', images);  // Debug para verificar as imagens
     return this.pagesService.create(createPageDto, category, images);
   }
-  
+
 
   // Buscar todas as páginas dentro de uma categoria
   @Get()
