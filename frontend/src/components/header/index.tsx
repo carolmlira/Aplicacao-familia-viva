@@ -12,6 +12,8 @@ export default function Header() {
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false);
   const [showLogoUploader, setShowLogoUploader] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [imgUserUrl, setImgUserUrl] = useState<string | null>(null);
+  const id = session?.user?.id
 
   useEffect(() => {
     const checkMobile = () => {
@@ -34,6 +36,27 @@ export default function Header() {
       })
       .catch((err) => console.error("Erro ao carregar logo:", err));
   }, []);
+
+
+  useEffect(() => {
+    if (!id) return 
+
+    async function fetchUser() {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
+          credentials: 'include',
+        })
+        if (!res.ok) throw new Error('Erro ao carregar dados do usuário')
+        const user = await res.json()
+        setImgUserUrl(user.photo || null)
+      } catch (err) {
+        console.error(err)
+        alert('Não foi possível carregar os dados do perfil')
+      }
+    }
+
+    fetchUser()
+  }, [id]) 
 
   const handleLogoClick = () => {
     if (!session || role !== "ADMIN") {
@@ -240,7 +263,7 @@ export default function Header() {
                               setShowDropdown(false);
                               setShowMobileUserMenu(false);
                               signOut({ redirect: false }).then(() => {
-                                window.location.href = "http://localhost:3001";
+                                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}`;
                               });
                             }}
                           >
@@ -268,13 +291,14 @@ export default function Header() {
               {session ? (
                 <div className={styles.userMenu}>
                   <Image
-                    src={session.user?.photo || "/images/icon-user.svg"}
+                    src={imgUserUrl || "/images/icon-user.svg"}
                     alt="Foto do usuário"
                     width={40}
                     height={40}
                     className={styles.userImage}
                     onClick={() => setShowUserMenu(!showUserMenu)}
                   />
+
                   {showUserMenu && (
                     <div className={styles.userDropdown}>
                       <p className={styles.userName}>{session.user?.name}</p>
@@ -289,7 +313,7 @@ export default function Header() {
                           onClick={() => {
                             setShowUserMenu(false);
                             signOut({ redirect: false }).then(() => {
-                              window.location.href = "http://localhost:3001";
+                              window.location.href = `${process.env.NEXT_PUBLIC_API_URL}`;
                             });
                           }}
                           className={styles.userLink}

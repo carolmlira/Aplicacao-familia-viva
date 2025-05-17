@@ -1,17 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 import { UserEntity } from './entities/user.entity/user.entity';
 import { firestore } from '../config/firebase.config';
 import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   private collection = firestore.collection('users');
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const { oldSenha, ...safeUserDto } = createUserDto;
+
     const newUser: UserEntity = {
       id: uuidv4(),
-      ...createUserDto,
+      ...safeUserDto,
+      password: hashedPassword, // usa a senha criptografada
     };
     await this.collection.doc(newUser.id).set(newUser);
     return newUser;
@@ -36,22 +42,42 @@ export class UsersService {
     return snapshot.docs[0].data() as UserEntity;
   }
 
-  async update(
-    id: string,
-    updateUserDto: Partial<CreateUserDto>,
-  ): Promise<UserEntity> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
+
     if (!doc.exists) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
+
+    const userData = doc.data() as UserEntity;
+
+    if (updateUserDto.password) {
+      if (!updateUserDto.oldSenha) {
+        throw new UnauthorizedException('Senha atual não fornecida.');
+      }
+
+      const senhaConfere = await bcrypt.compare(updateUserDto.oldSenha, userData.password);
+      if (!senhaConfere) {
+        throw new UnauthorizedException('Senha atual incorreta.');
+      }
+
+      const newHash = await bcrypt.hash(updateUserDto.password, 10);
+      updateUserDto.password = newHash;
+    }
+
+    const { oldSenha, ...dataToUpdate } = updateUserDto;
+
     const updatedData = {
-      ...doc.data(),
-      ...updateUserDto,
+      ...userData,
+      ...dataToUpdate,
     };
+
     await docRef.update(updatedData);
+
     return updatedData as UserEntity;
   }
+
   async updateResetToken(id: string, token: string, expires: Date) {
     // Exemplo genérico para Firebase, Mongo, etc.
     return await this.collection.doc(id).update({

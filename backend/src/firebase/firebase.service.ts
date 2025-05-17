@@ -138,4 +138,16 @@ export class FirebaseService {
     
       return urls;
     }
+
+  async getUserById(id: string) {
+    const doc = await this.firestore.collection('users').doc(id).get();
+    return doc.exists ? doc.data() : null;
+  }
+
+  async updateUserImage(id: string, photoURL: string, filename: string) {
+    await this.firestore.collection('users').doc(id).update({
+      photoURL,
+      filename,
+    });
+  }
 }
