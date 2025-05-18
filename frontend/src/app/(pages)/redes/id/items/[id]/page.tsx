@@ -1,11 +1,11 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import {  useParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
+import { useSession } from 'next-auth/react';
+import {  useParams } from 'next/navigation';
+import "slick-carousel/slick/slick-theme.css";
 import styles from './redeId.module.css';
+import "slick-carousel/slick/slick.css";
 import { v4 as uuidv4 } from 'uuid';
 import Slider from "react-slick";
 
@@ -22,6 +22,17 @@ export default function Rede() {
   const [category] = useState('pages');
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false); 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+
+    handleResize(); // define ao montar
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (typeof id === 'string') {
@@ -143,6 +154,7 @@ export default function Rede() {
 
     try {
       const uploadedUrls: string[] = [];
+
       for (const file of newImages) {
         const url = await uploadImage(file, id);
         uploadedUrls.push(url);
@@ -158,6 +170,7 @@ export default function Rede() {
       setImageUrls((prev) => [...prev, ...uploadedUrls]);
       setNewImages([]);
       setEditing(false);
+
     } catch (err) {
       console.error("Erro ao atualizar rede:", err);
     } finally {
@@ -240,11 +253,22 @@ export default function Rede() {
     });
   }
 
-  if (loading) return <div style={{ textAlign:"center" }}>Carregando...</div>;
-  if (!rede) return <div>Rede não encontrado.</div>;
+  function renderParagraphs(content: string) {
+    return content
+      .split('\n')
+      .filter((paragraph) => paragraph.trim() !== '')
+      .map((paragraph, index) => (
+        <p key={index} className="mb-4 indent-8">
+          {paragraph}
+        </p>
+      ));
+  }
 
-return (
-    <div className="p-4">
+  if (loading) return <div style={{ textAlign:"center" }}>Carregando...</div>;
+  if (!rede) return <div style={{ textAlign: "center" }} >Rede não encontrado.</div>;
+
+  return (
+    <div className={`${editing ? "bg-neutral-800 my-8 mx-4 md:mx-32 p-4 rounded" : "p-4"}`}>
       {(session?.user as any)?.role === 'ADMIN' && (
         <div>
           <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
@@ -319,27 +343,30 @@ return (
       )}
 
       {editing ? (
-        <div className="mt-4 space-y-2">
+        <div className={editing ? "bg-neutral-800 my-8 mx-4 md:mx-8 p-4 rounded" : "p-4"}>
+          <h1 style={{ color:"orange", fontWeight:"bold", fontSize:"32px", textAlign:"center" }}>Edição da Rede:</h1>
+          <label>Título:</label>
           <input
             type="text"
             className="border p-2 w-full"
             value={formData.title}
+            style={{ color:"black" }}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
             placeholder="Título"
           />
-  
-          <textarea
-            className="w-full rounded-md border p-2"
-            rows={6}
-            value={formData.content}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, content: e.target.value }))
-            }
-          />
-
-          <label>
+          <label className='block my-2'>Conteúdo:</label>  
+            <textarea
+              className="w-full rounded-md border p-2"
+              rows={10}
+              style={{ color: "black" }}
+              value={formData.content}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, content: e.target.value }))
+              }
+            />
+          <label style={{ display: "none" }}>
             <input
               type="checkbox"
               checked={formData.active}
@@ -349,11 +376,14 @@ return (
             />
             Página ativa
           </label>
+
           <div className="mt-2">
+            <label className="block font-medium mb-1">Adicionar Imagens:</label>
             <input
               type="file"
               accept="image/*"
               multiple
+              className="mb-2"
               onChange={(e) => {
                 if (e.target.files) {
                   const filesArray = Array.from(e.target.files);
@@ -366,33 +396,152 @@ return (
               }}
             />
             {previewImages.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-                {previewImages.map((url, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={url}
-                      alt={`Nova imagem ${index + 1}`}
-                      className="w-full rounded shadow object-cover"
-                    />
-                    <button
-                      onClick={() => handleRemovePreviewImage(index)}
-                      className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
-                    >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
-                    </button>
+              <div className="bg-neutral-900 p-4 rounded">
+                {isMobile ? (
+                  <Slider
+                    dots
+                    infinite
+                    speed={500}
+                    slidesToShow={1}
+                    slidesToScroll={1}
+                    className="my-4"
+                  >
+                    {previewImages.map((url, index) => (
+                      <div key={index} className="px-2">
+                        <div
+                          className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow"
+                          style={{ width: 200, height: 200 }}
+                        >
+                          <img
+                            src={url}
+                            alt={`Nova imagem ${index + 1}`}
+                            className="object-contain w-full h-full"
+                          />
+                          <button
+                            onClick={() => handleRemovePreviewImage(index)}
+                            className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
+                            aria-label="Remover imagem"
+                          >
+                            <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </Slider>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-4">
+                    {previewImages.map((url, index) => (
+                      <div
+                        key={index}
+                        className="relative rounded shadow overflow-hidden"
+                        style={{ width: 200, height: 200 }}
+                      >
+                        <img
+                          src={url}
+                          alt={`Nova imagem ${index + 1}`}
+                          className="w-full h-full object-contain"
+                        />
+                        <button
+                          onClick={() => handleRemovePreviewImage(index)}
+                          className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
+                          aria-label="Remover imagem"
+                        >
+                          <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
+
+
           </div>
-            {imageUrls && imageUrls.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
+          {imageUrls && imageUrls.length > 0 && (
+            isMobile ? (
+              <Slider
+                dots
+                infinite
+                speed={500}
+                slidesToShow={1}
+                slidesToScroll={1}
+                className="my-4"
+              >
                 {imageUrls.map((url, index) => (
-                  <div key={index} className="relative group">
+                  <div key={index} className="px-2">
+                    <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
+                      <img
+                        src={url}
+                        alt={`Imagem ${index + 1}`}
+                        className="object-contain w-full h-full rounded"
+                        onClick={() => handleImageClick(index)}
+                      />
+
+                      {/* Substituir imagem */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        ref={(el) => {
+                          if (el) fileInputs.current[index] = el;
+                        }}
+                        onChange={(e) => handleReplaceImage(e, index)}
+                      />
+
+                      {/* Botões de reorder */}
+                      <div className="absolute bottom-1 left-1 flex gap-1">
+                        {index > 0 && (
+                          <button
+                            onClick={() => moveImage(index, index - 1)}
+                            className="p-1 rounded shadow bg-black"
+                          >
+                            <img
+                              src="/images/arrow-left-circle-fill.svg"
+                              alt="Mover para esquerda"
+                              className="w-6 h-6"
+                              style={{ filter: 'invert(1)' }}
+                            />
+                          </button>
+                        )}
+                        {index < imageUrls.length - 1 && (
+                          <button
+                            onClick={() => moveImage(index, index + 1)}
+                            className="p-1 rounded shadow bg-black"
+                          >
+                            <img
+                              src="/images/arrow-right-circle-fill.svg"
+                              alt="Mover para direita"
+                              className="w-6 h-6"
+                              style={{ filter: 'invert(1)' }}
+                            />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Remover imagem */}
+                      <button
+                        onClick={() => handleDeleteImage(index)}
+                        className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
+                        aria-label="Remover imagem"
+                      >
+                        <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 my-4">
+                {imageUrls.map((url, index) => (
+                  <div
+                    key={index}
+                    className="relative group rounded shadow bg-black-100 overflow-hidden"
+                    style={{ width: 200, height: 200 }}
+                  >
                     <img
                       src={url}
                       alt={`Imagem ${index + 1}`}
-                      className="w-full rounded shadow object-cover cursor-pointer"
+                      className="w-full h-full object-contain cursor-pointer"
                       onClick={() => handleImageClick(index)}
                     />
 
@@ -412,17 +561,27 @@ return (
                       {index > 0 && (
                         <button
                           onClick={() => moveImage(index, index - 1)}
-                          className="bg-white p-1 rounded shadow"
+                          className="p-1 rounded shadow bg-black"
                         >
-                          ⬅️
+                          <img
+                            src="/images/arrow-left-circle-fill.svg"
+                            alt="Mover para esquerda"
+                            className="w-6 h-6"
+                            style={{ filter: 'invert(1)' }}
+                          />
                         </button>
                       )}
                       {index < imageUrls.length - 1 && (
                         <button
                           onClick={() => moveImage(index, index + 1)}
-                          className="bg-white p-1 rounded shadow"
+                          className="p-1 rounded shadow bg-black"
                         >
-                          ➡️
+                          <img
+                            src="/images/arrow-right-circle-fill.svg"
+                            alt="Mover para direita"
+                            className="w-6 h-6"
+                            style={{ filter: 'invert(1)' }}
+                          />
                         </button>
                       )}
                     </div>
@@ -430,24 +589,36 @@ return (
                     {/* Remover imagem */}
                     <button
                       onClick={() => handleDeleteImage(index)}
-                      className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full"
+                      className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
+                      aria-label="Remover imagem"
                     >
-                      ✕
+                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
               </div>
-            )}
+            )
+          )}
+
 
           <button
             onClick={handleSave}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-blue-600 text-white my-8 px-6 py-3 rounded hover:bg-blue-700"
           >
             Salvar
+          </button>
+
+          <button
+            style={{ marginLeft: "10px" }}
+            onClick={() => setEditing(false)}
+            className="bg-red-600 text-white my-8 px-6 py-3 rounded hover:bg-red-700"
+          >
+            Cancelar
           </button>
         </div>
       ) : ( null)}
     </div>
+    
   );
 }
   

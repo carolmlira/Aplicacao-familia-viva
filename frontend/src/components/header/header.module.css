@@ -181,7 +181,7 @@
 }
 
 
-@media (max-width: 414px) {
+@media (max-width: 1000px) {
   .nav-menu {
     display: none;
   }

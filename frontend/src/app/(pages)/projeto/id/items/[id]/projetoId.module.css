@@ -1,4 +1,5 @@
-.iconeEditar{
+/* Estilos reutilizáveis */
+.iconeEditar {
   filter: invert(1);
 }
 
@@ -21,7 +22,38 @@
   filter: invert(0); 
 }
 
-.botaoEditar:hover{
+.botaoEditar:hover {
   background-color: #fff;
   color: #0a0a0a;
+}
+
+/* Estilos exclusivos da página de redes */
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.logoImage {
+  width: 500px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(209, 208, 208, 0.397);
+}
+
+.carousel {
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+.carouselSlide {
+  padding: 10px;
+}
+
+.carouselImage {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }

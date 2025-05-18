@@ -32,8 +32,8 @@ export default function Home() {
 
   const [banner, setBanner] = useState<BannerType | null>(null);
   const [showModalBanner, setShowModalBanner] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null);
+  const [logoPreview] = useState<string | null>(null);
+  const [backgroundPreview] = useState<string | null>(null);
 
 
   useEffect(() => {

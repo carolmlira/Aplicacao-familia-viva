@@ -30,13 +30,11 @@ export default function Header() {
       .then((res) => res.json())
       .then((data) => {
         if (data?.url) {
-          // força o browser a baixar a imagem atualizada
           setLogoUrl(`${data.url}?t=${Date.now()}`);
         }
       })
       .catch((err) => console.error("Erro ao carregar logo:", err));
   }, []);
-
 
   useEffect(() => {
     if (!id) return 
@@ -151,7 +149,7 @@ export default function Header() {
 
   async function uploadSobreImage(file: File): Promise<string | null> {
     const formData = new FormData();
-    formData.append("file", file); // nome do campo esperado no backend
+    formData.append("file", file); 
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/logo`, {
       method: "POST",
@@ -212,43 +210,28 @@ export default function Header() {
                 setShowMobileUserMenu(false);
               }}
               className={styles.menuIcon}
+              style={{ filter: "invert(1)" }}
             />
 
-            {showDropdown && (
-              <ul className={styles.dropdownMenu}>
+          {showDropdown && (
+            <div className={styles.dropdownMenu}>
+              <div className={styles.dropdownMenuContent}>
                 {renderMenuItems()}
+
                 {session ? (
-                  <li>
+                  <>
                     <button
                       onClick={() => setShowMobileUserMenu(!showMobileUserMenu)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
-                      }}
+                      style={{ marginTop: 10, color: "#fff" }}
                     >
                       {session.user?.name}
-                      <Image
-                        src="/images/seta.svg"
-                        alt="Seta"
-                        width={12}
-                        height={12}
-                      />
                     </button>
 
                     {showMobileUserMenu && (
-                      <ul
-                        style={{
-                          listStyle: "none",
-                          paddingLeft: 0,
-                          marginTop: 8,
-                        }}
-                      >
+                      <ul style={{ listStyle: "none", padding: 0, marginTop: 10, width: "100%" }}>
                         <li>
-                         <Link
-                          href="/perfil"
-
+                          <Link
+                            href="/perfil"
                             onClick={() => {
                               setShowDropdown(false);
                               setShowMobileUserMenu(false);
@@ -263,7 +246,7 @@ export default function Header() {
                               setShowDropdown(false);
                               setShowMobileUserMenu(false);
                               signOut({ redirect: false }).then(() => {
-                                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}`;
+                                window.location.href = `${process.env.NEXT_PUBLIC_API_URL_NEXT}`;
                               });
                             }}
                           >
@@ -272,16 +255,16 @@ export default function Header() {
                         </li>
                       </ul>
                     )}
-                  </li>
+                  </>
                 ) : (
-                  <li>
-                    <Link href="/login" onClick={() => setShowDropdown(false)}>
-                      Login
-                    </Link>
-                  </li>
+                  <Link href="/login" onClick={() => setShowDropdown(false)} style={{ marginTop: 10 }}>
+                    Login
+                  </Link>
                 )}
-              </ul>
-            )}
+              </div>
+            </div>
+          )}
+
           </div>
         ) : (
           <>
@@ -313,7 +296,7 @@ export default function Header() {
                           onClick={() => {
                             setShowUserMenu(false);
                             signOut({ redirect: false }).then(() => {
-                              window.location.href = `${process.env.NEXT_PUBLIC_API_URL}`;
+                              window.location.href = `${process.env.NEXT_PUBLIC_API_URL_NEXT}`;
                             });
                           }}
                           className={styles.userLink}

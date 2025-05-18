@@ -9,9 +9,7 @@ import Image from 'next/image';
 export default function NewRede() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
   const [imageFiles, setImageFiles] = useState<{ id: string; file: File;previewUrl: string }[] >([]);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [category, setCategory] = useState('pages');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,8 +21,6 @@ export default function NewRede() {
 
   useEffect(() => {
     if (status === "loading") return;
-
-    // Se o usuário estiver logado, mas não tiver permissão, redireciona
     if (session) {
       const role = (session.user as any)?.role;
       if (role !== "ADMIN") {
@@ -112,37 +108,39 @@ export default function NewRede() {
   return (
     <>
       {/* Formulário */}
-      <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Nova Rede</h1>
+      <div className="max-w-3xl mx-auto mt-10 p-6  rounded shadow">
+        <h1 style={{ fontSize:"36px", color:"orangered", textAlign:"center"}} className="text-2xl font-bold mb-4">Nova Rede</h1>
         <form onSubmit={handleAddRede} className="space-y-4">
           <div>
-            <label className="block font-medium">Título</label>
+            <label className="block font-medium">Título:</label>
             <input
               type="text"
               name="title"
               value={formData.title}
+              placeholder='Digite o título'
+              style={{ color:"black", background:"rgb(231, 226, 226)" }}
               onChange={handleChange}
               required
-              style={{ color:"black" }}
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>
   
           <div>
-            <label className="block font-medium">Conteúdo</label>
+            <label className="block font-medium">Conteúdo:</label>
             <textarea
               name="content"
               value={formData.content}
               onChange={handleChange}
-              rows={5}
+              rows={12}
               required
-              style={{ color:"black" }}
+              placeholder="Digite o conteúdo"
+              style={{ color:"black", background:"rgb(231, 226, 226)" }}
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>
   
           <div>
-            <label className="block font-medium">Imagem (opcional)</label>
+            <label className="block font-medium">Imagem (opcional): </label>
             <input
               type="file"
               multiple
@@ -160,15 +158,14 @@ export default function NewRede() {
               }}
             />
             {imageFiles.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-4">
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {imageFiles.map(({ id, previewUrl }, index) => (
-                  <div key={id} className="relative">
+                  <div key={id} className="relative w-full h-[150px] overflow-hidden rounded shadow">
                     <Image
                       src={previewUrl}
                       alt={`Preview ${id}`}
-                      width={150}
-                      height={150}
-                      className="object-cover rounded shadow"
+                      fill
+                      className="object-cover"
                     />
                     <button
                       type="button"
@@ -179,8 +176,9 @@ export default function NewRede() {
                     </button>
                   </div>
                 ))}
-              </div>           
+              </div>
             )}
+
           </div>
   
           <button

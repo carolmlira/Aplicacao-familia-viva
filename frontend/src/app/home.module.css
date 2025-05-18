@@ -657,3 +657,12 @@
 .iconRight {
   transform: rotate(180deg);
 }
+
+@media (max-width: 1000px) {
+  .botoesDias {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-left: 0;
+  }
+}

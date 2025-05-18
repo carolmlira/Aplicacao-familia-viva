@@ -8,9 +8,7 @@ import Image from 'next/image';
 export default function NewProjeto() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
   const [imageFiles, setImageFiles] = useState<{ id: string; file: File; previewUrl: string }[]>([]);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [category, setCategory] = useState('pages');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -105,15 +103,17 @@ export default function NewProjeto() {
 
   return (
     <>
-      <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Novo Projeto</h1>
+      <div className="max-w-3xl mx-auto mt-10 p-6  rounded shadow">
+        <h1 style={{ color:"orangered", textAlign:"center", fontSize:"36px"}}  className="text-2xl font-bold mb-4">Novo Projeto</h1>
         <form onSubmit={handleAddProjeto} className="space-y-4">
           <div>
-            <label className="block font-medium">Título</label>
+            <label className="block font-medium">Título:</label>
             <input
               type="text"
               name="title"
               value={formData.title}
+              placeholder='Digite o título'
+              style={{ color:"black", background:"rgb(231, 226, 226)" }}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 rounded"
@@ -121,19 +121,21 @@ export default function NewProjeto() {
           </div>
 
           <div>
-            <label className="block font-medium">Conteúdo</label>
+            <label className="block font-medium">Conteúdo:</label>
             <textarea
               name="content"
               value={formData.content}
+              placeholder="Digite o conteúdo"
+              style={{ color:"black", background:"rgb(231, 226, 226)" }}
               onChange={handleChange}
-              rows={5}
+              rows={12}
               required
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>
 
           <div>
-            <label className="block font-medium">Imagem (opcional)</label>
+            <label className="block font-medium">Imagem (opcional):</label>
             <input
               type="file"
               multiple
@@ -149,15 +151,14 @@ export default function NewProjeto() {
               }}
             />
             {imageFiles.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-4">
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {imageFiles.map(({ id, previewUrl }, index) => (
-                  <div key={id} className="relative">
+                  <div key={id} className="relative w-full h-[150px] overflow-hidden rounded shadow">
                     <Image
                       src={previewUrl}
                       alt={`Preview ${id}`}
-                      width={150}
-                      height={150}
-                      className="object-cover rounded shadow"
+                      fill
+                      className="object-cover"
                     />
                     <button
                       type="button"
