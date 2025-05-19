@@ -8,7 +8,7 @@ import {
   Matches,
   IsEnum,
   Length,
-  ValidateIf,
+  IsEmpty,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/auth/role.enum';
@@ -23,11 +23,6 @@ export class CreateUserDto {
   @IsEmail({}, { message: 'O email deve ser válido' })
   @IsNotEmpty({ message: 'O email é obrigatório' })
   email: string; // E-mail do usuário (deve ser válido)
-
-  @ValidateIf(o => o.password !== undefined)
-  @IsNotEmpty({ message: 'Senha antiga é obrigatória para alterar a senha' })
-  @IsString()
-  oldSenha?: string;
 
   @ApiProperty({ description: 'A senha do do Usuario' })
   @IsString({ message: 'A senha deve ser uma string' })

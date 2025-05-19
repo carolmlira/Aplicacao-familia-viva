@@ -20,7 +20,7 @@ import { EmailModule } from 'src/email/email.module';
         const secret = config.get<string>('JWT_SECRET');
         return {
           secret,
-          signOptions: { expiresIn: '1d' },
+          signOptions: { expiresIn: '30m' },
         };
       },
     }),

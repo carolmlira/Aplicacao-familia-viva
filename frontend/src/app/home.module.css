@@ -1,10 +1,3 @@
-:root {
-  --size-max-width-img: 240px;
-  --size-max-heigth-img: 180px;
-  --size-max-heigth-card: 100px;
-  --font-size-h2-card: 1.5rem;
-  --font-size-p: 1rem;
-}
 .container {
   position: relative;
 }
@@ -35,10 +28,10 @@
 }
 
 .botaoEditar:hover .iconeEditar {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoEditar:hover{
+.botaoEditar:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -51,7 +44,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -72,7 +65,7 @@
   margin-top: 1rem;
 }
 
-.modalSectionBanner img{
+.modalSectionBanner img {
   border: 2px solid rgb(255, 94, 0);
   border-radius: 8px;
   margin-top: 10px;
@@ -89,12 +82,11 @@
   background-color: #e5e5e5;
   border-radius: 5px;
   box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.3);
-
 }
 
 .modalActionsBanner {
   display: flex;
-  justify-content:center;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
 }
@@ -147,10 +139,10 @@
 }
 
 .botaoEditarSobre:hover .iconeEditar {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoEditarSobre:hover{
+.botaoEditarSobre:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -184,14 +176,14 @@
   max-width: 700px;
   object-fit: contain;
   height: auto;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
 .textContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center; 
+  justify-content: center;
   max-width: 500px;
   margin-left: 10%;
   flex: 1 1 300px;
@@ -237,13 +229,13 @@
   gap: 12px;
 }
 
-
 /* Responsividade */
 @media (max-width: 768px) {
   .conteudoSobre {
     flex-direction: column;
   }
-  .textContainer, .imageContainer {
+  .textContainer,
+  .imageContainer {
     order: unset;
     width: 100%;
   }
@@ -252,7 +244,6 @@
     margin: 0 auto;
   }
 }
-
 
 /* BOTÕES DA ÁREA DE PROGRAMAÇÃO */
 
@@ -280,10 +271,10 @@
 }
 
 .botaoAdd:hover .iconeAdd {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoAdd:hover{
+.botaoAdd:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -297,7 +288,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
-  gap: 20px; 
+  gap: 20px;
 }
 
 .botaoEditarProgramacao {
@@ -329,10 +320,10 @@
 }
 
 .botaoEditarProgramacao:hover .iconeEditar {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoEditarProgramacao:hover{
+.botaoEditarProgramacao:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -349,7 +340,7 @@
 }
 
 .botaoExcluirEvento:hover .iconeExcluir {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
 .modalOverlayEvent {
@@ -377,7 +368,6 @@
   gap: 12px;
 }
 
-
 /*PROGRAMAÇÃO*/
 
 .programacao {
@@ -395,7 +385,6 @@
   text-align: center;
   width: 100%;
 }
-
 
 .dias {
   background: linear-gradient(to right, #fe8719, #fe3012);
@@ -427,7 +416,7 @@
   display: inline-block;
   margin: 8px;
 }
-  
+
 .tooltipText {
   visibility: hidden;
   background: linear-gradient(to right, #fe8719, #fe3012);
@@ -443,29 +432,19 @@
   box-sizing: border-box;
   cursor: pointer;
 }
-  
+
 .tooltip:hover .tooltipText {
   visibility: visible;
   opacity: 1;
 }
 
-  
 /* PROJETOS */
-
-@media (max-width: 768px) {
-  :root {
-    --size-max-width-img: 500px;
-    --size-max-heigth-img: 140px;
-    --font-size-h2-card: 1.3rem;
-    --font-size-p: 0.8rem;
-  }
-}
 
 .projetos {
   padding: 2rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   max-width: 1300px;
-  margin: 0 auto; 
+  margin: 0 auto;
   margin-top: 100px;
 }
 

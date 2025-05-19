@@ -10,7 +10,7 @@ declare module "next-auth" {
       email: string;
       photo?: string;
       ministryId: string;
-      role: "ADMIN" | "COMUNIC" | "VOLUNT" | "USER";
+      role: "ADMIN" | "LIDER" | "COMUNIC" | "VOLUNT" | "USER";
     };
   }
 
@@ -19,7 +19,7 @@ declare module "next-auth" {
     name: string;
     email: string;
     photo?: string;
-    role: "ADMIN" | "COMUNIC" | "VOLUNT" | "USER";
+    role: "ADMIN" | "LIDER" | "COMUNIC" | "VOLUNT" | "USER";
   }
 }
 
@@ -29,7 +29,7 @@ declare module "next-auth/jwt" {
     email: string;
     name: string;
     photo?: string;
-    role: "ADMIN" | "COMUNIC" | "VOLUNT" | "USER";
+    role: "ADMIN" | "LIDER" | "COMUNIC" | "VOLUNT" | "USER";
     accessToken?: string;
   }
 }

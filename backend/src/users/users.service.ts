@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 import { UserEntity } from './entities/user.entity/user.entity';
 import { firestore } from '../config/firebase.config';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,12 +16,12 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const { oldSenha, ...safeUserDto } = createUserDto;
+    const safeUserDto = createUserDto;
 
     const newUser: UserEntity = {
       id: uuidv4(),
       ...safeUserDto,
-      password: hashedPassword, // usa a senha criptografada
+      password: hashedPassword,
     };
     await this.collection.doc(newUser.id).set(newUser);
     return newUser;
@@ -52,20 +56,14 @@ export class UsersService {
 
     const userData = doc.data() as UserEntity;
 
+    // Verifica se uma nova senha foi enviada
     if (updateUserDto.password) {
-      if (!updateUserDto.oldSenha) {
-        throw new UnauthorizedException('Senha atual não fornecida.');
-      }
-
-      const senhaConfere = await bcrypt.compare(updateUserDto.oldSenha, userData.password);
-      if (!senhaConfere) {
-        throw new UnauthorizedException('Senha atual incorreta.');
-      }
-
+      // 🔥 Remova a exigência de senha antiga
       const newHash = await bcrypt.hash(updateUserDto.password, 10);
       updateUserDto.password = newHash;
     }
 
+    // Pode remover essa linha se não usar oldSenha mais
     const { oldSenha, ...dataToUpdate } = updateUserDto;
 
     const updatedData = {

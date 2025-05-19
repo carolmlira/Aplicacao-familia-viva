@@ -19,7 +19,6 @@ interface User {
   resetExpires?: null;
 }
 
-
 interface ValidationErrors {
   [key: string]: string | undefined;
   name?: string;
@@ -73,7 +72,7 @@ export default function Usuarios() {
     }
 
     const fetchUsers = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      const res = await fetch("http://localhost:3000/users", {
         headers: {
           Authorization: `Bearer ${(session as any).accessToken}`,
         },
@@ -89,7 +88,7 @@ export default function Usuarios() {
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
+    await fetch(`http://localhost:3000/users/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${(session as any).accessToken}`,
@@ -143,7 +142,7 @@ export default function Usuarios() {
 
   const handleAddUser = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+      const res = await fetch("http://localhost:3000/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -230,7 +229,7 @@ export default function Usuarios() {
 
   const handleEditUser = async () => {
     if (editUser) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`, {
+      const res = await fetch(`http://localhost:3000/users/${editUser.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -461,7 +460,8 @@ export default function Usuarios() {
                 onChange={handleInputChange}
                 className="border p-2 text-black rounded"
               >
-                <option value="ADMIN">Líder ou ADMIN</option>
+                <option value="ADMIN">Administrador Geral</option>
+                <option value="Líder">Líder</option>
                 <option value="VOLUNT">Voluntário</option>
                 <option value="COMUNIC">Comunicação</option>
                 <option value="USER">Usuário</option>
@@ -604,7 +604,8 @@ export default function Usuarios() {
                 }
                 className="border p-2 text-black rounded"
               >
-                <option value="ADMIN">Líder ou ADM</option>
+                <option value="ADMIN">Admininistrador Geral</option>
+                <option value="Líder">Líder</option>
                 <option value="VOLUNT">Voluntario</option>
                 <option value="COMUNIC">Comunicação</option>
                 <option value="USER">Usuário</option>

@@ -1,45 +1,15 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [banner, setBanner] = useState<BannerType | null>(null);
-  const [imgTimestamp, setImgTimestamp] = useState("");
   const router = useRouter();
-
-  type BannerType = {
-    id: string;
-    imagemLogo?: string;
-    imagemBanner?: string;
-    frase?: string;
-    imagemLogoFile?: File;
-    imagemBannerFile?: File;
-  };   
-   
-
-  useEffect(() => {
-    fetchBanner();
-    setImgTimestamp(Date.now().toString());
-  }, [banner]);
-
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/logo`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.url) {
-          setLogoUrl(`${data.url}?t=${Date.now()}`);
-        }
-      })
-      .catch((err) => console.error("Erro ao carregar logo:", err));
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,51 +27,22 @@ export default function LoginPage() {
     }
   };
 
-    async function fetchBanner() {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/banner`);
-      if (!res.ok) throw new Error("Erro ao buscar dados do Banner");
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setBanner(data[0]); // pega só o primeiro
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-black px-4">
       {/* Logos */}
       <div className="flex flex-col items-center space-y-2">
-        {logoUrl && (
-          <Image
-            src={`${logoUrl}?t=${imgTimestamp}`}
-            alt="Logo institucional"
-            width={140}
-            height={140}
-            className="rounded-full"
-          />
-        )}
-
-        {banner ? (
-          banner.imagemLogo ? (
-            <Image
-              src={`${banner.imagemLogo}?t=${imgTimestamp}`}
-              alt="Logo principal"
-              width={500}
-              height={140}
-            />
-          ) : (
-            <Image
-              src="/viva_logo.png"
-              alt="Família Viva Logo"
-              width={500}
-              height={140}
-            />
-          )
-        ) : null}
-
+        <Image
+          src="/viva_logo.png"
+          alt="Família Viva Logo"
+          width={140}
+          height={140}
+        />
+        <Image
+          src="/familia_viva.png"
+          alt="Nome Família Viva"
+          width={500}
+          height={100}
+        />
       </div>
 
       {/* Formulário */}

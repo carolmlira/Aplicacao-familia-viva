@@ -4,7 +4,7 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -14,32 +14,49 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+          const res = await fetch("http://localhost:3000/auth/login", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               email: credentials?.email,
               password: credentials?.password,
             }),
           });
 
-          const user = await res.json();
-
-          if (!res.ok || !user?.id) {
-            console.error("Falha ao autenticar:", user?.message || "Erro desconhecido");
+          let data;
+          try {
+            data = await res.json();
+          } catch (err) {
+            console.error("Resposta da API não é JSON:", err);
             return null;
           }
 
+          if (!res.ok || !data.access_token) {
+            console.error("Erro ao autenticar:", data);
+            return null;
+          }
+
+          const accessToken = data.access_token;
+          if (!accessToken || accessToken.split(".").length !== 3) {
+            console.error("Token mal formado:", accessToken);
+            return null;
+          }
+
+          const payload: any = JSON.parse(atob(accessToken.split(".")[1]));
+
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role || user.level, // ajuste conforme vier
-            ministryId: user.ministryId || "",
-            accessToken: user.accessToken || null,
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role,
+            token: accessToken,
+            name: payload.name,
+            ministryId: payload.ministryId,
+            photo: payload.photo,
           };
         } catch (error) {
-          console.error("Erro ao autenticar:", error);
+          console.error("Erro na autenticação com Nest:", error);
           return null;
         }
       },
@@ -51,11 +68,11 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        token.name = user.name;
         token.role = user.role;
-        token.photo = user.photo;
+        token.accessToken = user.token;
+        token.name = user.name;
         token.ministryId = user.ministryId;
-        token.accessToken = user.accessToken;
+        token.photo = user.photo;
       }
       return token;
     },
@@ -64,8 +81,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).email = token.email;
-        (session.user as any).name = token.name;
         (session.user as any).role = token.role;
+        (session.user as any).name = token.name;
         (session.user as any).ministryId = token.ministryId;
         (session.user as any).photo = token.photo;
       }
@@ -76,14 +93,13 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 60, // 30 minutos
+    maxAge: 30 * 60,
   },
 
-  secret: `${process.env.NEXTAUTH_SECRET_ROUTER}`,
+  secret: "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
 
   pages: {
-    signIn: "/login",
-    signOut: `${process.env.NEXT_PUBLIC_API_URL}`
+    signIn: "/login", // ou a página que você usa
   },
 };
 

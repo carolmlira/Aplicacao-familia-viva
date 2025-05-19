@@ -14,7 +14,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://familia-viva-recife-default-rtdb.firebaseio.com', // Realtime DB
   storageBucket: 'gs://familia-viva-recife.firebasestorage.app',
-  
 });
 
 const firestore = admin.firestore();

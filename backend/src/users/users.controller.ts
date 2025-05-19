@@ -18,27 +18,34 @@ import { UserEntity } from './entities/user.entity/user.entity';
 import { Role } from 'src/auth/role.enum';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @Roles(Role.ADMIN)
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
+  @Roles(Role.ADMIN)
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN, Role.COMUNIC, Role.LIDER, Role.USER, Role.VOLUNT)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
+  @Roles(Role.ADMIN, Role.COMUNIC, Role.LIDER, Role.USER, Role.VOLUNT)
   async update(
     @Param('id') id: string,
     @Body() body: any,
@@ -55,5 +62,9 @@ export class UsersController {
 
     return this.usersService.update(id, body);
   }
-  
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
+  }
 }

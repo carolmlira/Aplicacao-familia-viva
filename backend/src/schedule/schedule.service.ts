@@ -76,8 +76,26 @@ export class ScheduleService {
     return snapshot.docs.map((doc) => doc.data());
   }
 
+  async findAvailableByMyMinistry(ministryId: String) {
+    const snapshot = await this.collection
+      .where('confirmed', '==', false)
+      .where('ministryId', '==', ministryId)
+      .get();
+
+    return snapshot.docs.map((doc) => doc.data());
+  }
+
   async findAllConfirmed() {
     const snapshot = await this.collection.where('confirmed', '==', true).get();
+
+    return snapshot.docs.map((doc) => doc.data());
+  }
+
+  async findConfirmedByMinistry(ministryId: string) {
+    const snapshot = await this.collection
+      .where('confirmed', '==', true)
+      .where('ministryId', '==', ministryId)
+      .get();
 
     return snapshot.docs.map((doc) => doc.data());
   }

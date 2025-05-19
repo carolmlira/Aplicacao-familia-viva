@@ -6,7 +6,7 @@
     description: string; // descrição do que o usuario tem que fazer naquele dia.
     available: boolean; // Se o usuario tem disponibilidade
     confirmed?: boolean; // quem se disponibilizou
-    ministryId: string; // referência ao ministério]
+    ministryId: string; // referência ao ministério
     userId: string; // Referencia ao Usuario
   }
   

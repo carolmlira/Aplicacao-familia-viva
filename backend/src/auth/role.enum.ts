@@ -1,6 +1,7 @@
 export enum Role {
   COMUNIC = 'COMUNIC', // Comunc só midia, Escala talvez?
   VOLUNT = 'VOLUNT', // Voluntario altera Escala
-  ADMIN = 'ADMIN', // Lider
+  ADMIN = 'ADMIN', // ADMIN GERAL
+  LIDER = 'LIDER', // Lideres
   USER = 'USER', // Usuario COMUM
 }

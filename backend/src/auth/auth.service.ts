@@ -10,7 +10,6 @@ import { randomBytes } from 'crypto';
 import { EmailService } from 'src/email/email.service';
 import * as bcrypt from 'bcrypt';
 
-
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,7 +17,6 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
   ) {}
-
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -39,15 +37,11 @@ export class AuthService {
       role: user.level,
       name: user.name,
       ministryId: user.ministryId,
+      photo: user.photo,
     };
 
     return {
       access_token: this.jwtService.sign(payload),
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.level,
-      ministryId: user.ministryId,
     };
   }
 
