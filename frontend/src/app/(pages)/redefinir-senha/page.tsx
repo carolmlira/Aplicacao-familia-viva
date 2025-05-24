@@ -2,28 +2,30 @@
 
 import Image from "next/image";
 import styles from "./redefinir-senha.module.css";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function RedefinirSenha() {
+function RedefinirSenhaForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+
   const [erroSenha, setErroSenha] = useState("");
   const [senhaCoincidem, setSenhaCoincidem] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   useEffect(() => {
     if (!token) {
-      router.replace("/"); // ou "/login", ou exiba uma página de erro
+      router.replace("/");
     }
   }, [token]);
-  const [novaSenha, setNovaSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErroSenha("");
     setSenhaCoincidem("");
+
     if (novaSenha.length < 6) {
       setErroSenha("A senha deve conter no mínimo 6 caracteres.");
       return;
@@ -39,13 +41,8 @@ export default function RedefinirSenha() {
         "http://localhost:3000/auth/reset-password",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token,
-            password: novaSenha,
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, password: novaSenha }),
         }
       );
 
@@ -108,5 +105,13 @@ export default function RedefinirSenha() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function RedefinirSenhaPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <RedefinirSenhaForm />
+    </Suspense>
   );
 }

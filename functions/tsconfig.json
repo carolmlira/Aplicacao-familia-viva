@@ -1,17 +1,22 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
+    "module": "CommonJS",
     "esModuleInterop": true,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
+    "lib": ["ES2020"],
+    "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "es2017"
   },
   "compileOnSave": true,
   "include": [
-    "src"
-  ]
+    "src/**/*",
+    "../backend/dist/**/*" // <- importante para o TS aceitar o import
+  ],
+  "exclude": ["node_modules"]
 }

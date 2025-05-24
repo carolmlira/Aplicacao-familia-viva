@@ -1,143 +1,116 @@
 import { Injectable } from '@nestjs/common';
-import { cert } from 'firebase-admin/app';
 import * as admin from 'firebase-admin';
- 
+import { firestore, storage } from '../config/firebase.config';
+
 @Injectable()
 export class FirebaseService {
-    private storage;
-    private messaging;
-    private bucket;
-    private firestore: FirebaseFirestore.Firestore;
+  private firestore = firestore;
+  private storage = storage;
+  private bucket = this.storage.bucket();
+  private messaging = admin.messaging();
 
   constructor() {
-      if (!admin.apps.length) {
-        const serviceAccount = require('../../src/config/familia-viva-recife-firebase-adminsdk-fbsvc-d7800a47bd.json');
-    
-        admin.initializeApp({
-          credential: cert(serviceAccount),
-          storageBucket: 'gs://familia-viva-recife.firebasestorage.app',
-        });
-      }
-    
-      this.storage = admin.storage();
-      this.bucket = this.storage.bucket();
-      this.messaging = admin.messaging();
-      this.firestore = admin.firestore();  
-    }
-    
-    async uploadFile(file: Express.Multer.File, filename: string): Promise<string> {
-      if (!file || !filename) {
-        throw new Error('Arquivo ou nome do arquivo inválido');
-      }
-    
-      const bucket = this.storage.bucket();
-      const blob = bucket.file(filename);
-    
-      const blobStream = blob.createWriteStream({
-        metadata: {
-          contentType: file.mimetype,
-        },
+    // Apenas para teste inicial da conexão
+    this.firestore
+      .collection('users')
+      .limit(1)
+      .get()
+      .then((snapshot) => {
+        console.log(
+          `🔥 Firestore acessado com sucesso. Documentos encontrados: ${snapshot.size}`,
+        );
+      })
+      .catch((err) => {
+        console.error('❌ Erro ao acessar Firestore:', err);
       });
-    
-      return new Promise((resolve, reject) => {
-        blobStream.on('error', (err) => reject(err));
-    
-        blobStream.on('finish', async () => {
-          await blob.makePublic();
-          const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-          resolve(publicUrl);
-        });
-    
-        blobStream.end(file.buffer);
+  }
+
+  async uploadFile(
+    file: Express.Multer.File,
+    filename: string,
+  ): Promise<string> {
+    if (!file || !filename) {
+      throw new Error('Arquivo ou nome do arquivo inválido');
+    }
+
+    const blob = this.bucket.file(filename);
+    const blobStream = blob.createWriteStream({
+      metadata: { contentType: file.mimetype },
+    });
+
+    return new Promise((resolve, reject) => {
+      blobStream.on('error', reject);
+
+      blobStream.on('finish', async () => {
+        await blob.makePublic();
+        resolve(
+          `https://storage.googleapis.com/${this.bucket.name}/${blob.name}`,
+        );
       });
-    }
-    
-    async getFileUrl(filename: string): Promise<string> {
-      const bucket = this.storage.bucket();
-      const file = bucket.file(filename);
-    
-      // Garante que o arquivo seja público (caso não esteja ainda)
-      await file.makePublic();
-    
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
-      return publicUrl;
-    }
 
-    async deleteFileByUrl(fileUrl: string): Promise<void> {
-      if (!fileUrl) return;
+      blobStream.end(file.buffer);
+    });
+  }
 
-      try {
-        const storageBaseUrl = `https://storage.googleapis.com/${this.bucket.name}/`;
-        if (!fileUrl.startsWith(storageBaseUrl)) {
-          throw new Error('URL inválida ou não pertence ao bucket configurado');
-        }
+  async getFileUrl(filename: string): Promise<string> {
+    const file = this.bucket.file(filename);
+    await file.makePublic();
+    return `https://storage.googleapis.com/${this.bucket.name}/${file.name}`;
+  }
 
-        const filename = fileUrl.replace(storageBaseUrl, '');
-        await this.deleteFile(filename);
-      } catch (err) {
-        console.error(`Erro ao deletar arquivo por URL (${fileUrl}):`, err);
-        throw err;
-      }
+  async deleteFileByUrl(fileUrl: string): Promise<void> {
+    if (!fileUrl) return;
+    const baseUrl = `https://storage.googleapis.com/${this.bucket.name}/`;
+    if (!fileUrl.startsWith(baseUrl)) {
+      throw new Error('URL inválida ou não pertence ao bucket configurado');
     }
 
-    async deleteFile(filename: string): Promise<void> {
-      const bucket = this.storage.bucket();
-      const file = bucket.file(filename);
-    
-      try {
-        await file.delete();
-        console.log(`Arquivo ${filename} deletado com sucesso.`);
-      } catch (err) {
-        console.error(`Erro ao deletar ${filename}:`, err);
-        throw err;
-      }
-    }
+    const filename = fileUrl.replace(baseUrl, '');
+    await this.deleteFile(filename);
+  }
 
-    async deleteFolder(folderPath: string): Promise<void> {
-      const bucket = this.storage.bucket();
-      const [files] = await bucket.getFiles({ prefix: folderPath });
-      const deletions = files.map((file) => file.delete());
-      await Promise.all(deletions);
-    }
-    
-    async listFiles(prefix: string): Promise<string[]> {
-      const [files] = await this.bucket.getFiles({ prefix });
-      return files.map(file => file.name);
-    }
+  async deleteFile(filename: string): Promise<void> {
+    const file = this.bucket.file(filename);
+    await file.delete();
+    console.log(`Arquivo ${filename} deletado com sucesso.`);
+  }
 
-    async listFilesInCategory(category: string, subgrup: string): Promise<string[]> {
-      const bucket = this.storage.bucket();
-      const prefix = `${category}/${subgrup}/`;
+  async deleteFolder(folderPath: string): Promise<void> {
+    const [files] = await this.bucket.getFiles({ prefix: folderPath });
+    await Promise.all(files.map((file) => file.delete()));
+  }
 
-      const [files] = await bucket.getFiles({ prefix });
+  async listFiles(prefix: string): Promise<string[]> {
+    const [files] = await this.bucket.getFiles({ prefix });
+    return files.map((file) => file.name);
+  }
 
-      // Filtra para garantir que estamos listando apenas arquivos e não subdiretórios
-      return files
-        .filter(file => !file.name.endsWith('/'))
-        .map(file => file.name.replace(/^gallery\//, ''));
+  async listFilesInCategory(
+    category: string,
+    subgrup: string,
+  ): Promise<string[]> {
+    const prefix = `${category}/${subgrup}/`;
+    const [files] = await this.bucket.getFiles({ prefix });
+    return files
+      .filter((file) => !file.name.endsWith('/'))
+      .map((file) => file.name.replace(/^gallery\//, ''));
+  }
 
-    }
+  async getCollectionByPath(path: string) {
+    return await this.firestore.collection(path).get();
+  }
 
-    async getCollectionByPath(path: string) {
-      const collectionRef = this.firestore.collection(path);
-      return await collectionRef.get();
-    }
-    
-    async listFilesInPage(pageId: string, category: string): Promise<string[]> {
-      const prefix = `pages/${category}/${pageId}/`;
-      const bucket = this.storage.bucket();
-      const [files] = await bucket.getFiles({ prefix });
-    
-      const urls: string[] = [];
-    
-      for (const file of files) {
-        await file.makePublic(); // opcional, se já estiverem públicos, pode ser omitido
-        const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
-        urls.push(publicUrl);
-      }
-    
-      return urls;
-    }
+  async listFilesInPage(pageId: string, category: string): Promise<string[]> {
+    const prefix = `pages/${category}/${pageId}/`;
+    const [files] = await this.bucket.getFiles({ prefix });
+
+    return Promise.all(
+      files.map(async (file) => {
+        await file.makePublic();
+        return `https://storage.googleapis.com/${this.bucket.name}/${file.name}`;
+      }),
+    );
+  }
 
   async getUserById(id: string) {
     const doc = await this.firestore.collection('users').doc(id).get();
@@ -145,9 +118,9 @@ export class FirebaseService {
   }
 
   async updateUserImage(id: string, photoURL: string, filename: string) {
-    await this.firestore.collection('users').doc(id).update({
-      photoURL,
-      filename,
-    });
+    await this.firestore
+      .collection('users')
+      .doc(id)
+      .update({ photoURL, filename });
   }
 }
