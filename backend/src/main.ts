@@ -4,9 +4,12 @@ import * as express from 'express';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { initializeApp, getApps } from 'firebase-admin/app';
 
-export async function createNestServer(server: express.Express) {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+export async function createNestServer(expressInstance?: express.Express) {
+  const app = expressInstance
+    ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
+    : await NestFactory.create(AppModule);
 
   app.use(express.json());
   app.enableCors({
@@ -19,11 +22,11 @@ export async function createNestServer(server: express.Express) {
     .setDescription('Backend NestJS via Firebase')
     .setVersion('1.0')
     .addBearerAuth()
-    .addServer('/familia-viva-recife/us-central1/nestApi')
+    .addServer('/') // Ajuste para Firebase
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('/api', app, document);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -34,6 +37,28 @@ export async function createNestServer(server: express.Express) {
   );
 
   await app.init();
+  if (!getApps().length) {
+    initializeApp();
+  }
 
-  return server; // **NÃO ESQUECE DE RETORNAR!**
+  if (!expressInstance) {
+    const PORT = parseInt(process.env.PORT ?? '8080');
+    await app.listen(PORT);
+  }
+
+  // Debug: Liste todas as rotas registradas
+  if (process.env.NODE_ENV === 'development') {
+    const router = app.getHttpAdapter().getInstance();
+    router._router.stack.forEach(printRoutes);
+  }
+
+  return app;
+}
+
+function printRoutes(layer: any) {
+  if (layer.route) {
+    console.log(
+      `${layer.route.stack[0].method.toUpperCase()} ${layer.route.path}`,
+    );
+  }
 }

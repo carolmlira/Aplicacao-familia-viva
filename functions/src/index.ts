@@ -1,44 +1,40 @@
-import * as functions from "firebase-functions/v1";
 import { onRequest } from "firebase-functions/v2/https";
-import express, { Request, Response } from "express";
+import express from "express";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { createNestServer } = require("../../backend/dist/main");
+const { createNestServer } = require("../backend-dist/main");
 
 const server = express();
+let nestApp: any = null;
 
-let cachedHandler: ((req: Request, res: Response) => void) | null = null;
-
-const emailConfig = functions.config().email || {};
-process.env.EMAIL_USER =
-  process.env.EMAIL_USER || emailConfig.user || "daniell.18sa@gmail.com";
-process.env.EMAIL_PASS =
-  process.env.EMAIL_PASS || emailConfig.pass || "jeswinrbqbibyylw";
+process.env.EMAIL_USER = process.env.EMAIL_USER || "daniell.18sa@gmail.com";
+process.env.EMAIL_PASS = process.env.EMAIL_PASS || "jeswinrbqbibyylw";
 
 process.env.JWT_SECRET =
-  functions.config().jwt?.secret ||
-  process.env.JWT_SECRET ||
   "d646f7e030173ec33d28790690a7091c70cdc32ff363ee7bc341ff86849bcdd26ef48ac2814ea4553bece2ef63fb612f8015637f75950ae14563bfe43a490957";
-console.log("Tem que atualizar crlh5");
-
-async function initServer() {
-  if (!cachedHandler) {
-    console.log("Inicializando servidor NestJS...");
-    // Aqui IMPORTANTE: atribuir a instância retornada (adaptada) à variável server
-    // e criar o cachedHandler baseado nela
-    const adaptedServer = await createNestServer(server);
-    cachedHandler = (req: Request, res: Response) => adaptedServer(req, res);
-  }
-}
+console.log("Tem que atualizar crlh6");
 
 export const nestApi = onRequest(
   {
     region: "us-central1",
-    timeoutSeconds: 120,
-    memory: "512MiB",
+    timeoutSeconds: 540,
+    memory: "2GiB",
+    minInstances: 1,
+    maxInstances: 3,
+    concurrency: 80,
   },
-  async (req: Request, res: Response) => {
-    await initServer();
-    return cachedHandler!(req, res);
+  async (req, res) => {
+    if (!nestApp) {
+      console.log("🚀 Inicializando NestJS no Firebase...");
+      try {
+        process.env.PORT = "8080"; // Força a porta que o Cloud Run espera
+        nestApp = await createNestServer(server);
+        console.log("✅ NestJS inicializado com sucesso");
+      } catch (error) {
+        console.error("❌ Falha na inicialização:", error);
+        return res.status(500).send("Erro interno do servidor");
+      }
+    }
+    return server(req, res);
   }
 );

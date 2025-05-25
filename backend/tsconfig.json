@@ -7,7 +7,7 @@
     "experimentalDecorators": true,
     "target": "ES2023",
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "../functions/backend-dist",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
@@ -15,6 +15,9 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "src/*": ["src/*"]
+    }
   }
 }
