@@ -27,6 +27,56 @@ export class ScheduleService {
     return newSchedule;
   }
 
+  async findAvailableByMinistry(userId: string) {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      return []; 
+    }
+
+    const userData = userDoc.data();
+    const ministry = userData?.ministry;
+
+    if (!ministry) {
+      return [];
+    }
+
+    // Buscar escalas disponíveis (confirmed == false) para o ministério
+    const snapshot = await this.collection
+      .where('confirmed', '==', false)
+      .where('ministry', '==', ministry)
+      .get();
+
+    return snapshot.docs.map(doc => doc.data());
+  }
+
+  
+  async findConfirmedByMinistry(userId: string) {
+    // Busca o usuário para pegar o ministério
+    const userDoc = await firestore.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      return []; // ou lance erro se preferir
+    }
+
+    const userData = userDoc.data();
+    const ministry = userData?.ministry;
+
+    if (!ministry) {
+      return []; // usuário não tem ministério definido
+    }
+
+    // Busca as escalas confirmadas para esse ministério
+    const snapshot = await this.collection
+      .where('confirmed', '==', true)
+      .where('ministry', '==', ministry)
+      .get();
+
+    return snapshot.docs.map(doc => doc.data());
+  }
+
+
+
   async findAll() {
     const snapshot = await this.collection.get();
     return snapshot.docs.map((doc) => doc.data());

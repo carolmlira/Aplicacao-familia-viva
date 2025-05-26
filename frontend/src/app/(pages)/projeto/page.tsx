@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import "@/style/projects.css";
 
 interface PagesProject {
@@ -14,53 +15,54 @@ interface PagesProject {
   active: boolean;
   imageUrl?: string;
   imageUrls?: string[];
-  
 }
 
 export default function ProjectsList() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const [category] = useState('projects');
+  const category = 'pages';
   const [projects, setProjects] = useState<PagesProject[]>([]);
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (status === "loading") return;
 
     // Se o usuário estiver logado, mas não tiver permissão, redireciona
     if (session) {
-      const role = (session.user as any)?.role;
+      const role = (session.user)?.role;
       if (role !== "ADMIN") {
         router.push("/");
       }
     }
-
-    fetchProjects();
   }, [session, status, router]);
 
-  async function fetchProjects() {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=${category}`
-      );
-      const data = await res.json();
-      const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
+  useEffect(() => {
+    async function fetchProjects() {
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`);
+          const data = await res.json();
+          const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
 
-      const projectsWithImages = rawProjects.map((project) => {
-        const imageUrl =
-          Array.isArray(project.imageUrls) && project.imageUrls.length > 0
-            ? project.imageUrls[0]
-            : undefined;
+          const projectsWithImages = rawProjects.map((project) => {
+            const imageUrl =
+              Array.isArray(project.imageUrls) && project.imageUrls.length > 0
+                ? project.imageUrls[0]
+                : undefined;
 
-        return { ...project, imageUrl };
-      });
+            return { ...project, imageUrl };
+          });
 
-      setProjects(projectsWithImages);
-    } catch (error) {
-      console.error('Erro ao buscar projetos:', error);
-    }
-  }
+          setProjects(projectsWithImages);
+        } catch (error) {
+          console.error('Erro ao buscar projetos:', error);
+        }
+      }
+
+    fetchProjects(); // <-- aqui chamamos a função ao montar
+  }, [category]);
+
 
   async function deleteProject(id: string) {
     if (!confirm('Tem certeza que deseja excluir este projeto?')) return;
@@ -80,8 +82,7 @@ export default function ProjectsList() {
   
       if (!res.ok) throw new Error('Erro ao deletar projeto');
   
-      fetchProjects();
-    } catch (error) {
+      } catch (error) {
       console.error('Erro ao excluir projeto:', error);
     } finally {
       setLoading(false);
@@ -98,7 +99,7 @@ export default function ProjectsList() {
             </span>
           </h1>
 
-          {(session?.user as any)?.role === 'ADMIN' && (
+          {(session?.user)?.role === 'ADMIN' && (
             <button
               onClick={() => router.push('/projeto/new')}
               className="ml-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -121,9 +122,11 @@ export default function ProjectsList() {
             >
               <div className="projeto-card">
                 <div className="projeto-img">
-                  <img
+                  <Image
                     src={project.imageUrl || 'images/placeholder.svg'}
                     alt={project.title}
+                    width={250}
+                    height={250}
                   />
                 </div>
                 <div className="projeto-texto">
@@ -133,7 +136,7 @@ export default function ProjectsList() {
                     {project.content?.length > 150 && '...'}
                   </p>
 
-                  {(session?.user as any)?.role === 'ADMIN' && (
+                  {(session?.user)?.role === 'ADMIN' && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();

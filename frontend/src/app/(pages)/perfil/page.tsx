@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, ChangeEvent, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { FaCamera } from 'react-icons/fa'
 import { useSession } from "next-auth/react";
+import Image from 'next/image';
 
 
 export default function PerfilPage() {
@@ -15,9 +16,8 @@ export default function PerfilPage() {
   const [oldSenha, setOldSenha] = useState('')
   const [password, setPassword] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
-  const [whatsappNotificacao, setWhatsappNotificacao] = useState(false)
   const [mostrarSenha, setMostrarSenha] = useState(false)
-  const [imgUserUrl, setImgUserUrl] = useState<string | null>(null);
+  const [, setImgUserUrl] = useState<string | null>(null);
   const id = session?.user?.id
 
   useEffect(() => {
@@ -34,7 +34,6 @@ export default function PerfilPage() {
         setName(user.name || '')
         setEmail(user.email || '')
         setTelefone(user.phone || '')
-        setWhatsappNotificacao(!!user.whatsappOptIn)
         setFotoPreview(user.photo || null)
       } catch (err) {
         console.error(err)
@@ -55,7 +54,7 @@ export default function PerfilPage() {
         }
       })
       .catch((err) => console.error("Erro ao carregar a imagem:", err));
-  }, []);
+  }, [id]);
 
   async function handleUploadOrUpdateImage(file: File) {
     if (!id) return;
@@ -122,8 +121,12 @@ export default function PerfilPage() {
       setConfirmarSenha('');
       setMostrarSenha(false);
 
-    } catch (error: any) {
-      alert(error.message || 'Erro desconhecido');
+    }catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('Erro desconhecido');
+      }
     }
   }
 
@@ -158,7 +161,6 @@ export default function PerfilPage() {
         email,
         telefone,
         photo: fotoUrl,
-        whatsappNotificacao,
       };
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
@@ -173,8 +175,12 @@ export default function PerfilPage() {
       if (!res.ok) throw new Error('Erro ao atualizar perfil');
 
       alert("Perfil atualizado com sucesso!");
-    } catch (error: any) {
-      alert(error.message || 'Erro desconhecido');
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('Erro desconhecido');
+      }
     }
   }
 
@@ -198,9 +204,11 @@ export default function PerfilPage() {
         <div className="flex-1 flex gap-8">
           {/* Foto de perfil */}
           <div className="relative w-32 h-32">
-            <img
+            <Image
               src={fotoPreview || '/images/icon-user.svg'}
               alt="Foto de perfil"
+              width={150} // defina uma largura
+              height={150} // defina uma altura
               className="w-full h-full rounded-full object-cover border border-gray-600"
             />
             <label
@@ -256,16 +264,6 @@ export default function PerfilPage() {
                 onChange={(e) => setTelefone(e.target.value)}
                 className="w-full bg-gray-800 p-2 rounded border border-gray-600"
               />
-            </div>
-
-            <div className="flex items-center gap-2 col-span-full mt-2">
-              <input
-                type="checkbox"
-                checked={whatsappNotificacao}
-                onChange={(e) => setWhatsappNotificacao(e.target.checked)}
-                className="form-checkbox h-5 w-5 text-orange-500"
-              />
-              <label className="text-sm">Receber notificações no WhatsApp</label>
             </div>
 
             <div className="col-span-full mt-4">

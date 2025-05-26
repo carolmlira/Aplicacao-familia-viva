@@ -229,6 +229,23 @@ export class FirebaseController {
     return { message: `Pasta ${folderPath} deletada com sucesso.` };
   }
   
+  @Delete('delete/user/:id')
+  async deleteUserPhoto(@Param('id') id: string) {
+    const userData = await this.firebaseService.getUserById(id);
+
+    if (!userData?.filename) {
+      throw new BadRequestException('Usuário não possui imagem cadastrada.');
+    }
+
+    try {
+      await this.firebaseService.deleteFile(userData.filename);
+      await this.firebaseService.updateUserImage(id, '', ''); // limpa os campos no banco
+      return { message: 'Foto do usuário deletada com sucesso.' };
+    } catch (error) {
+      throw new BadRequestException(`Erro ao deletar foto: ${error.message}`);
+    }
+  }
+  
   @Get('list')
   async listFiles(@Query('category') category: string) {
     const prefix = `${category}/`; // lista tudo dentro de gallery/

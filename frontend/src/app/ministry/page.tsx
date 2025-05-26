@@ -14,9 +14,9 @@ interface Ministry {
 export default function Ministries() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  const accessToken = (session as { accessToken?: string })?.accessToken;
   const [ministries, setMinistries] = useState<Ministry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -31,16 +31,16 @@ export default function Ministries() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || (session.user as any).role !== "ADMIN") {
+    if (!session || (session.user).role !== "ADMIN") {
       router.push("/");
       return;
     }
 
     const fetchMinistries = async () => {
       try {
-        const res = await fetch("http://localhost:3000/ministries", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ministries`, {
           headers: {
-            Authorization: `Bearer ${(session as any).accessToken}`,
+            Authorization: `Bearer ${accessToken || ''}`,
           },
         });
         const data = await res.json();
@@ -53,7 +53,7 @@ export default function Ministries() {
     };
 
     fetchMinistries();
-  }, [session, status, router]);
+  }, [session, status, router, accessToken]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este ministério?")) return;
@@ -62,7 +62,7 @@ export default function Ministries() {
       await fetch(`http://localhost:3000/ministries/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${accessToken || ''}`,
         },
       });
   
@@ -83,7 +83,7 @@ export default function Ministries() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${(session as any).accessToken}`,
+        Authorization: `Bearer ${accessToken || ''}`,
       },
       body: JSON.stringify(newMinistry),
     });
@@ -104,7 +104,7 @@ export default function Ministries() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${accessToken || ''}`,
         },
         body: JSON.stringify(editMinistry),
       });
@@ -120,7 +120,7 @@ export default function Ministries() {
     setShowEditModal(true);
   };
   
-  if (status === "loading" || !session || (session.user as any).role !== "ADMIN") {
+  if (status === "loading" || !session || (session.user).role !== "ADMIN") {
     return <p className="text-center mt-10">404 Not Found, Voltando para Página inicial...</p>;
   }
 

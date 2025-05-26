@@ -4,7 +4,17 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
-export const authOptions: NextAuthOptions = {
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
+  ministryId?: string;
+  photo?: string;
+  accessToken?: string;
+}
+
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -34,9 +44,9 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role || user.level, // ajuste conforme vier
+            role: user.role || user.level,
             ministryId: user.ministryId || "",
-            accessToken: user.accessToken || null,
+            accessToken: user.access_token || null,
           };
         } catch (error) {
           console.error("Erro ao autenticar:", error);
@@ -47,7 +57,7 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: any }) {
+    async jwt({ token, user }: { token: JWT; user?: AuthUser  }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -62,30 +72,32 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).email = token.email;
-        (session.user as any).name = token.name;
-        (session.user as any).role = token.role;
-        (session.user as any).ministryId = token.ministryId;
-        (session.user as any).photo = token.photo;
+        (session.user).id = token.id;
+        (session.user).email = token.email;
+        (session.user).name = token.name;
+        (session.user).role = token.role;
+        (session.user).ministryId = token.ministryId;
+        (session.user).photo = token.photo;
       }
-      (session as any).accessToken = token.accessToken;
+      (session).accessToken = token.accessToken;
       return session;
     },
   },
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 60, // 30 minutos
+    maxAge: 30 * 60,
   },
 
-  secret: `${process.env.NEXTAUTH_SECRET_ROUTER}`,
+  secret: process.env.NEXTAUTH_SECRET_ROUTER,
 
   pages: {
     signIn: "/login",
-    signOut: `${process.env.NEXT_PUBLIC_API_URL}`
+    signOut: process.env.NEXT_PUBLIC_API_URL,
   },
 };
 
 const handler = NextAuth(authOptions);
+
+// Exporta apenas os handlers que a rota suporta
 export { handler as GET, handler as POST };

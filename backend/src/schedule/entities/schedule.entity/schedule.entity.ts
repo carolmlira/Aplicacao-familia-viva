@@ -8,5 +8,6 @@
     confirmed?: boolean; // quem se disponibilizou
     ministryId: string; // referência ao ministério]
     userId: string; // Referencia ao Usuario
+    time: Date;
   }
   

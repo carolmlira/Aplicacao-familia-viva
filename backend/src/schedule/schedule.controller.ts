@@ -7,9 +7,13 @@ import {
   Put,
   Delete,
   Patch,
+  Req,
+  UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto/create-schedule.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('schedules')
 export class ScheduleController {
@@ -24,6 +28,29 @@ export class ScheduleController {
   findAll() {
     return this.scheduleService.findAll();
   }
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('confirmed/my-ministry')
+  async findConfirmedByMinistry(@Req() req) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('Usuário não autenticado ou inválido');
+    }
+    const userId = req.user.userId;
+
+    return this.scheduleService.findConfirmedByMinistry(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/available/my-ministry')
+  async findAvailableByMyMinistry(@Req() req) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException('Usuário não autenticado ou inválido');
+    }
+    const userId = req.user.userId;
+    // Exemplo: chamar serviço que retorna as agendas disponíveis do ministério do usuário
+    return this.scheduleService.findAvailableByMinistry(userId);
+  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {

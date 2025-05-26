@@ -1,15 +1,19 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import { useParams } from 'next/navigation';
-import styles from './projetoId.module.css';
 import { useEffect, useState, useRef } from 'react';
+import { useSession } from 'next-auth/react';
+import {  useParams } from 'next/navigation';
+import "slick-carousel/slick/slick-theme.css";
+import styles from './projetoId.module.css';
+import "slick-carousel/slick/slick.css";
 import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/image';
+import Slider from "react-slick";
 
-export default function Page() {
+export default function Projeto() {
   const { id } = useParams<{ id: string }>();
   const { data: session } = useSession();
-  const [project, setProject] = useState<any | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -19,11 +23,36 @@ export default function Page() {
   const [category] = useState('pages');
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false); 
+  const [isMobile, setIsMobile] = useState(false);
+
+  interface Project {
+    id: string;
+    title: string;
+    content: string;
+    images: string[]; // URLs das imagens
+    active: boolean;
+  }
+
+  interface ProjectUpdate {
+    title: string;
+    content: string;
+    images: string[]; // URLs das imagens
+    active: boolean;
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1000);
+    };
+
+    handleResize(); // define ao montar
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (typeof id === 'string') {
       fetchProject(id);
-      //fetchProjectImage(id);
     }
   }, [id]);
 
@@ -68,10 +97,11 @@ export default function Page() {
     return data.url;
   }
 
-  async function updateProject(id: string, projectData: any): Promise<void> {
+  async function updateProject(id: string, projectData: ProjectUpdate): Promise<void> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`, {
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(projectData),
@@ -123,7 +153,7 @@ export default function Page() {
       console.log('Imagem deletada com sucesso:', data);
   
       // Atualiza o estado para remover a imagem da lista
-      setImageUrls((prev) => prev.filter((url, i) => {
+      setImageUrls((prev) => prev.filter((url) => {
         return !url.includes(filename);
       }));
     } catch (err) {
@@ -134,6 +164,7 @@ export default function Page() {
   // Função para salvar as imagens e os dados
   const handleSave = async () => {
     setLoading(true);
+    
     try {
       const uploadedUrls: string[] = [];
 
@@ -142,15 +173,16 @@ export default function Page() {
         uploadedUrls.push(url);
       }
 
-      const updatedImageUrls = [...imageUrls, ...uploadedUrls];
+      //const updatedImageUrls = [...imageUrls, ...uploadedUrls];
 
       await updateProject(id, {
         ...formData,
-        active: String(formData.active),
         images: [...imageUrls, ...uploadedUrls],
+        active: !!formData.active,
       });
 
-      setImageUrls(updatedImageUrls);
+      // Atualiza imagens exibidas (não é enviado para backend)
+      setImageUrls((prev) => [...prev, ...uploadedUrls]);
       setNewImages([]);
       setEditing(false);
 
@@ -236,192 +268,372 @@ export default function Page() {
     });
   }
 
-  if (loading) return <div style={{ textAlign: "center" }}>Carregando...</div>;
-  if (!project) return <div>Projeto não encontrado.</div>;
+  if (loading) return <div style={{ textAlign: "center" }} >Carregando...</div>;
+  if (!project) return <div style={{ textAlign: "center" }} >Projeto não encontrado.</div>;
 
-  return (
-    <div className="p-4">
-      {/* Título e botão de edição para ADMIN */}
-      {(session?.user as any)?.role === 'ADMIN' ? (
-       <div>
-          <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
-            <img
-              src="/images/pen.svg"
-              alt="Editar"
-              width={20}
-              height={20}
-              className={styles.iconeEditar}
-            />
-            <span>Editar</span>
-          </div>
-        </div>
-      ) : (
-        <h1 className="text-xl font-bold">{project.title}</h1>
-      )}
-
-      {/* Conteúdo modo visualização */}
-      {!editing && (
-        <>
-          {imageUrls?.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
-              {imageUrls.map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt={`Imagem ${index + 1}`}
-                  className="w-full rounded shadow object-cover"
-                />
-              ))}
-            </div>
-          )}
-
-          <div className="p-4 mx-auto text-justify max-w-5xl">
-            {project.content
-              .split('\n')
-              .filter((paragraph: string) => paragraph.trim() !== '')
-              .map((paragraph: string, index: number) => (
-                <p key={index} className="mb-4 indent-8">
-                  {paragraph}
-                </p>
-              ))}
-          </div>
-        </>
-      )}
-
-      {/* Conteúdo modo edição */}
-      {editing && (
-        <div className="mt-4 space-y-4">
-          <input
-            type="text"
-            className="border p-2 w-full"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Título"
+ return (
+    <div className={`${editing ? "bg-neutral-800 my-8 mx-4 md:mx-32 p-4 rounded" : "p-4"}`}>
+    {(session?.user)?.role === 'ADMIN' && (
+      <div>
+        <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
+          <Image
+            src="/images/pen.svg"
+            alt="Editar"
+            width={20}
+            height={20}
+            className={styles.iconeEditar}
           />
+          <span>Editar</span>
+        </div>
+      </div>
+    )}
 
+    {/* VISUALIZAÇÃO */}
+    {!editing && (
+      <div className="my-4 space-y-4">
+        <span className="text-3xl font-bold bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent mt-8">
+          {project.title}
+        </span>
+
+        {/* Imagem principal (primeira da lista) */}
+        {imageUrls.length > 0 && (
+          <div className={styles.logoContainer}>
+            <Image
+              src={imageUrls[0]}
+              alt="Imagem principal do projeto"
+              className={styles.logoImage}
+              width={250}
+              height={250}
+            />
+          </div>
+        )}
+
+        {/* Texto com parágrafos */}
+        <div className="p-4 mx-auto text-justify max-w-5xl">
+          {project.content
+            .split('\n')
+            .filter((paragraph: string) => paragraph.trim() !== '')
+            .map((paragraph: string, index: number) => (
+              <p key={index} className="mb-4 indent-8">
+                {paragraph}
+              </p>
+            ))}
+        </div>
+
+        {/* Carrossel com imagens adicionais */}
+        {imageUrls.length > 1 && (
+          <Slider
+            dots={true}
+            infinite={true}
+            speed={500}
+            slidesToShow={5}
+            slidesToScroll={1}
+            className={styles.carousel}
+            responsive={[
+              { breakpoint: 1024, settings: { slidesToShow: 2 } },
+              { breakpoint: 640, settings: { slidesToShow: 1 } },
+            ]}
+          >
+            {imageUrls.slice(1).map((url, index) => (
+              <div key={index} className="px-2">
+                <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
+                  <Image
+                    src={url}
+                    alt={`Imagem ${index + 2}`}
+                    className="object-cover w-full h-full rounded"
+                    width={250}
+                    height={250}
+                  />
+                </div>
+              </div>
+            ))}
+          </Slider>
+        )}
+      </div>
+    )}
+
+    {/* EDIÇÃO */}
+    {editing && (
+      <div className="mt-4 space-y-2">
+        <h1 style={{ color:"orange", fontWeight:"bold", fontSize:"32px", textAlign:"center" }}>Edição do Projeto:</h1>
+        <label>Título:</label>
+        <input
+          type="text"
+          className="border p-2 w-full"
+          value={formData.title}
+          style={{ color:"black" }}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          placeholder="Título"
+        />
+        <label className='block my-2'>Conteúdo:</label>
           <textarea
-            className="border p-2 w-full"
+            className="w-full rounded-md border p-2"
+            rows={10}
+            style={{ color: "black" }}
             value={formData.content}
             onChange={(e) =>
-              setFormData({ ...formData, content: e.target.value })
+              setFormData((prev) => ({ ...prev, content: e.target.value }))
             }
-            placeholder="Conteúdo"
-            rows={6}
           />
 
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={formData.active}
-              onChange={(e) =>
-                setFormData({ ...formData, active: e.target.checked })
+        <label style={{ display: "none" }}>
+          <input
+            type="checkbox"
+            checked={formData.active}
+            onChange={(e) =>
+              setFormData({ ...formData, active: e.target.checked })
+            }
+          />
+          Página ativa
+        </label>
+
+        {/* Upload de novas imagens */}
+        <div className="mt-2">
+          <label className="block font-medium mb-1">Adicionar Imagens:</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="mb-2"
+            onChange={(e) => {
+              if (e.target.files) {
+                const filesArray = Array.from(e.target.files);
+                setNewImages((prev) => [...prev, ...filesArray]);
+                const previews = filesArray.map((file) => URL.createObjectURL(file));
+                setPreviewImages((prev) => [...prev, ...previews]);
               }
-            />
-            <span>Página ativa</span>
-          </label>
+            }}
+          />
 
-          {/* Upload de novas imagens */}
-          <div>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => {
-                if (e.target.files) {
-                  const filesArray = Array.from(e.target.files);
-                  setNewImages((prev) => [...prev, ...filesArray]);
-                  const previews = filesArray.map((file) =>
-                    URL.createObjectURL(file)
-                  );
-                  setPreviewImages((prev) => [...prev, ...previews]);
-                }
-              }}
-            />
-
-            {previewImages.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
+          {previewImages.length > 0 && (
+          <div className="bg-neutral-900 p-4 rounded">
+            {isMobile ? (
+              <Slider
+                dots
+                infinite
+                speed={500}
+                slidesToShow={1}
+                slidesToScroll={1}
+                className="my-4"
+              >
                 {previewImages.map((url, index) => (
-                  <div key={index} className="relative">
-                    <img
+                  <div key={index} className="px-2">
+                    <div
+                      className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow bg-black-100"
+                      style={{ width: 200, height: 200 }}
+                    >
+                      <Image
+                        src={url}
+                        alt={`Nova imagem ${index + 1}`}
+                        className="object-contain w-full h-full"
+                        width={250}
+                        height={250}
+                      />
+                      <button
+                        onClick={() => handleRemovePreviewImage(index)}
+                        className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
+                        aria-label="Remover imagem"
+                      >
+                        <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" width={10} height={10}/>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-4">
+                {previewImages.map((url, index) => (
+                  <div
+                    key={index}
+                    className="relative rounded shadow bg-black-100 overflow-hidden"
+                    style={{ width: 200, height: 200 }}
+                  >
+                    <Image
                       src={url}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full rounded shadow object-cover"
+                      alt={`Nova imagem ${index + 1}`}
+                      className="w-full h-full object-contain"
                     />
                     <button
                       onClick={() => handleRemovePreviewImage(index)}
                       className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
+                      aria-label="Remover imagem"
                     >
-                      <img
-                        src="/images/x.svg"
-                        alt="Remover"
-                        className="w-4 h-4"
-                      />
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
               </div>
             )}
           </div>
+        )}
 
-          {/* Imagens existentes com botões de mover, substituir e deletar */}
-          {imageUrls.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 my-4">
+        </div>
+
+        {/* Imagens existentes */}
+        {imageUrls && imageUrls.length > 0 && (
+          isMobile ? (
+            <Slider
+              dots
+              infinite
+              speed={500}
+              slidesToShow={1}
+              slidesToScroll={1}
+              className="my-4"
+            >
               {imageUrls.map((url, index) => (
-                <div key={index} className="relative group">
-                  <img
+                <div key={index} className="px-2">
+                  <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
+                    <Image
+                      src={url}
+                      alt={`Imagem ${index + 1}`}
+                      className="object-contain w-full h-full rounded"
+                      onClick={() => handleImageClick(index)}
+                    />
+
+                    {/* Substituir imagem */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      ref={(el) => {
+                        if (el) fileInputs.current[index] = el;
+                      }}
+                      onChange={(e) => handleReplaceImage(e, index)}
+                    />
+
+                    {/* Botões de reorder */}
+                    <div className="absolute bottom-1 left-1 flex gap-1">
+                      {index > 0 && (
+                        <button
+                          onClick={() => moveImage(index, index - 1)}
+                          className="p-1 rounded shadow bg-black"
+                        >
+                          <Image
+                            src="/images/arrow-left-circle-fill.svg"
+                            alt="Mover para esquerda"
+                            className="w-6 h-6"
+                            style={{ filter: 'invert(1)' }}
+                          />
+                        </button>
+                      )}
+                      {index < imageUrls.length - 1 && (
+                        <button
+                          onClick={() => moveImage(index, index + 1)}
+                          className="p-1 rounded shadow bg-black"
+                        >
+                          <Image
+                            src="/images/arrow-right-circle-fill.svg"
+                            alt="Mover para direita"
+                            className="w-6 h-6"
+                            style={{ filter: 'invert(1)' }}
+                          />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Remover imagem */}
+                    <button
+                      onClick={() => handleDeleteImage(index)}
+                      className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
+                      aria-label="Remover imagem"
+                    >
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 my-4">
+              {imageUrls.map((url, index) => (
+                <div
+                  key={index}
+                  className="relative group rounded shadow bg-black-100 overflow-hidden"
+                  style={{ width: 200, height: 200 }}
+                >
+                  <Image
                     src={url}
                     alt={`Imagem ${index + 1}`}
-                    className="w-full rounded shadow object-cover cursor-pointer"
+                    className="w-full h-full object-contain cursor-pointer"
                     onClick={() => handleImageClick(index)}
                   />
 
-                  <div className="flex justify-between mt-1">
-                    <button
-                      disabled={index === 0}
-                      onClick={() => moveImage(index, index - 1)}
-                      className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50"
-                    >
-                      ←
-                    </button>
-                    <button
-                      disabled={index === imageUrls.length - 1}
-                      onClick={() => moveImage(index, index + 1)}
-                      className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50"
-                    >
-                      →
-                    </button>
-                  </div>
-
+                  {/* Substituir imagem */}
                   <input
                     type="file"
                     accept="image/*"
-                    hidden
+                    style={{ display: 'none' }}
                     ref={(el) => {
                       if (el) fileInputs.current[index] = el;
                     }}
                     onChange={(e) => handleReplaceImage(e, index)}
                   />
 
+                  {/* Botões de reorder */}
+                  <div className="absolute bottom-1 left-1 flex gap-1">
+                    {index > 0 && (
+                      <button
+                        onClick={() => moveImage(index, index - 1)}
+                        className="p-1 rounded shadow bg-black"
+                      >
+                        <Image
+                          src="/images/arrow-left-circle-fill.svg"
+                          alt="Mover para esquerda"
+                          className="w-6 h-6"
+                          style={{ filter: 'invert(1)' }}
+                        />
+                      </button>
+                    )}
+                    {index < imageUrls.length - 1 && (
+                      <button
+                        onClick={() => moveImage(index, index + 1)}
+                        className="p-1 rounded shadow bg-black"
+                      >
+                        <Image
+                          src="/images/arrow-right-circle-fill.svg"
+                          alt="Mover para direita"
+                          className="w-6 h-6"
+                          style={{ filter: 'invert(1)' }}
+                          width={400}
+                          height={400}
+                        />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Remover imagem */}
                   <button
                     onClick={() => handleDeleteImage(index)}
-                    className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full"
+                    className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
+                    aria-label="Remover imagem"
                   >
-                    ✕
+                    <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                   </button>
                 </div>
               ))}
             </div>
-          )}
+          )
+        )}
 
-          <button
-            onClick={handleSave}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Salvar
-          </button>
-        </div>
-      )}
-    </div>
-  );
+        <button
+          onClick={handleSave}
+          className="bg-blue-600 text-white my-8 px-6 py-3 rounded hover:bg-blue-700"
+        >
+          Salvar
+        </button>
+
+        <button
+          style={{ marginLeft: "10px" }}
+          onClick={() => setEditing(false)}
+          className="bg-red-600 text-white my-8 px-6 py-3 rounded hover:bg-red-700"
+        >
+          Cancelar
+        </button>
+      </div>
+    )}
+  </div>
+ );
+
 }
+
   

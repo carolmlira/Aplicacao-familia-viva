@@ -9,7 +9,6 @@ export interface UserEntity {
   active: boolean;
   photo?: string;
   phone?: string;
-  whatsappOptIn: boolean;
   ministryId: string;
   resetToken?: string | null; // Token de reset
   resetExpires?: string | null;

@@ -24,8 +24,8 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'O email é obrigatório' })
   email: string; // E-mail do usuário (deve ser válido)
 
-  @ValidateIf(o => o.password !== undefined)
-  @IsNotEmpty({ message: 'Senha antiga é obrigatória para alterar a senha' })
+  @ValidateIf(o => o.password !== undefined && o.oldSenha === undefined)
+  @IsOptional()
   @IsString()
   oldSenha?: string;
 
@@ -55,10 +55,6 @@ export class CreateUserDto {
       'O número de telefone deve estar no formato internacional, exemplo: +5511999999999',
   })
   phone?: string; // Telefone no formato internacional, com DDI e DDD (opcional)
-
-  @ApiProperty({ description: 'Notificao wpp do Usuario' })
-  @IsBoolean()
-  whatsappOptIn: boolean; // Indica se o usuário aceita receber comunicações via WhatsApp
 
   @ApiProperty({ description: 'id do ministerio' })
   @IsString()

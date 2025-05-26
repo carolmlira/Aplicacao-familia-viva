@@ -12,6 +12,49 @@ export default function EsqueceuSenha() {
   const [sucesso, setSucesso] = useState(""); // Adiciona o estado de sucesso
   const [mensagemTempo, setMensagemTempo] = useState("");
   const [tempoRestante, setTempoRestante] = useState(0);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [banner, setBanner] = useState<BannerType | null>(null);
+  const [imgTimestamp, setImgTimestamp] = useState("");
+
+  type BannerType = {
+    id: string;
+    imagemLogo?: string;
+    imagemBanner?: string;
+    frase?: string;
+    imagemLogoFile?: File;
+    imagemBannerFile?: File;
+  };
+    
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/logo`);
+        const data = await res.json();
+        if (data?.url) {
+          setLogoUrl(`${data.url}?t=${Date.now()}`);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar logo:", err);
+      }
+    };
+
+    fetchLogo();
+    fetchBanner();
+    setImgTimestamp(Date.now().toString());
+  }, []);
+
+  const fetchBanner = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/banner`);
+      if (!res.ok) throw new Error("Erro ao buscar dados do Banner");
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setBanner(data[0]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar banner:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +68,7 @@ export default function EsqueceuSenha() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/auth/forgot-password", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -65,13 +108,17 @@ export default function EsqueceuSenha() {
   return (
     <div className={styles.container}>
       <div className={styles.logo}>
-        <Image src="/viva_logo.png" alt="Logo" width={140} height={140} />
-        <Image
-          src="/familia_viva.png"
-          alt="Família Viva"
-          width={500}
-          height={100}
-        />
+        {logoUrl && (
+          <Image src={logoUrl} alt="Logo" width={140} height={140} />
+        )}
+        {banner?.imagemBanner && (
+          <Image
+            src={`${banner.imagemLogo}?t=${imgTimestamp}`}
+            alt="Família Viva"
+            width={500}
+            height={100}
+          />
+        )}
       </div>
 
       <div className={styles.formBox}>

@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%; /* <-- Isso é essencial */
+  width: 100%; 
 }
 
 .navbar .nav-menu {
@@ -181,7 +181,7 @@
 }
 
 
-@media (max-width: 414px) {
+@media (max-width: 1000px) {
   .nav-menu {
     display: none;
   }

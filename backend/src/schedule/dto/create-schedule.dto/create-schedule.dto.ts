@@ -41,4 +41,7 @@ export class CreateScheduleDto {
   @IsBoolean()
   confirmed?: boolean; // Status indicando se a escala já foi confirmada pelos responsáveis
 
+  @ApiProperty({description: "Horário"})
+  @IsOptional()
+  time?: Date;
 }

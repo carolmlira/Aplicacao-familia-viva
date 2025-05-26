@@ -8,10 +8,7 @@ import Image from 'next/image';
 export default function NewProjeto() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
   const [imageFiles, setImageFiles] = useState<{ id: string; file: File; previewUrl: string }[]>([]);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [category, setCategory] = useState('pages');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -23,7 +20,7 @@ export default function NewProjeto() {
   useEffect(() => {
     if (status === "loading") return;
     if (session) {
-      const role = (session.user as any)?.role;
+      const role = (session.user)?.role;
       if (role !== "ADMIN") {
         router.push("/");
       }
@@ -57,7 +54,7 @@ export default function NewProjeto() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projetos`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${session?.accessToken}`,
         },
         body: data,
       });
@@ -78,42 +75,23 @@ export default function NewProjeto() {
     }
   }
 
-  async function handleUploadImage(file: File, projetoId: string, pageId: string): Promise<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-    const categoryWithId = `${category}/${pageId}/${projetoId}`;
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${categoryWithId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${(session as any).accessToken}`,
-      },
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error('Erro ao fazer upload da imagem');
-    }
-
-    const data = await res.json();
-    return data.url;
-  }
-
   const handleRemovePreviewImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <>
-      <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded shadow">
-        <h1 className="text-2xl font-bold mb-4">Novo Projeto</h1>
+      <div className="max-w-3xl mx-auto mt-10 p-6  rounded shadow">
+        <h1 style={{ color:"orangered", textAlign:"center", fontSize:"36px"}}  className="text-2xl font-bold mb-4">Novo Projeto</h1>
         <form onSubmit={handleAddProjeto} className="space-y-4">
           <div>
-            <label className="block font-medium">Título</label>
+            <label className="block font-medium">Título:</label>
             <input
               type="text"
               name="title"
               value={formData.title}
+              placeholder='Digite o título'
+              style={{ color:"black", background:"rgb(231, 226, 226)" }}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 rounded"
@@ -121,19 +99,21 @@ export default function NewProjeto() {
           </div>
 
           <div>
-            <label className="block font-medium">Conteúdo</label>
+            <label className="block font-medium">Conteúdo:</label>
             <textarea
               name="content"
               value={formData.content}
+              placeholder="Digite o conteúdo"
+              style={{ color:"black", background:"rgb(231, 226, 226)" }}
               onChange={handleChange}
-              rows={5}
+              rows={12}
               required
               className="w-full border border-gray-300 p-2 rounded"
             />
           </div>
 
           <div>
-            <label className="block font-medium">Imagem (opcional)</label>
+            <label className="block font-medium">Imagem (opcional):</label>
             <input
               type="file"
               multiple
@@ -149,22 +129,23 @@ export default function NewProjeto() {
               }}
             />
             {imageFiles.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-4">
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {imageFiles.map(({ id, previewUrl }, index) => (
-                  <div key={id} className="relative">
+                  <div key={id} className="relative w-full h-[150px] overflow-hidden rounded shadow">
                     <Image
                       src={previewUrl}
                       alt={`Preview ${id}`}
                       width={150}
                       height={150}
-                      className="object-cover rounded shadow"
+                      fill
+                      className="object-cover"
                     />
                     <button
                       type="button"
                       onClick={() => handleRemovePreviewImage(index)}
                       className="absolute top-1 right-1 bg-white rounded-full shadow p-1"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image width={10} height={10} src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
