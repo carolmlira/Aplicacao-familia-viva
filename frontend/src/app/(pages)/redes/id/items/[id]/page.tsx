@@ -7,12 +7,13 @@ import "slick-carousel/slick/slick-theme.css";
 import styles from './redeId.module.css';
 import "slick-carousel/slick/slick.css";
 import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/image';
 import Slider from "react-slick";
 
 export default function Rede() {
   const { id } = useParams<{ id: string }>();
   const { data: session } = useSession();
-  const [rede, setRede] = useState<any | null>(null);
+  const [rede, setRede] = useState<Rede | null>(null);
   const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -23,6 +24,20 @@ export default function Rede() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false); 
   const [isMobile, setIsMobile] = useState(false);
+
+  interface Rede {
+    id: string;
+    title: string;
+    content: string;
+    images: string[]; // URLs das imagens
+    active: boolean;
+  }
+  interface RedeUpdate {
+    title: string;
+    content: string;
+    images: string[]; // URLs das imagens
+    active: boolean;
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -82,7 +97,7 @@ export default function Rede() {
     return data.url;
   }
 
-  async function updateRede(id: string, redeData: any): Promise<void> {
+  async function updateRede(id: string, redeData: RedeUpdate): Promise<void> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`, {
       method: 'PATCH',
       headers: {
@@ -140,7 +155,7 @@ export default function Rede() {
       console.log('Imagem deletada com sucesso:', data);
   
       // Atualiza o estado para remover a imagem da lista
-      setImageUrls((prev) => prev.filter((url, i) => {
+      setImageUrls((prev) => prev.filter((url) => {
         return !url.includes(filename);
       }));
     } catch (err) {
@@ -253,26 +268,16 @@ export default function Rede() {
     });
   }
 
-  function renderParagraphs(content: string) {
-    return content
-      .split('\n')
-      .filter((paragraph) => paragraph.trim() !== '')
-      .map((paragraph, index) => (
-        <p key={index} className="mb-4 indent-8">
-          {paragraph}
-        </p>
-      ));
-  }
 
   if (loading) return <div style={{ textAlign:"center" }}>Carregando...</div>;
   if (!rede) return <div style={{ textAlign: "center" }} >Rede não encontrado.</div>;
 
   return (
     <div className={`${editing ? "bg-neutral-800 my-8 mx-4 md:mx-32 p-4 rounded" : "p-4"}`}>
-      {(session?.user as any)?.role === 'ADMIN' && (
+      {(session?.user)?.role === 'ADMIN' && (
         <div>
           <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
-            <img
+            <Image
               src="/images/pen.svg"
               alt="Editar"
               width={20}
@@ -293,7 +298,7 @@ export default function Rede() {
           {/* LOGO (só se tiver imagem) */}
           {imageUrls.length > 0 && (
             <div className={styles.logoContainer}>
-              <img
+              <Image
                 src={imageUrls[0]}
                 alt="Logo da Rede"
                 className={styles.logoImage}
@@ -329,7 +334,7 @@ export default function Rede() {
               {imageUrls.slice(1).map((url, index) => (
                 <div key={index} className="px-2">
                   <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
-                    <img
+                    <Image
                       src={url}
                       alt={`Imagem ${index + 2}`}
                       className="object-cover w-full h-full rounded"
@@ -412,7 +417,7 @@ export default function Rede() {
                           className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow"
                           style={{ width: 200, height: 200 }}
                         >
-                          <img
+                          <Image
                             src={url}
                             alt={`Nova imagem ${index + 1}`}
                             className="object-contain w-full h-full"
@@ -422,7 +427,7 @@ export default function Rede() {
                             className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                             aria-label="Remover imagem"
                           >
-                            <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                            <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -436,7 +441,7 @@ export default function Rede() {
                         className="relative rounded shadow overflow-hidden"
                         style={{ width: 200, height: 200 }}
                       >
-                        <img
+                        <Image
                           src={url}
                           alt={`Nova imagem ${index + 1}`}
                           className="w-full h-full object-contain"
@@ -446,7 +451,7 @@ export default function Rede() {
                           className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                           aria-label="Remover imagem"
                         >
-                          <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                          <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                         </button>
                       </div>
                     ))}
@@ -470,7 +475,7 @@ export default function Rede() {
                 {imageUrls.map((url, index) => (
                   <div key={index} className="px-2">
                     <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
-                      <img
+                      <Image
                         src={url}
                         alt={`Imagem ${index + 1}`}
                         className="object-contain w-full h-full rounded"
@@ -495,7 +500,7 @@ export default function Rede() {
                             onClick={() => moveImage(index, index - 1)}
                             className="p-1 rounded shadow bg-black"
                           >
-                            <img
+                            <Image
                               src="/images/arrow-left-circle-fill.svg"
                               alt="Mover para esquerda"
                               className="w-6 h-6"
@@ -508,7 +513,7 @@ export default function Rede() {
                             onClick={() => moveImage(index, index + 1)}
                             className="p-1 rounded shadow bg-black"
                           >
-                            <img
+                            <Image
                               src="/images/arrow-right-circle-fill.svg"
                               alt="Mover para direita"
                               className="w-6 h-6"
@@ -524,7 +529,7 @@ export default function Rede() {
                         className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
                         aria-label="Remover imagem"
                       >
-                        <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                        <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -538,7 +543,7 @@ export default function Rede() {
                     className="relative group rounded shadow bg-black-100 overflow-hidden"
                     style={{ width: 200, height: 200 }}
                   >
-                    <img
+                    <Image
                       src={url}
                       alt={`Imagem ${index + 1}`}
                       className="w-full h-full object-contain cursor-pointer"
@@ -563,7 +568,7 @@ export default function Rede() {
                           onClick={() => moveImage(index, index - 1)}
                           className="p-1 rounded shadow bg-black"
                         >
-                          <img
+                          <Image
                             src="/images/arrow-left-circle-fill.svg"
                             alt="Mover para esquerda"
                             className="w-6 h-6"
@@ -576,7 +581,7 @@ export default function Rede() {
                           onClick={() => moveImage(index, index + 1)}
                           className="p-1 rounded shadow bg-black"
                         >
-                          <img
+                          <Image
                             src="/images/arrow-right-circle-fill.svg"
                             alt="Mover para direita"
                             className="w-6 h-6"
@@ -592,7 +597,7 @@ export default function Rede() {
                       className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
                       aria-label="Remover imagem"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}

@@ -9,7 +9,6 @@ export default function NewProjeto() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [imageFiles, setImageFiles] = useState<{ id: string; file: File; previewUrl: string }[]>([]);
-  const [category, setCategory] = useState('pages');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -21,7 +20,7 @@ export default function NewProjeto() {
   useEffect(() => {
     if (status === "loading") return;
     if (session) {
-      const role = (session.user as any)?.role;
+      const role = (session.user)?.role;
       if (role !== "ADMIN") {
         router.push("/");
       }
@@ -55,7 +54,7 @@ export default function NewProjeto() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projetos`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${session?.accessToken}`,
         },
         body: data,
       });
@@ -74,27 +73,6 @@ export default function NewProjeto() {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function handleUploadImage(file: File, projetoId: string, pageId: string): Promise<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-    const categoryWithId = `${category}/${pageId}/${projetoId}`;
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${categoryWithId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${(session as any).accessToken}`,
-      },
-      body: formData,
-    });
-
-    if (!res.ok) {
-      throw new Error('Erro ao fazer upload da imagem');
-    }
-
-    const data = await res.json();
-    return data.url;
   }
 
   const handleRemovePreviewImage = (index: number) => {
@@ -157,6 +135,8 @@ export default function NewProjeto() {
                     <Image
                       src={previewUrl}
                       alt={`Preview ${id}`}
+                      width={150}
+                      height={150}
                       fill
                       className="object-cover"
                     />
@@ -165,7 +145,7 @@ export default function NewProjeto() {
                       onClick={() => handleRemovePreviewImage(index)}
                       className="absolute top-1 right-1 bg-white rounded-full shadow p-1"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image width={10} height={10} src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}

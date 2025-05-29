@@ -13,11 +13,12 @@ interface User {
   active: boolean;
   phone?: string;
   photo?: string;
-  whatsappOptIn: boolean;
   ministryId: string;
   resetToken?: null;
   resetExpires?: null;
+  oldSenha?: string;
 }
+
 
 interface ValidationErrors {
   [key: string]: string | undefined;
@@ -33,9 +34,10 @@ export default function Usuarios() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [formErrors, setFormErrors] = useState<ValidationErrors>({});
   const [editFormErrors, setEditFormErrors] = useState<ValidationErrors>({});
+  const accessToken = (session as { accessToken?: string })?.accessToken;
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // Estado para o modal de editar
 
@@ -52,12 +54,12 @@ export default function Usuarios() {
     name: "",
     email: "",
     password: "",
+    oldSenha: "",
     phone: "",
     photo: "",
     level: "VOLUNT",
     active: true,
-    whatsappOptIn: false,
-    ministryId: "Ministerio Viv",
+    ministryId: "",
     resetToken: null,
     resetExpires: null,
   });
@@ -66,37 +68,58 @@ export default function Usuarios() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || (session.user as any).role !== "ADMIN") {
+    if (!session || (session.user).role !== "ADMIN") {
       router.push("/");
       return;
     }
 
     const fetchUsers = async () => {
-      const res = await fetch("http://localhost:3000/users", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         headers: {
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${accessToken || ''}`,
         },
+        
       });
+      console.log("Access token para get:", accessToken);
+
       const data = await res.json();
       setUsers(data);
       setLoading(false);
     };
 
     fetchUsers();
-  }, [session, status, router]);
+  }, [session, status, router, accessToken]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
-    await fetch(`http://localhost:3000/users/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${(session as any).accessToken}`,
-      },
-    });
+    try {
+      const resApi = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${accessToken || ''}`,
+        },
+      });
+      console.log("Access token para delete:", accessToken);
 
-    setUsers(users.filter((user) => user.id !== id));
+      if (!resApi.ok) throw new Error("Erro ao deletar o usuário na API principal.");
+
+      const resFirebase = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete/user/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!resFirebase.ok) {
+        console.warn("Usuário excluído da API, mas houve erro ao deletar do Firebase.");
+        // Aqui você pode notificar o usuário ou registrar para correção posterior.
+      }
+
+      setUsers(users.filter((user) => user.id !== id));
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+      alert("Ocorreu um erro ao excluir o usuário. Tente novamente.");
+    }
   };
+
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -106,16 +129,6 @@ export default function Usuarios() {
     setNewUser({ ...newUser, [name]: val });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewUser({ ...newUser, photo: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const parseValidationErrors = (messages: string[]): ValidationErrors => {
     const errors: ValidationErrors = {}; // Tipagem correta
@@ -142,11 +155,11 @@ export default function Usuarios() {
 
   const handleAddUser = async () => {
     try {
-      const res = await fetch("http://localhost:3000/users", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${accessToken || ''}`,
         },
         body: JSON.stringify(newUser),
       });
@@ -179,12 +192,12 @@ export default function Usuarios() {
         name: "",
         email: "",
         password: "",
+        oldSenha: "",
         phone: "",
         photo: "",
         level: "VOLUNT",
         active: true,
-        whatsappOptIn: false,
-        ministryId: "Ministerio Viv",
+        ministryId: "",
         resetToken: null,
         resetExpires: null,
       });
@@ -229,16 +242,17 @@ export default function Usuarios() {
 
   const handleEditUser = async () => {
     if (editUser) {
-      const res = await fetch(`http://localhost:3000/users/${editUser.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${accessToken || ''}`,
         },
+        
         body: JSON.stringify(
           Object.fromEntries(
             Object.entries(editUser).filter(
-              ([_, value]) =>
+              ([value]) =>
                 value !== "" && value !== null && value !== undefined
             )
           )
@@ -275,7 +289,7 @@ export default function Usuarios() {
   if (
     status === "loading" ||
     !session ||
-    (session.user as any).role !== "ADMIN"
+    (session.user).role !== "ADMIN"
   ) {
     return <p className="text-center mt-10">Carregando...</p>;
   }
@@ -303,7 +317,6 @@ export default function Usuarios() {
                 <th className="px-4 py-3">Telefone</th>
                 <th className="px-4 py-3">Nível</th>
                 <th className="px-4 py-3">Ativo</th>
-                <th className="px-4 py-3">WhatsApp Ativo</th>
                 <th className="px-4 py-3">Ministerio</th>
                 <th className="px-4 py-3 text-center">Ações</th>
               </tr>
@@ -319,9 +332,6 @@ export default function Usuarios() {
                   <td className="px-4 py-3">{user.phone || "-"}</td>
                   <td className="px-4 py-3">{user.level}</td>
                   <td className="px-4 py-3">{user.active ? "Sim" : "Não"}</td>
-                  <td className="px-4 py-3">
-                    {user.whatsappOptIn ? "Sim" : "Não"}
-                  </td>
                   <td className="px-4 py-3">{user.ministryId}</td>
                   <td className="px-4 py-3 flex justify-center gap-3">
                     <button
@@ -446,25 +456,16 @@ export default function Usuarios() {
                 className="border text-black p-2 rounded"
                 placeholder="Ministério"
               />
-              <input
-                name="photo"
-                type="text"
-                value={newUser.photo || ""}
-                onChange={handleInputChange}
-                className="border text-black p-2 rounded"
-                placeholder="URL da Foto"
-              />
               <select
                 name="level"
                 value={newUser.level}
                 onChange={handleInputChange}
                 className="border p-2 text-black rounded"
               >
-                <option value="ADMIN">Administrador Geral</option>
-                <option value="Líder">Líder</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="LIDER">Líder</option>
                 <option value="VOLUNT">Voluntário</option>
                 <option value="COMUNIC">Comunicação</option>
-                <option value="USER">Usuário</option>
               </select>
 
               <div>
@@ -478,20 +479,6 @@ export default function Usuarios() {
                   }
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-black font-medium">
-                Whatsapp Ativo?
-              </label>
-              <input
-                type="checkbox"
-                name="whatsappOptIn"
-                checked={newUser.whatsappOptIn}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, whatsappOptIn: e.target.checked })
-                }
-              />
             </div>
 
             <button
@@ -550,7 +537,6 @@ export default function Usuarios() {
               <input
                 name="password"
                 type="password"
-                value={editUser.password || ""}
                 onChange={(e) =>
                   setEditUser({ ...editUser, password: e.target.value })
                 }
@@ -559,6 +545,19 @@ export default function Usuarios() {
                 className="border text-black p-2 rounded"
                 placeholder="password"
               />
+  
+              <input
+                name="oldSenha"
+                type="password"
+                onChange={(e) =>
+                  setEditUser({ ...editUser, oldSenha: e.target.value })
+                }
+                minLength={6}
+                maxLength={64}
+                className="border text-black p-2 rounded"
+                placeholder="Senha Atual"
+              />
+
               {editFormErrors.password && (
                 <p className="text-red-600 text-sm">
                   {editFormErrors.password}
@@ -587,15 +586,6 @@ export default function Usuarios() {
                 className="border text-black p-2 rounded"
                 placeholder="Ministério"
               />
-              <input
-                name="photo"
-                value={editUser.photo || ""}
-                onChange={(e) =>
-                  setEditUser({ ...editUser, photo: e.target.value })
-                }
-                className="border text-black p-2 rounded"
-                placeholder="URL da Foto"
-              />
               <select
                 name="level"
                 value={editUser.level || ""}
@@ -604,11 +594,10 @@ export default function Usuarios() {
                 }
                 className="border p-2 text-black rounded"
               >
-                <option value="ADMIN">Admininistrador Geral</option>
-                <option value="Líder">Líder</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="LIDER">Líder</option>
                 <option value="VOLUNT">Voluntario</option>
                 <option value="COMUNIC">Comunicação</option>
-                <option value="USER">Usuário</option>
               </select>
 
               <div>
@@ -619,24 +608,6 @@ export default function Usuarios() {
                   checked={editUser.active}
                   onChange={(e) =>
                     setEditUser({ ...editUser, active: e.target.checked })
-                  }
-                />
-              </div>
-
-              {/* Campo WhatsappOptIn */}
-              <div>
-                <label className="block text-black font-medium">
-                  Whatsapp Ativo?
-                </label>
-                <input
-                  type="checkbox"
-                  name="whatsappOptIn"
-                  checked={editUser.whatsappOptIn}
-                  onChange={(e) =>
-                    setEditUser({
-                      ...editUser,
-                      whatsappOptIn: e.target.checked,
-                    })
                   }
                 />
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Calendar from "react-calendar";
 import { useSession } from "next-auth/react";
 import "react-calendar/dist/Calendar.css";
@@ -21,6 +21,7 @@ type Schedule = {
   userId: string;
   ministryId: string;
   userName?: string;
+  time?: Date;
 };
 
 export default function Escala() {
@@ -35,6 +36,8 @@ export default function Escala() {
   const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(
     null
   );
+  const [selectedDate, setSelectedDate] = useState<string>(''); 
+
   const [selectedUserName, setSelectedUserName] = useState("");
   const [confirmedSchedules, setConfirmedSchedules] = useState<Schedule[]>([]);
   const [LiderSchedules, setLiderSchedules] = useState<Schedule[]>([]);
@@ -48,14 +51,27 @@ export default function Escala() {
   const [confirmedCurrentPage, setConfirmedCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false); // Controle do modal
   const [showDescriptionTextArea, setShowDescriptionTextArea] = useState(false); // Controle do Modal de Text Area abaixo da tabela Disponibilidades
+
   const [newDate, setNewDate] = useState<string>("");
+  const [addDate, setAddDate] = useState<string>(selectedDate || '');
+  const [addDescription, setAddDescription] = useState<string>('');
+  const [addTime, setAddTime] = useState<string>('');  // novo estado para a hora
+
+  const [, setDescription] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+
+
   const itemsPerPage = 5;
   const router = useRouter();
   const role = session?.user?.role;
   const userId = session?.user?.id;
 
-  const fetchConfirmedSchedules = async (token: string) => {
-    const res = await fetch(`http://localhost:3000/schedules/confirmed/all`, {
+  useEffect(() => {
+    setAddDate(selectedDate);
+  }, [selectedDate]);
+
+  const fetchConfirmedSchedules =  useCallback( async (token: string) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schedules/confirmed/all`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -66,7 +82,7 @@ export default function Escala() {
       const schedulesWithUserNames = await Promise.all(
         data.map(async (schedule: Schedule) => {
           const userRes = await fetch(
-            `http://localhost:3000/users/${schedule.userId}`
+            `${process.env.NEXT_PUBLIC_API_URL}/users/${schedule.userId}`
           );
           return { ...schedule, userName: (await userRes.json()).name };
         })
@@ -79,25 +95,22 @@ export default function Escala() {
     } else {
       setConfirmedSchedules([]);
     }
-  };
+  }, []);
 
-  const fetchConfirmedLiderSchedules = async (token: string) => {
+  const fetchConfirmedLiderSchedules = useCallback( async (token: string) => {
+    console.log(token)
     const res = await fetch(
-      `http://localhost:3000/schedules/confirmed/my-ministry`,
+      `${process.env.NEXT_PUBLIC_API_URL}/schedules/confirmed/my-ministry`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
       }
     );
 
-    console.log("Status da resposta:", res.status);
-
     if (!res.ok) {
-      const errorText = await res.text();
-      console.log("Corpo da resposta de erro:", errorText);
-
-      console.error("Erro ao buscar escalas confirmadas");
+      console.error(`Erro ao buscar escalas confirmadas: status ${res.status}`);
       setConfirmedLiderSchedules([]);
       return;
     }
@@ -108,10 +121,11 @@ export default function Escala() {
       const schedulesWithUserNames = await Promise.all(
         data.map(async (schedule: Schedule) => {
           const userRes = await fetch(
-            `http://localhost:3000/users/${schedule.userId}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/users/${schedule.userId}`,
             {
               headers: {
-                Authorization: `Bearer ${token}`,
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
               },
             }
           );
@@ -132,10 +146,10 @@ export default function Escala() {
     } else {
       setConfirmedLiderSchedules([]);
     }
-  };
+  }, []);
 
-  const fetchSchedulesByDate = async (token: string) => {
-    const res = await fetch(`http://localhost:3000/schedules/available/all`, {
+  const fetchSchedulesByDate = useCallback( async (token: string) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schedules/available/all`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -146,7 +160,7 @@ export default function Escala() {
       const schedulesWithUserNames = await Promise.all(
         data.map(async (schedule: Schedule) => {
           const userRes = await fetch(
-            `http://localhost:3000/users/${schedule.userId}`
+            `${process.env.NEXT_PUBLIC_API_URL}/users/${schedule.userId}`
           );
           return { ...schedule, userName: (await userRes.json()).name };
         })
@@ -159,27 +173,24 @@ export default function Escala() {
     } else {
       setAdminSchedules([]);
     }
-  };
+  }, []);
 
-  const fetchSchedulesByDateByMinistry = async (token: string) => {
-    console.log("JWT Token", token);
+  const fetchSchedulesByDateByMinistry = useCallback( async (token: string) => {
     const res = await fetch(
-      `http://localhost:3000/schedules/available/my-ministry`,
+      `${process.env.NEXT_PUBLIC_API_URL}/schedules/available/my-ministry`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    console.log("Resposta", res);
     const data = await res.json();
-    console.log("data: ", data);
 
     if (Array.isArray(data)) {
       const schedulesWithUserNames = await Promise.all(
         data.map(async (schedule: Schedule) => {
           const userRes = await fetch(
-            `http://localhost:3000/users/${schedule.userId}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/users/${schedule.userId}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -197,10 +208,10 @@ export default function Escala() {
     } else {
       setLiderSchedules([]);
     }
-  };
+  }, []);
 
-  const fetchSchedulesByUser = async (token: string) => {
-    const res = await fetch(`http://localhost:3000/schedules/user/${userId}`, {
+  const fetchSchedulesByUser = useCallback( async (token: string) => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schedules/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -215,11 +226,11 @@ export default function Escala() {
     } else {
       setSchedules([]);
     }
-  };
+  }, [userId]);
 
-  const fetchSchedulesByUserPeding = async (token: string) => {
+  const fetchSchedulesByUserPeding = useCallback( async (token: string) => {
     const res = await fetch(
-      `http://localhost:3000/schedules/user/${userId}/pending`,
+      `${process.env.NEXT_PUBLIC_API_URL}/schedules/user/${userId}/pending`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -236,35 +247,47 @@ export default function Escala() {
     } else {
       setPendingSchedules([]);
     }
-  };
-  const handleDateClick = async (date: Date) => {
-    if (role === "ADMIN") return;
+  }, [userId]);
 
-    const userRes = await fetch(`http://localhost:3000/users/${userId}`, {
+  const handleDateClick = async (date: Date) => {
+    if (role !== "ADMIN" && role !== "LIDER") return;
+
+    const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },
     });
-    const user = await userRes.json();
+    await userRes.json();
 
-    const formattedDate = new Date(date).toISOString().split("T")[0];
+    // Converte a data para o formato 'YYYY-MM-DD'
+    const formattedDate = date.toISOString().split('T')[0];
 
-    const isConfirmed = window.confirm(
-      `Você deseja disponibilizar a data: ${formattedDate}?`
-    );
+    setSelectedDate(formattedDate);
+    setAddDate(formattedDate);
+    setShowAddModal(true);
+  };
 
-    if (!isConfirmed) return;
+  const handleConfirmAvailability = async () => {
+    if (!addDate) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/schedules`, {
+      const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      const user = await userRes.json();
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schedules`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.accessToken}`,
         },
         body: JSON.stringify({
-          date: formattedDate,
-          description: "",
+          date: addDate,
+          time: addTime, // <- talvez isso esteja causando erro
+          description: addDescription,
           available: true,
           confirmed: false,
           ministryId: user.ministryId,
@@ -278,6 +301,8 @@ export default function Escala() {
       }
 
       alert("Disponibilidade enviada!");
+      setShowAddModal(false);
+      setDescription("");
 
       if (session?.accessToken) {
         await fetchSchedulesByDate(session.accessToken);
@@ -285,8 +310,12 @@ export default function Escala() {
         await fetchSchedulesByUserPeding(session.accessToken);
         await fetchSchedulesByDateByMinistry(session.accessToken);
       }
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("Ocorreu um erro inesperado.");
+      }
     }
   };
 
@@ -309,7 +338,7 @@ export default function Escala() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/schedules/${selectedScheduleId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/schedules/${selectedScheduleId}`,
         {
           method: "PATCH",
 
@@ -338,6 +367,7 @@ export default function Escala() {
       setSelectedScheduleId(null);
       setShowModal(false);
 
+
       if (session?.accessToken) {
         await fetchSchedulesByDate(session.accessToken);
         await fetchConfirmedSchedules(session.accessToken);
@@ -345,8 +375,12 @@ export default function Escala() {
         await fetchSchedulesByUserPeding(session.accessToken);
         await fetchConfirmedLiderSchedules(session.accessToken);
       }
-    } catch (error) {
-      alert("Erro ao atualizar escala");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Erro ao atualizar escala: ${error.message}`);
+      } else {
+        alert("Erro ao atualizar escala.");
+      }
     }
   };
 
@@ -359,7 +393,7 @@ export default function Escala() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/schedules/${selectedScheduleId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/schedules/${selectedScheduleId}`,
         {
           method: "PATCH",
           headers: {
@@ -394,8 +428,12 @@ export default function Escala() {
         await fetchConfirmedLiderSchedules(session.accessToken);
         await fetchSchedulesByDateByMinistry(session.accessToken);
       }
-    } catch (error) {
-      alert("Erro ao confirmar escala");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Erro ao atualizar escala: ${error.message}`);
+      } else {
+        alert("Erro ao atualizar escala.");
+      }
     }
   };
 
@@ -403,7 +441,7 @@ export default function Escala() {
     if (!confirm("Tem certeza que deseja excluir essa escala?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/schedules/${scheduleId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schedules/${scheduleId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -426,8 +464,12 @@ export default function Escala() {
         await fetchConfirmedLiderSchedules(session.accessToken);
         await fetchSchedulesByDateByMinistry(session.accessToken);
       }
-    } catch (error) {
-      alert("Erro ao excluir escala");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Erro ao atualizar escala: ${error.message}`);
+      } else {
+        alert("Erro ao atualizar escala.");
+      }
     }
   };
 
@@ -445,7 +487,7 @@ export default function Escala() {
       return;
 
     try {
-      const res = await fetch(`http://localhost:3000/schedules/${scheduleId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/schedules/${scheduleId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -465,10 +507,44 @@ export default function Escala() {
         await fetchSchedulesByUser(session.accessToken);
         await fetchConfirmedLiderSchedules(session.accessToken);
       }
-    } catch (error) {
-      alert("Erro ao excluir escala confirmada");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Erro ao atualizar escala: ${error.message}`);
+      } else {
+        alert("Erro ao atualizar escala.");
+      }
     }
   };
+
+  useEffect(() => {
+    if (!session?.accessToken || !session?.user?.id) return;
+
+    const token = session.accessToken;
+
+    if (role === "ADMIN") {
+      fetchConfirmedSchedules(token);
+      fetchSchedulesByDate(token);
+    } else if (role === "LIDER") {
+      fetchConfirmedLiderSchedules(token);
+      fetchSchedulesByDateByMinistry(token);
+    }
+
+    fetchSchedulesByUser(token);
+    fetchSchedulesByUserPeding(token);
+
+
+  }, [
+    session?.accessToken,
+    session?.user?.id,
+    role,
+    fetchConfirmedSchedules,
+    fetchSchedulesByDate,
+    fetchConfirmedLiderSchedules,
+    fetchSchedulesByDateByMinistry,
+    fetchSchedulesByUser,
+    fetchSchedulesByUserPeding,
+  ]);
+
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -476,12 +552,12 @@ export default function Escala() {
     }
     if (!session?.accessToken) return;
 
-    if (role === "ADMIN" || role === "VOLUNT") {
+    if (role === "COMUNIC" || role === "VOLUNT") {
       fetchSchedulesByDate(session.accessToken);
       fetchConfirmedSchedules(session.accessToken);
       fetchSchedulesByUser(session.accessToken);
       fetchSchedulesByUserPeding(session.accessToken);
-    } else if (role === "LIDER") {
+    } else if (role === "LIDER" || role === "ADMIN") {
       fetchConfirmedLiderSchedules(session.accessToken);
       fetchSchedulesByUser(session.accessToken);
       fetchSchedulesByUserPeding(session.accessToken);
@@ -506,7 +582,7 @@ export default function Escala() {
   ]);
 
   if (status === "loading") {
-    return <p>Carregando...</p>; // Você pode estilizar ou usar um spinner
+    return <p style={{ textAlign: "center" }}>Carregando...</p>; // Você pode estilizar ou usar um spinner
   }
 
   if (!session) {
@@ -572,10 +648,11 @@ export default function Escala() {
               <h2 className="text-xl font-semibold mb-4 text-center">
                 Escalas Confirmadas
               </h2>
-              <table className="w-full border text-sm min-h-[330px]">
+              <table className="w-full max-w-5xl border text-sm min-h-[330px] text-white">
                 <thead>
-                  <tr className="bg-gray-200">
+                  <tr className="bg-gray-200 text-black">
                     <th className="p-2 border">Dia</th>
+                    <th className="p-2 border">Hora</th>
                     <th className="p-2 border">Nome</th>
                     <th className="p-2 border">Ministerio</th>
                     <th className="p-2 border">Ações</th>
@@ -597,6 +674,17 @@ export default function Escala() {
                               locale: ptBR,
                             }
                           )}
+                        </td>
+                        <td className="p-2">
+                          {schedule.date && schedule.time
+                            ? (() => {
+                                const isoString = `${schedule.date}T${schedule.time}`; // Exemplo: "2025-05-25T14:30"
+                                const datetime = new Date(isoString);
+                                return isNaN(datetime.getTime())
+                                  ? "Hora inválida"
+                                  : format(datetime, "HH:mm", { locale: ptBR });
+                              })()
+                            : "—"}
                         </td>
                         <td className="p-2">{schedule.userName}</td>
                         <td className="p-2">{schedule.ministryId}</td>
@@ -646,17 +734,17 @@ export default function Escala() {
                 </tbody>
               </table>
 
-              {/* Janela de edição de descrição e data do usuario */}
+              {/* Janela de edição de descrição e data do usuario , update*/}
               {showModal && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-                  <div className="bg-white p-6 rounded shadow-md relative w-full max-w-md">
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center text-black">
+                  <div className="bg-white p-6 rounded shadow-md relative w-full max-w-md text-black">
                     <button
                       onClick={handleCloseModal}
                       className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
                     >
                       x
                     </button>
-                    <h2 className="text-xl font-semibold mb-4">
+                    <h2 className="text-xl font-semibold mb-4 text-black">
                       Editar Escala
                     </h2>
                     <div>
@@ -670,7 +758,7 @@ export default function Escala() {
                         onChange={(e) => setNewDate(e.target.value)}
                         className="w-full border p-2 rounded mb-4"
                       />
-                      <label htmlFor="description" className="block mb-2">
+                      <label htmlFor="description" className="block mb-2 text-blsck">
                         Descrição
                       </label>
                       <div className="relative">
@@ -702,13 +790,13 @@ export default function Escala() {
                 {confirmedSchedules.length} Escalas Confirmadas
               </p>
               {/* Paginação botão anterior e próximo */}
-              <div className="flex justify-center items-center gap-4 mt-4">
+              <div className="flex justify-center items-center gap-4 mt-4 ">
                 <button
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className="px-3 py-1 bg-gray-300 rounded "
+                  className="px-3 py-1 bg-gray-300 rounded text-black "
                 >
                   Anterior
                 </button>
@@ -720,7 +808,7 @@ export default function Escala() {
                   disabled={
                     currentPage * itemsPerPage >= confirmedSchedules.length
                   }
-                  className="px-3 py-1 bg-gray-300 rounded"
+                  className="px-3 py-1 bg-gray-300 rounded text-black"
                 >
                   Próxima
                 </button>
@@ -728,15 +816,16 @@ export default function Escala() {
             </div>
           )}
 
-          {role === "LIDER" && (
+          {(role === "LIDER" || role === "ADMIN" )&& (
             <div className="w-full max-w-md">
               <h2 className="text-xl font-semibold mb-4 text-center">
                 Escalas Confirmadas
               </h2>
               <table className="w-full border text-sm min-h-[330px]">
                 <thead>
-                  <tr className="bg-gray-200">
+                  <tr className="bg-gray-200 text-black">
                     <th className="p-2 border">Dia</th>
+                    <th className="p-2 border">Hora</th>
                     <th className="p-2 border">Nome</th>
                     <th className="p-2 border">Ministerio</th>
                     <th className="p-2 border">Ações</th>
@@ -758,6 +847,17 @@ export default function Escala() {
                               locale: ptBR,
                             }
                           )}
+                        </td>
+                        <td className="p-2">
+                          {schedule.date && schedule.time
+                            ? (() => {
+                                const isoString = `${schedule.date}T${schedule.time}`; // Exemplo: "2025-05-25T14:30"
+                                const datetime = new Date(isoString);
+                                return isNaN(datetime.getTime())
+                                  ? "Hora inválida"
+                                  : format(datetime, "HH:mm", { locale: ptBR });
+                              })()
+                            : "—"}
                         </td>
                         <td className="p-2">{schedule.userName}</td>
                         <td className="p-2">{schedule.ministryId}</td>
@@ -869,7 +969,7 @@ export default function Escala() {
                     setCurrentPage((prev) => Math.max(prev - 1, 1))
                   }
                   disabled={currentPage === 1}
-                  className="px-3 py-1 bg-gray-300 rounded "
+                  className="px-3 py-1 bg-gray-300 rounded text-black"
                 >
                   Anterior
                 </button>
@@ -881,7 +981,7 @@ export default function Escala() {
                   disabled={
                     currentPage * itemsPerPage >= confirmedLiderSchedules.length
                   }
-                  className="px-3 py-1 bg-gray-300 rounded"
+                  className="px-3 py-1 bg-gray-300 rounded text-black"
                 >
                   Próxima
                 </button>
@@ -891,16 +991,17 @@ export default function Escala() {
         </div>
 
         {/* Tabela de Disponibilidades dos usuarios para o Lider aceitar apenas o do mesmo ministerio e colocar descrição */}
-        {role === "LIDER" && (
+        {(role === "LIDER" || role === "ADMIN" )&& (
           <div className="mt-12 w-full max-w-3xl">
             <h2 className="text-xl font-semibold mb-4">Disponibilidades</h2>
             <table className="w-full border">
               <thead>
-                <tr className="bg-gray-200">
+                <tr className="bg-gray-200 text-black">
                   <th className="p-2 border">Dia</th>
-                  <th className="p-2 border">Nome do Usuário</th>
+                  <th className="p-2 border">Hora</th>
+                  <th className="p-2 border">Nome</th>
                   <th className="p-2 border">Ministerio</th>
-                  <th className="p-2 border">Ação</th>
+                  <th className="p-2 border">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -917,6 +1018,17 @@ export default function Escala() {
                           locale: ptBR,
                         }
                       )}
+                    </td>
+                    <td className="p-2">
+                      {schedule.date && schedule.time
+                        ? (() => {
+                            const isoString = `${schedule.date}T${schedule.time}`; // Exemplo: "2025-05-25T14:30"
+                            const datetime = new Date(isoString);
+                            return isNaN(datetime.getTime())
+                              ? "Hora inválida"
+                              : format(datetime, "HH:mm", { locale: ptBR });
+                          })()
+                        : "—"}
                     </td>
                     <td className="p-2">{schedule.userName}</td>
                     <td className="p-2">{schedule.ministryId}</td>
@@ -964,13 +1076,13 @@ export default function Escala() {
             </p>
 
             {/* Paginação */}
-            <div className="flex justify-center items-center gap-4 mt-4">
+            <div className="flex justify-center items-center gap-4 mt-4 ">
               <button
                 onClick={() =>
                   setAvailableCurrentPage((prev) => Math.max(prev - 1, 1))
                 }
                 disabled={availablecurrentPage === 1}
-                className="px-3 py-1 bg-gray-300 rounded "
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Anterior
               </button>
@@ -982,7 +1094,7 @@ export default function Escala() {
                 disabled={
                   availablecurrentPage * itemsPerPage >= LiderSchedules.length
                 }
-                className="px-3 py-1 bg-gray-300 rounded"
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Próxima
               </button>
@@ -1031,11 +1143,12 @@ export default function Escala() {
             <h2 className="text-xl font-semibold mb-4">Disponibilidades</h2>
             <table className="w-full border">
               <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2 border">Dia</th>
-                  <th className="p-2 border">Nome do Usuário</th>
-                  <th className="p-2 border">Ministerio</th>
-                  <th className="p-2 border">Ação</th>
+                <tr className="bg-gray-200 text-black">
+                    <th className="p-2 border">Dia</th>
+                    <th className="p-2 border">Hora</th>
+                    <th className="p-2 border">Nome</th>
+                    <th className="p-2 border">Ministerio</th>
+                    <th className="p-2 border">Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -1054,6 +1167,17 @@ export default function Escala() {
                             locale: ptBR,
                           }
                         )}
+                      </td>
+                      <td className="p-2">
+                        {schedule.date && schedule.time
+                          ? (() => {
+                              const isoString = `${schedule.date}T${schedule.time}`; // Exemplo: "2025-05-25T14:30"
+                              const datetime = new Date(isoString);
+                              return isNaN(datetime.getTime())
+                                ? "Hora inválida"
+                                : format(datetime, "HH:mm", { locale: ptBR });
+                            })()
+                          : "—"}
                       </td>
                       <td className="p-2">{schedule.userName}</td>
                       <td className="p-2">{schedule.ministryId}</td>
@@ -1107,7 +1231,7 @@ export default function Escala() {
                   setAvailableCurrentPage((prev) => Math.max(prev - 1, 1))
                 }
                 disabled={availablecurrentPage === 1}
-                className="px-3 py-1 bg-gray-300 rounded "
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Anterior
               </button>
@@ -1119,7 +1243,7 @@ export default function Escala() {
                 disabled={
                   availablecurrentPage * itemsPerPage >= adminSchedules.length
                 }
-                className="px-3 py-1 bg-gray-300 rounded"
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Próxima
               </button>
@@ -1171,8 +1295,9 @@ export default function Escala() {
 
             <table className="w-full border">
               <thead>
-                <tr className="bg-gray-200">
+                <tr className="bg-gray-200 text-black">
                   <th className="p-2 border">Dia</th>
+                  <th className="p-2 border">Hora</th>
                   <th className="p-2 border">Ação</th>
                 </tr>
               </thead>
@@ -1194,6 +1319,18 @@ export default function Escala() {
                         )}
                       </td>
                       <td className="p-2">
+                        {schedule.date && schedule.time
+                          ? (() => {
+                              const isoString = `${schedule.date}T${schedule.time}`; // Exemplo: "2025-05-25T14:30"
+                              const datetime = new Date(isoString);
+                              return isNaN(datetime.getTime())
+                                ? "Hora inválida"
+                                : format(datetime, "HH:mm", { locale: ptBR });
+                            })()
+                          : "—"}
+                      </td>
+
+                      <td className="p-2">
                         <button
                           onClick={() =>
                             alert(`Descrição: ${schedule.description}`)
@@ -1213,7 +1350,7 @@ export default function Escala() {
               {schedules.length !== 1 && "s"}
             </p>
             {/* Paginação */}
-            <div className="flex justify-center items-center gap-4 mt-4">
+            <div className="flex justify-center items-center gap-4 mt-4 ">
               <button
                 onClick={() =>
                   setScheduleConfirmedCurrentPage((prev) =>
@@ -1221,7 +1358,7 @@ export default function Escala() {
                   )
                 }
                 disabled={scheduleConfirmedCurrentPage === 1}
-                className="px-3 py-1 bg-gray-300 rounded "
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Anterior
               </button>
@@ -1236,7 +1373,7 @@ export default function Escala() {
                   scheduleConfirmedCurrentPage * itemsPerPage >=
                   schedules.length
                 }
-                className="px-3 py-1 bg-gray-300 rounded"
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Próxima
               </button>
@@ -1251,8 +1388,9 @@ export default function Escala() {
 
             <table className="w-full border">
               <thead>
-                <tr className="bg-gray-200">
+                <tr className="bg-gray-200 text-black">
                   <th className="p-2 border">Dia</th>
+                  <th className="p-2 border">Hora</th>
                   <th className="p-2 border">Ação</th>
                 </tr>
               </thead>
@@ -1272,6 +1410,17 @@ export default function Escala() {
                             locale: ptBR,
                           }
                         )}
+                      </td>
+                      <td className="p-2">
+                        {schedule.date && schedule.time
+                          ? (() => {
+                              const isoString = `${schedule.date}T${schedule.time}`; // Exemplo: "2025-05-25T14:30"
+                              const datetime = new Date(isoString);
+                              return isNaN(datetime.getTime())
+                                ? "Hora inválida"
+                                : format(datetime, "HH:mm", { locale: ptBR });
+                            })()
+                          : "—"}
                       </td>
                       <td className="p-2">
                         <button
@@ -1296,7 +1445,7 @@ export default function Escala() {
                   setConfirmedCurrentPage((prev) => Math.max(prev - 1, 1))
                 }
                 disabled={confirmedCurrentPage === 1}
-                className="px-3 py-1 bg-gray-300 rounded "
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Anterior
               </button>
@@ -1308,7 +1457,7 @@ export default function Escala() {
                 disabled={
                   confirmedCurrentPage * itemsPerPage >= pendingSchedules.length
                 }
-                className="px-3 py-1 bg-gray-300 rounded"
+                className="px-3 py-1 bg-gray-300 rounded text-black"
               >
                 Próxima
               </button>
@@ -1316,6 +1465,55 @@ export default function Escala() {
           </div>
         </>
       </div>
+      {showAddModal && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center text-black">
+          <div className="bg-white p-6 rounded shadow-md relative w-full max-w-md text-black">
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold"
+            >
+              x
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Adicionar Escala</h2>
+            <div>
+              <label htmlFor="addDate" className="block mb-2">Data</label>
+              <input
+                type="date"
+                id="addDate"
+                value={addDate}
+                onChange={(e) => setAddDate(e.target.value)}
+                className="w-full border p-2 rounded mb-4"
+              />
+
+              <label htmlFor="addTime" className="block mb-2">Hora da Escala</label>
+              <input
+                type="time"
+                id="addTime"
+                value={addTime}
+                onChange={(e) => setAddTime(e.target.value)}
+                className="w-full border p-2 rounded mb-4"
+              />
+
+              <label htmlFor="addDescription" className="block mb-2">Descrição</label>
+              <textarea
+                id="addDescription"
+                placeholder="Descrição da escala"
+                value={addDescription}
+                onChange={(e) => setAddDescription(e.target.value)}
+                maxLength={1000}
+                className="w-full border rounded p-2 mb-4 resize-none h-32"
+              />
+              <button
+                onClick={handleConfirmAvailability}
+                className="bg-green-600 text-white px-4 py-2 rounded w-full"
+              >
+                Adicionar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   );
 }

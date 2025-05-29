@@ -1,32 +1,57 @@
-name: Deploy Firebase Hosting
+name: Deploy to Firebase
 
 on:
   push:
     branches:
-      - main # ou a branch que você quer monitorar para deploy automático
+      - main
 
 jobs:
   build-and-deploy:
+    name: Build and Deploy to Firebase
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "20" # ou a versão que você usa
+          node-version: 20
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm install
 
-      - name: Build project
-        run: npm run build
+      - name: Install functions dependencies
+        working-directory: ./functions
+        run: npm install
+
+      - name: Build NestJS backend
+        working-directory: ./functions
+        run: npm run build:nest
+
+      - name: Install functions-next dependencies
+        working-directory: ./functions-next
+        run: npm install
+
+      - name: Build Next.js SSR
+        working-directory: ./functions-next
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_API_URL_NEXT: ${{ secrets.NEXT_PUBLIC_API_URL_NEXT }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+        run: npm run build:ssr
 
       - name: Deploy to Firebase
-        uses: w9jds/firebase-action@v2.2.0
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          args: deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FAMILIA_VIVA_RECIFE }}"
+          channelId: live
+          projectId: familia-viva-recife

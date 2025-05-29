@@ -7,12 +7,13 @@ import "slick-carousel/slick/slick-theme.css";
 import styles from './projetoId.module.css';
 import "slick-carousel/slick/slick.css";
 import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/image';
 import Slider from "react-slick";
 
 export default function Projeto() {
   const { id } = useParams<{ id: string }>();
   const { data: session } = useSession();
-  const [project, setProject] = useState<any | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -23,6 +24,21 @@ export default function Projeto() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false); 
   const [isMobile, setIsMobile] = useState(false);
+
+  interface Project {
+    id: string;
+    title: string;
+    content: string;
+    images: string[]; // URLs das imagens
+    active: boolean;
+  }
+
+  interface ProjectUpdate {
+    title: string;
+    content: string;
+    images: string[]; // URLs das imagens
+    active: boolean;
+  }
 
   useEffect(() => {
     const handleResize = () => {
@@ -81,10 +97,11 @@ export default function Projeto() {
     return data.url;
   }
 
-  async function updateProject(id: string, projectData: any): Promise<void> {
+  async function updateProject(id: string, projectData: ProjectUpdate): Promise<void> {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`, {
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(projectData),
@@ -136,7 +153,7 @@ export default function Projeto() {
       console.log('Imagem deletada com sucesso:', data);
   
       // Atualiza o estado para remover a imagem da lista
-      setImageUrls((prev) => prev.filter((url, i) => {
+      setImageUrls((prev) => prev.filter((url) => {
         return !url.includes(filename);
       }));
     } catch (err) {
@@ -251,26 +268,15 @@ export default function Projeto() {
     });
   }
 
-  function renderParagraphs(content: string) {
-    return content
-      .split('\n')
-      .filter((paragraph) => paragraph.trim() !== '')
-      .map((paragraph, index) => (
-        <p key={index} className="mb-4 indent-8">
-          {paragraph}
-        </p>
-      ));
-  }
-
   if (loading) return <div style={{ textAlign: "center" }} >Carregando...</div>;
   if (!project) return <div style={{ textAlign: "center" }} >Projeto não encontrado.</div>;
 
  return (
     <div className={`${editing ? "bg-neutral-800 my-8 mx-4 md:mx-32 p-4 rounded" : "p-4"}`}>
-    {(session?.user as any)?.role === 'ADMIN' && (
+    {(session?.user)?.role === 'ADMIN' && (
       <div>
         <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
-          <img
+          <Image
             src="/images/pen.svg"
             alt="Editar"
             width={20}
@@ -292,10 +298,12 @@ export default function Projeto() {
         {/* Imagem principal (primeira da lista) */}
         {imageUrls.length > 0 && (
           <div className={styles.logoContainer}>
-            <img
+            <Image
               src={imageUrls[0]}
               alt="Imagem principal do projeto"
               className={styles.logoImage}
+              width={250}
+              height={250}
             />
           </div>
         )}
@@ -329,10 +337,12 @@ export default function Projeto() {
             {imageUrls.slice(1).map((url, index) => (
               <div key={index} className="px-2">
                 <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
-                  <img
+                  <Image
                     src={url}
                     alt={`Imagem ${index + 2}`}
                     className="object-cover w-full h-full rounded"
+                    width={250}
+                    height={250}
                   />
                 </div>
               </div>
@@ -412,17 +422,19 @@ export default function Projeto() {
                       className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow bg-black-100"
                       style={{ width: 200, height: 200 }}
                     >
-                      <img
+                      <Image
                         src={url}
                         alt={`Nova imagem ${index + 1}`}
                         className="object-contain w-full h-full"
+                        width={250}
+                        height={250}
                       />
                       <button
                         onClick={() => handleRemovePreviewImage(index)}
                         className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                         aria-label="Remover imagem"
                       >
-                        <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                        <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" width={10} height={10}/>
                       </button>
                     </div>
                   </div>
@@ -436,7 +448,7 @@ export default function Projeto() {
                     className="relative rounded shadow bg-black-100 overflow-hidden"
                     style={{ width: 200, height: 200 }}
                   >
-                    <img
+                    <Image
                       src={url}
                       alt={`Nova imagem ${index + 1}`}
                       className="w-full h-full object-contain"
@@ -446,7 +458,7 @@ export default function Projeto() {
                       className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                       aria-label="Remover imagem"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
@@ -471,7 +483,7 @@ export default function Projeto() {
               {imageUrls.map((url, index) => (
                 <div key={index} className="px-2">
                   <div className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow">
-                    <img
+                    <Image
                       src={url}
                       alt={`Imagem ${index + 1}`}
                       className="object-contain w-full h-full rounded"
@@ -496,7 +508,7 @@ export default function Projeto() {
                           onClick={() => moveImage(index, index - 1)}
                           className="p-1 rounded shadow bg-black"
                         >
-                          <img
+                          <Image
                             src="/images/arrow-left-circle-fill.svg"
                             alt="Mover para esquerda"
                             className="w-6 h-6"
@@ -509,7 +521,7 @@ export default function Projeto() {
                           onClick={() => moveImage(index, index + 1)}
                           className="p-1 rounded shadow bg-black"
                         >
-                          <img
+                          <Image
                             src="/images/arrow-right-circle-fill.svg"
                             alt="Mover para direita"
                             className="w-6 h-6"
@@ -525,7 +537,7 @@ export default function Projeto() {
                       className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
                       aria-label="Remover imagem"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -539,7 +551,7 @@ export default function Projeto() {
                   className="relative group rounded shadow bg-black-100 overflow-hidden"
                   style={{ width: 200, height: 200 }}
                 >
-                  <img
+                  <Image
                     src={url}
                     alt={`Imagem ${index + 1}`}
                     className="w-full h-full object-contain cursor-pointer"
@@ -564,7 +576,7 @@ export default function Projeto() {
                         onClick={() => moveImage(index, index - 1)}
                         className="p-1 rounded shadow bg-black"
                       >
-                        <img
+                        <Image
                           src="/images/arrow-left-circle-fill.svg"
                           alt="Mover para esquerda"
                           className="w-6 h-6"
@@ -577,11 +589,13 @@ export default function Projeto() {
                         onClick={() => moveImage(index, index + 1)}
                         className="p-1 rounded shadow bg-black"
                       >
-                        <img
+                        <Image
                           src="/images/arrow-right-circle-fill.svg"
                           alt="Mover para direita"
                           className="w-6 h-6"
                           style={{ filter: 'invert(1)' }}
+                          width={400}
+                          height={400}
                         />
                       </button>
                     )}
@@ -593,7 +607,7 @@ export default function Projeto() {
                     className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
                     aria-label="Remover imagem"
                   >
-                    <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                    <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                   </button>
                 </div>
               ))}

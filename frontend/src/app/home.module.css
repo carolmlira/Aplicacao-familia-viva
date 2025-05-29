@@ -28,10 +28,10 @@
 }
 
 .botaoEditar:hover .iconeEditar {
-  filter: invert(0);
+  filter: invert(0); 
 }
 
-.botaoEditar:hover {
+.botaoEditar:hover{
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -44,7 +44,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0,0,0,0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,7 +65,7 @@
   margin-top: 1rem;
 }
 
-.modalSectionBanner img {
+.modalSectionBanner img{
   border: 2px solid rgb(255, 94, 0);
   border-radius: 8px;
   margin-top: 10px;
@@ -82,11 +82,12 @@
   background-color: #e5e5e5;
   border-radius: 5px;
   box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.3);
+
 }
 
 .modalActionsBanner {
   display: flex;
-  justify-content: center;
+  justify-content:center;
   gap: 1rem;
   margin-top: 1.5rem;
 }
@@ -139,10 +140,10 @@
 }
 
 .botaoEditarSobre:hover .iconeEditar {
-  filter: invert(0);
+  filter: invert(0); 
 }
 
-.botaoEditarSobre:hover {
+.botaoEditarSobre:hover{
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -176,14 +177,14 @@
   max-width: 700px;
   object-fit: contain;
   height: auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   flex-shrink: 0;
 }
 
 .textContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; 
   max-width: 500px;
   margin-left: 10%;
   flex: 1 1 300px;
@@ -229,13 +230,13 @@
   gap: 12px;
 }
 
+
 /* Responsividade */
 @media (max-width: 768px) {
   .conteudoSobre {
     flex-direction: column;
   }
-  .textContainer,
-  .imageContainer {
+  .textContainer, .imageContainer {
     order: unset;
     width: 100%;
   }
@@ -244,6 +245,7 @@
     margin: 0 auto;
   }
 }
+
 
 /* BOTÕES DA ÁREA DE PROGRAMAÇÃO */
 
@@ -271,10 +273,10 @@
 }
 
 .botaoAdd:hover .iconeAdd {
-  filter: invert(0);
+  filter: invert(0); 
 }
 
-.botaoAdd:hover {
+.botaoAdd:hover{
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -288,7 +290,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
-  gap: 20px;
+  gap: 20px; 
 }
 
 .botaoEditarProgramacao {
@@ -320,10 +322,10 @@
 }
 
 .botaoEditarProgramacao:hover .iconeEditar {
-  filter: invert(0);
+  filter: invert(0); 
 }
 
-.botaoEditarProgramacao:hover {
+.botaoEditarProgramacao:hover{
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -340,7 +342,7 @@
 }
 
 .botaoExcluirEvento:hover .iconeExcluir {
-  filter: invert(0);
+  filter: invert(0); 
 }
 
 .modalOverlayEvent {
@@ -368,6 +370,7 @@
   gap: 12px;
 }
 
+
 /*PROGRAMAÇÃO*/
 
 .programacao {
@@ -385,6 +388,7 @@
   text-align: center;
   width: 100%;
 }
+
 
 .dias {
   background: linear-gradient(to right, #fe8719, #fe3012);
@@ -416,7 +420,7 @@
   display: inline-block;
   margin: 8px;
 }
-
+  
 .tooltipText {
   visibility: hidden;
   background: linear-gradient(to right, #fe8719, #fe3012);
@@ -432,19 +436,45 @@
   box-sizing: border-box;
   cursor: pointer;
 }
-
+  
 .tooltip:hover .tooltipText {
   visibility: visible;
   opacity: 1;
 }
 
+  
 /* PROJETOS */
+
+@media (max-width: 768px) {
+  .fotoProjeto {
+    width: 500px;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-left: 1rem;
+    background-color: #0a0a0a;
+    border: 1px solid rgba(255, 234, 0, 0.927);
+  }
+  .projetoTexto h2 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .projetoTexto p {
+    font-size: 0.8rem;
+    color: #cccccc;
+    max-width: 900px;
+    text-align: justify;
+  }
+}
 
 .projetos {
   padding: 2rem;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   max-width: 1300px;
-  margin: 0 auto;
+  margin: 0 auto; 
   margin-top: 100px;
 }
 
@@ -513,8 +543,8 @@
 }
 
 .fotoProjeto {
-  width: var(--size-max-width-img);
-  height: var(--size-max-heigth-img);
+  width: 240px;
+  height: 180px;
   object-fit: contain;
   border-radius: 10px;
   margin-left: 1rem;
@@ -527,14 +557,14 @@
 }
 
 .projetoTexto h2 {
-  font-size: var(--font-size-h2-card);
+  font-size: 1.5rem;
   font-weight: bold;
   color: white;
   margin-bottom: 0.5rem;
 }
 
 .projetoTexto p {
-  font-size: var(--font-size-p);
+  font-size: 1rem;
   color: #cccccc;
   max-width: 900px;
   text-align: justify;
@@ -635,13 +665,4 @@
 
 .iconRight {
   transform: rotate(180deg);
-}
-
-@media (max-width: 1000px) {
-  .botoesDias {
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    margin-left: 0;
-  }
 }

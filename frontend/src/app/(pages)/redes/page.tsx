@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import "@/style/redes.css";
 
 interface PagesRedes {
@@ -17,16 +18,13 @@ interface PagesRedes {
 }
 
 export default function RedesList() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
 
-  const [category] = useState("redes");
+  const category = "redes";
   const [redes, setRedes] = useState<PagesRedes[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchRedes(); // <-- aqui chamamos a função ao montar
-  }, []);
 
   async function fetchRedes() {
     try {
@@ -54,6 +52,10 @@ export default function RedesList() {
       console.error("Erro ao buscar redes:", error);
     }
   }
+
+  useEffect(() => {
+    fetchRedes(); // <-- aqui chamamos a função ao montar
+  }, [category]);
 
   async function deleteRede(id: string) {
     if (!confirm("Tem certeza que deseja excluir esta rede?")) return;
@@ -97,7 +99,7 @@ export default function RedesList() {
             </span>
           </h1>
 
-          {(session?.user as any)?.role === "ADMIN" && (
+          {(session?.user)?.role === "ADMIN" && (
             <button
               onClick={() => router.push("/redes/new")}
               className="ml-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -120,9 +122,11 @@ export default function RedesList() {
             >
               <div className="rede-card">
                 <div className="rede-img">
-                  <img
+                  <Image
                     src={rede.imageUrl || "images/placeholder.svg"}
                     alt={rede.title}
+                    width={250}
+                    height={250}
                   />
                 </div>
                 <div className="rede-texto">
@@ -132,7 +136,7 @@ export default function RedesList() {
                     {rede.content?.length > 150 && "..."}
                   </p>
 
-                  {(session?.user as any)?.role === "ADMIN" && (
+                  {(session?.user)?.role === "ADMIN" && (
                     <button
                       onClick={(e) => {
                         e.preventDefault();

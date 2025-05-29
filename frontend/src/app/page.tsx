@@ -4,8 +4,6 @@ import styles from "@/app/home.module.css";
 import { AiOutlineCaretLeft } from "react-icons/ai";
 import { useEffect, useState } from 'react';
 import { useSession } from "next-auth/react";
-import { PagesProject } from "@/app/types/pageProjects";
-
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,8 +12,8 @@ export default function Home() {
   const isAdmin = session?.user?.role === "ADMIN";
   const [projects, setProjects] = useState<PagesProject[]>([]);
 
-  const [events, setEvents] = useState<any[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showModalProgramacaoAdd, setShowModalProgramacaoAdd] = useState(false);
   const [showModalProgramacaoEdit, setShowModalProgramacaoEdit] = useState(false);
   const [formEdit, setFormEdit] = useState({ title: "", description: "", time: "", days: [] as string[] });
@@ -27,7 +25,6 @@ export default function Home() {
   const [sobreImageFile, setSobreImageFile] = useState<File | null>(null);
   const [imgTimestamp, setImgTimestamp] = useState("");
   
-  const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BASE}`;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [banner, setBanner] = useState<BannerType | null>(null);
@@ -82,60 +79,17 @@ export default function Home() {
     imageUrls?: string[];
     
   }
+
+  interface Event {
+    id: string;
+    title: string;
+    description?: string;
+    days: string[]; 
+    time: string;
+  }
+
   const imagesPerPage = 4;
-  const visibleFiles = files.slice(currentIndex, currentIndex + imagesPerPage);
-
-  useEffect(() => {
-    fetchProjects();
-    fetchFiles('gallery');
-    fetchEvents();
-    fetchSobre();
-    fetchBanner();
-  }, []);
-
-
-  async function fetchProjects() {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`
-      );
-      const data = await res.json();
-      const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
-
-      const projectsWithImages = rawProjects.map((project) => {
-        const imageUrl =
-          Array.isArray(project.imageUrls) && project.imageUrls.length > 0
-            ? project.imageUrls[0]
-            : undefined;
-
-        return { ...project, imageUrl };
-      });
-
-      setProjects(projectsWithImages);
-    } catch (error) {
-      console.error('Erro ao buscar projetos:', error);
-    }
-  }
-  
-  async function fetchFiles(category: string) {
-    if (!category) return;
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
-      const data = await res.json();
-      console.log('Arquivos recebidos:', data.files);
-
-      // Aqui você ajusta os caminhos, gerando a URL completa
-      const fileUrls = data.files.map((filePath: string) => {
-        return `${baseUrl}${encodeURIComponent(filePath)}?alt=media`;
-      });
-      console.log("filrurl: ", fileUrls);
-
-      setFiles(fileUrls || []);
-    } catch (error) {
-      console.error('Erro ao listar arquivos:', error);
-    }
-  }
+  files.slice(currentIndex, currentIndex + imagesPerPage);
 
   async function fetchEvents() {
     try {
@@ -173,6 +127,65 @@ export default function Home() {
       console.error(error);
     }
   }
+
+  useEffect(() => {
+    const baseUrl = `${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BASE}`;
+
+    async function fetchProjects() {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/pages?category=projects`);
+        const data = await res.json();
+        const rawProjects: PagesProject[] = Array.isArray(data.pages) ? data.pages : [];
+
+        const projectsWithImages = rawProjects.map((project) => {
+          const imageUrl =
+            Array.isArray(project.imageUrls) && project.imageUrls.length > 0
+              ? project.imageUrls[0]
+              : undefined;
+
+          return { ...project, imageUrl };
+        });
+
+        setProjects(projectsWithImages);
+      } catch (error) {
+        console.error('Erro ao buscar projetos:', error);
+      }
+    }
+
+    async function fetchFiles(category: string) {
+      if (!category) return;
+
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
+        const data = await res.json();
+
+        const fileUrls = data.files.map((filePath: string) => {
+          return `${baseUrl}${encodeURIComponent(filePath)}?alt=media`;
+        });
+
+        setFiles(fileUrls || []);
+      } catch (error) {
+        console.error('Erro ao listar arquivos:', error);
+      }
+    }
+
+    async function loadData() {
+      try {
+        await Promise.all([
+          fetchProjects(),
+          fetchFiles("gallery"),
+          fetchEvents(),
+          fetchSobre(),
+          fetchBanner(),
+        ]);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    }
+
+    loadData();
+  }, []);
+
 
   async function createEvent(eventData: {
     title: string;
@@ -223,7 +236,7 @@ export default function Home() {
     }
   };
 
-  async function handleUpdateEvent(eventId:any, updatedData:any) {
+  async function handleUpdateEvent(eventId: string, updatedData: Partial<Event>){
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${eventId}`, {
         method: "PATCH",
@@ -235,15 +248,9 @@ export default function Home() {
 
       if (response.ok) {
         const updatedEvent = await response.json();
-        console.log("Evento atualizado com sucesso:", updatedEvent);
-
-        // Se estiver usando React, você pode atualizar o estado local aqui
-        // Exemplo: atualizar o estado com o evento atualizado
         setEvents(prevEvents => prevEvents.map(event => event.id === updatedEvent.id ? updatedEvent : event));
 
-        // Ou redirecionar ou fazer algo com o evento atualizado
       } else {
-        // Caso o backend retorne um erro
         console.error("Erro ao atualizar o evento:", await response.text());
       }
     } catch (error) {
@@ -337,7 +344,7 @@ export default function Home() {
     });
   };
 
-  function openEditModal(event:any) {
+  function openEditModal(event:Event) {
     setSelectedEvent(event);
     setFormEdit({
       title: event.title || "",

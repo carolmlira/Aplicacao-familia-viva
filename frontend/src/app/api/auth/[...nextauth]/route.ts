@@ -4,6 +4,16 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
+interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
+  ministryId?: string;
+  photo?: string;
+  accessToken?: string;
+}
+
 const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -14,49 +24,38 @@ const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch("http://localhost:3000/auth/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-            }),
-          });
+          const res = await fetch(
+            `https://nestapi-7xc53kzq6a-uc.a.run.app/auth/login`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: credentials?.email,
+                password: credentials?.password,
+              }),
+            }
+          );
 
-          let data;
-          try {
-            data = await res.json();
-          } catch (err) {
-            console.error("Resposta da API não é JSON:", err);
+          const user = await res.json();
+
+          if (!res.ok || !user?.id) {
+            console.error(
+              "Falha ao autenticar:",
+              user?.message || "Erro desconhecido"
+            );
             return null;
           }
-
-          if (!res.ok || !data.access_token) {
-            console.error("Erro ao autenticar:", data);
-            return null;
-          }
-
-          const accessToken = data.access_token;
-          if (!accessToken || accessToken.split(".").length !== 3) {
-            console.error("Token mal formado:", accessToken);
-            return null;
-          }
-
-          const payload: any = JSON.parse(atob(accessToken.split(".")[1]));
 
           return {
-            id: payload.sub,
-            email: payload.email,
-            role: payload.role,
-            token: accessToken,
-            name: payload.name,
-            ministryId: payload.ministryId,
-            photo: payload.photo,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role || user.level,
+            ministryId: user.ministryId || "",
+            accessToken: user.access_token || null,
           };
         } catch (error) {
-          console.error("Erro na autenticação com Nest:", error);
+          console.error("Erro ao autenticar:", error);
           return null;
         }
       },
@@ -64,29 +63,29 @@ const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: any }) {
+    async jwt({ token, user }: { token: JWT; user?: AuthUser }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        token.role = user.role;
-        token.accessToken = user.token;
         token.name = user.name;
-        token.ministryId = user.ministryId;
+        token.role = user.role;
         token.photo = user.photo;
+        token.ministryId = user.ministryId;
+        token.accessToken = user.accessToken;
       }
       return token;
     },
 
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).email = token.email;
-        (session.user as any).role = token.role;
-        (session.user as any).name = token.name;
-        (session.user as any).ministryId = token.ministryId;
-        (session.user as any).photo = token.photo;
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.role = token.role;
+        session.user.ministryId = token.ministryId;
+        session.user.photo = token.photo;
       }
-      (session as any).accessToken = token.accessToken;
+      session.accessToken = token.accessToken;
       return session;
     },
   },
@@ -96,12 +95,15 @@ const authOptions: NextAuthOptions = {
     maxAge: 30 * 60,
   },
 
-  secret: "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
+  secret: process.env.NEXTAUTH_SECRET_ROUTER,
 
   pages: {
-    signIn: "/login", // ou a página que você usa
+    signIn: "/login",
+    signOut: process.env.NEXT_PUBLIC_API_URL,
   },
 };
 
 const handler = NextAuth(authOptions);
+
+// Exporta apenas os handlers que a rota suporta
 export { handler as GET, handler as POST };

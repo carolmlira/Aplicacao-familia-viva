@@ -1,9 +1,9 @@
 'use client'
 
 import { useSession } from "next-auth/react"; 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback  } from 'react'
 import { useRouter } from "next/navigation"; 
-
+import Image from 'next/image';
 
 export default function FirebaseGallery() {
   const { data: session, status } = useSession(); 
@@ -11,14 +11,12 @@ export default function FirebaseGallery() {
   
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [category, setCategory] = useState('gallery');
+  const [category,] = useState('gallery');
   const [subgrup, setSubgrup] = useState('');
   const [groupedFiles, setGroupedFiles] = useState<{ [subgrup: string]: string[] }>({});
-
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   const [filesImages, setFilesimage] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-
   const [files, setFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -27,12 +25,11 @@ export default function FirebaseGallery() {
 
     // Se o usuário estiver logado, mas não tiver permissão, redireciona
     if (session) {
-      const role = (session.user as any)?.role;
+      const role = (session.user)?.role;
       if (role !== "ADMIN" && role !== "COMUNIC") {
         router.push("/");
       }
     }
-    // Se não estiver logado, deixa continuar (só visualização)
   }, [session, status, router]);
 
 
@@ -49,9 +46,23 @@ export default function FirebaseGallery() {
     setGroupedFiles(grouped);
   }, [files]);
 
+  const fetchFiles = useCallback(async () => {
+      if (!category) return;
+
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
+        const data = await res.json();
+        setFiles(data.files || []);
+      } catch (error) {
+        console.error('Erro ao listar arquivos:', error);
+      }
+    }, [category]);
+
+
   useEffect(() => {
     fetchFiles();
-  }, [category]); // Carrega sempre que a categoria mudar
+  }, [fetchFiles]);
+
 
   async function uploadFile() {
     if (filesImages.length === 0 || !subgrup) {
@@ -89,19 +100,6 @@ export default function FirebaseGallery() {
       setLoading(false);
     }
   }
-
-  async function fetchFiles() {
-    if (!category) return;
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/list?category=${category}`);
-      const data = await res.json();
-      console.log('Arquivos recebidos:', data.files);
-      setFiles(data.files || []);
-    } catch (error) {
-      console.error('Erro ao listar arquivos:', error);
-    }
-  }
   
   const deleteFile = async (filename: string) => {
      const confirmDelete = window.confirm('Tem certeza que deseja excluir esta imagem?');
@@ -121,16 +119,28 @@ export default function FirebaseGallery() {
     }
   }
   
+  const hasRole = (allowed: string[], role?: string) => {
+    return role ? allowed.includes(role) : false;
+  };
+  
   function removePreviewImage(index: number) {
-  const updatedPreviews = [...previewImages];
-  const updatedFiles = [...filesImages];
+    const updatedPreviews = [...previewImages];
+    const updatedFiles = [...filesImages];
 
-  updatedPreviews.splice(index, 1);
-  updatedFiles.splice(index, 1);
+    updatedPreviews.splice(index, 1);
+    updatedFiles.splice(index, 1);
 
-  setPreviewImages(updatedPreviews);
-  setFilesimage(updatedFiles);
-}
+    setPreviewImages(updatedPreviews);
+    setFilesimage(updatedFiles);
+  }
+
+  function toggleGroupExpansion(group: string) {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [group]: !prev[group]
+    }));
+  }
+
   return (
     <>
       {expandedImage && (
@@ -138,10 +148,13 @@ export default function FirebaseGallery() {
           onClick={() => setExpandedImage(null)}
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 cursor-zoom-out"
         >
-          <img
+          <Image
             src={expandedImage}
             alt="Imagem ampliada"
+            width={800}        // defina a largura desejada
+            height={600}       // defina a altura desejada
             className="max-w-full max-h-full rounded shadow-lg"
+            style={{ objectFit: 'contain' }}
           />
         </div>
       )}
@@ -160,7 +173,7 @@ export default function FirebaseGallery() {
               </span>
             </h1>
             {/* Botão para abrir modal (visível só para ADMIN ou COMUNIC) */}
-            {['ADMIN', 'COMUNIC'].includes((session?.user as any)?.role) && (
+            {hasRole(['ADMIN', 'COMUNIC'], session?.user?.role) &&  (
               <button
                 onClick={() => setShowModal(true)}
                 className="ml-auto bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -201,10 +214,12 @@ export default function FirebaseGallery() {
                 <div className="grid grid-cols-3 gap-2 mb-4">
                   {previewImages.map((src, index) => (
                     <div key={index} className="relative">
-                      <img
+                      <Image
                         src={src}
                         alt={`preview-${index}`}
-                        className="h-24 object-contain rounded border w-full"
+                        width={300}
+                        height={96}
+                        className="object-contain rounded border w-full h-24"
                       />
                       <button
                         onClick={() => removePreviewImage(index)}
@@ -237,7 +252,6 @@ export default function FirebaseGallery() {
           </div>
         )}
 
-
         {/* Lista de arquivos agrupados */}
         <div className="mt-8">
           {Object.entries(groupedFiles).length === 0 ? (
@@ -247,23 +261,36 @@ export default function FirebaseGallery() {
               const baseUrl = 'https://firebasestorage.googleapis.com/v0/b/familia-viva-recife.firebasestorage.app/o/';
               return (
                 <div key={group} className="mb-10">
-                  <h2 className="text-xl font-bold mb-4 text-orange-500 capitalize">
-                    {group.replace(/-/g, ' ')}
-                  </h2>
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold text-orange-500 capitalize">
+                      {group.replace(/-/g, ' ')}
+                    </h2>
+
+                    {files.length > 4 && (
+                      <button
+                        onClick={() => toggleGroupExpansion(group)}
+                        className="px-4 py-2"
+                        style={{ color: '#fe5f2f' }}
+                      >
+                        {expandedGroups[group] ? 'Ver menos' : `Ver mais`}
+                      </button>
+                    )}
+                  </div>
                   <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {files.map((filename) => (
+                    {(expandedGroups[group] ? files : files.slice(0, 4)).map((filename) => (
                       <li key={filename} className="relative">
-                        <img id="imagens"
+                        <Image
                           src={`${baseUrl}${encodeURIComponent(filename)}?alt=media`}
                           alt={filename}
+                          width={300}
+                          height={288}
                           className="w-full h-72 object-cover mb-2 rounded cursor-zoom-in"
                           onClick={() =>
                             setExpandedImage(`${baseUrl}${encodeURIComponent(filename)}?alt=media`)
                           }
                         />
                         <div className="absolute top-0 right-0 p-2">
-                          {/* Botão de excluir (visível só para ADMIN ou COMUNIC) */}
-                          {['ADMIN', 'COMUNIC'].includes((session?.user as any)?.role) && (
+                          {hasRole(['ADMIN', 'COMUNIC'], session?.user?.role) && (
                             <button
                               onClick={() => deleteFile(filename)}
                               className="bg-red-500 text-white text-sm px-2 py-1 rounded hover:bg-red-600"

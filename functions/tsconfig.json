@@ -6,7 +6,6 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "outDir": "lib",
     "lib": ["ES2020"],
     "skipLibCheck": true,
     "sourceMap": true,

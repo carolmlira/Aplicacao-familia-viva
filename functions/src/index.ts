@@ -18,9 +18,8 @@ export const nestApi = onRequest(
   {
     region: "us-central1",
     timeoutSeconds: 540,
-    memory: "2GiB",
-    minInstances: 1,
-    maxInstances: 3,
+    memory: "256MiB",
+    maxInstances: 1,
     concurrency: 80,
   },
   async (req, res) => {

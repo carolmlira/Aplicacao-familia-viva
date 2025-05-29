@@ -5,19 +5,6 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --size-max-width-img: 240px;
-  --size-max-heigth-img: 180px;
-  --size-max-heigth-card: 100px;
-  --font-size-h2-card: 1.5rem;
-  --font-size-p: 1rem;
-}
-@media (max-width: 768px) {
-  :root {
-    --size-max-width-img: 500px;
-    --size-max-heigth-img: 140px;
-    --font-size-h2-card: 1.3rem;
-    --font-size-p: 0.8rem;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,14 +26,6 @@ body {
 
 html {
   scroll-behavior: smooth;
-}
-
-@layer utilities {
-  .highlight-date {
-    background-color: #e0e0e0 !important; /* cinza claro */
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px #000000 inset;
-  }
 }
 
 .react-calendar__tile {

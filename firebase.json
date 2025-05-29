@@ -4,29 +4,42 @@
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
-  "functions": {
-    "source": "functions",
-    "runtime": "nodejs20",
-    "ignore": [
-      "node_modules",
-      ".git",
-      "firebase-debug.log",
-      "firebase-debug.*.log",
-      "*.local"
-    ],
-    "predeploy": ["cd functions && npm run build:nest"]
-  },
+  "functions": [
+    {
+      "source": "functions",
+      "runtime": "nodejs20",
+      "codebase": "nestjs",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": ["cd functions && npm run build:nest"]
+    },
+    {
+      "source": "frontend",
+      "codebase": "nextssr",
+      "runtime": "nodejs20",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": ["cd frontend && npm run build"]
+    }
+  ],
   "hosting": {
-    "public": "frontend/out",
+    "site": "familia-viva-recife",
+    "public": "frontend/.next",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
-        "source": "/api/**",
-        "function": "nestApi"
-      },
-      {
         "source": "**",
-        "function": "nextSsr"
+        "function": "nextssr"
       }
     ]
   },

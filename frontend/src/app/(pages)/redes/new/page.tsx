@@ -10,7 +10,6 @@ export default function NewRede() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [imageFiles, setImageFiles] = useState<{ id: string; file: File;previewUrl: string }[] >([]);
-  const [category, setCategory] = useState('pages');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -22,7 +21,7 @@ export default function NewRede() {
   useEffect(() => {
     if (status === "loading") return;
     if (session) {
-      const role = (session.user as any)?.role;
+      const role = (session.user)?.role;
       if (role !== "ADMIN") {
         router.push("/");
       }
@@ -57,7 +56,7 @@ export default function NewRede() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${(session as any).accessToken}`,
+          Authorization: `Bearer ${session?.accessToken}`,
         },
         body: data,
       });
@@ -78,29 +77,6 @@ export default function NewRede() {
     }
   }
   
-  // Atualize o handleUploadImage para receber o redeId:
-  async function handleUploadImage(file: File, redeId: string, pageId: string): Promise<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-  
-    const categoryWithId = `${category}/${pageId}/${redeId}`; // Exemplo: pages/abc123
-  
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${categoryWithId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${(session as any).accessToken}`,
-      },
-      body: formData,
-    });
-  
-    if (!res.ok) {
-      throw new Error('Erro ao fazer upload da imagem');
-    }
-  
-    const data = await res.json();
-    return data.url;
-  }
-
   const handleRemovePreviewImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -172,7 +148,7 @@ export default function NewRede() {
                       onClick={() => handleRemovePreviewImage(index)}
                       className="absolute top-1 right-1 bg-white rounded-full shadow p-1"
                     >
-                      <img src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
                     </button>
                   </div>
                 ))}

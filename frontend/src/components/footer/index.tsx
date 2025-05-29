@@ -118,7 +118,7 @@ export function Footer() {
           </li>
         </ul>
         {/* Botão para abrir o modal */}
-        {(session?.user as any)?.role === "ADMIN" && (
+        {(session?.user)?.role === "ADMIN" && (
           <button
             className={styles.editButton}
             onClick={() => {
