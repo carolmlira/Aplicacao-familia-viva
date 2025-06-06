@@ -16,10 +16,12 @@ const role_enum_1 = require("../../../auth/role.enum");
 class CreateUserDto {
     name;
     email;
+    oldSenha;
     password;
     level;
     active;
     photo;
+    photoURL;
     phone;
     whatsappOptIn;
     ministryId;
@@ -39,6 +41,12 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'O email é obrigatório' }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.ValidateIf)((o) => o.password !== undefined && o.oldSenha === undefined),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "oldSenha", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'A senha do do Usuario' }),
     (0, class_validator_1.IsString)({ message: 'A senha deve ser uma string' }),
@@ -63,6 +71,12 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "photo", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'photo com URL' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateUserDto.prototype, "photoURL", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'O Numero do Usuario' }),
     (0, class_validator_1.Matches)(/^\+\d{1,3}\d{7,14}$/, {

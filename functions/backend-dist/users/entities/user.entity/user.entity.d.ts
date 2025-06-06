@@ -7,6 +7,7 @@ export interface UserEntity {
     level: Role;
     active: boolean;
     photo?: string;
+    photoURL?: string;
     phone?: string;
     whatsappOptIn: boolean;
     ministryId: string;

@@ -39,13 +39,13 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.COMUNIC, Role.LIDER, Role.USER, Role.VOLUNT)
+  @Roles(Role.ADMIN, Role.COMUNIC, Role.LIDER, Role.VOLUNT)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.COMUNIC, Role.LIDER, Role.USER, Role.VOLUNT)
+  @Roles(Role.ADMIN, Role.COMUNIC, Role.LIDER, Role.VOLUNT)
   async update(
     @Param('id') id: string,
     @Body() body: any,

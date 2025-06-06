@@ -10,7 +10,7 @@ interface AuthUser {
   name: string;
   role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
   ministryId?: string;
-  photo?: string;
+  photoURL?: string;
   accessToken?: string;
 }
 
@@ -24,17 +24,14 @@ const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch(
-            `https://nestapi-7xc53kzq6a-uc.a.run.app/auth/login`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                email: credentials?.email,
-                password: credentials?.password,
-              }),
-            }
-          );
+          const res = await fetch(`${process.env.API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+            }),
+          });
 
           const user = await res.json();
 
@@ -52,6 +49,7 @@ const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role || user.level,
             ministryId: user.ministryId || "",
+            photoURL: user.photoURL || "",
             accessToken: user.access_token || null,
           };
         } catch (error) {
@@ -69,7 +67,7 @@ const authOptions: NextAuthOptions = {
         token.email = user.email;
         token.name = user.name;
         token.role = user.role;
-        token.photo = user.photo;
+        token.photoURL = user.photoURL;
         token.ministryId = user.ministryId;
         token.accessToken = user.accessToken;
       }
@@ -83,7 +81,7 @@ const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.role = token.role;
         session.user.ministryId = token.ministryId;
-        session.user.photo = token.photo;
+        session.user.photoURL = token.photoURL;
       }
       session.accessToken = token.accessToken;
       return session;
@@ -92,18 +90,16 @@ const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 60,
   },
 
-  secret: process.env.NEXTAUTH_SECRET_ROUTER,
+  secret:
+    process.env.NEXTAUTH_SECRET_ROUTER ||
+    "c4EJegs0CbTr10VzGBikAbYJzdKFzS2gFkAsX+FIKcY=",
 
   pages: {
     signIn: "/login",
-    signOut: process.env.NEXT_PUBLIC_API_URL,
+    signOut: process.env.API_URL,
   },
 };
 
-const handler = NextAuth(authOptions);
-
-// Exporta apenas os handlers que a rota suporta
-export { handler as GET, handler as POST };
+export default NextAuth(authOptions);

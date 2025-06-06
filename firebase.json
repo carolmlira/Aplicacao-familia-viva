@@ -8,7 +8,7 @@
     {
       "source": "functions",
       "runtime": "nodejs20",
-      "codebase": "nestjs",
+      "codebase": "nestapi",
       "ignore": [
         "node_modules",
         ".git",
@@ -20,7 +20,7 @@
     },
     {
       "source": "frontend",
-      "codebase": "nextssr",
+      "codebase": "familia_viva_recife",
       "runtime": "nodejs20",
       "ignore": [
         "node_modules",
@@ -29,6 +29,7 @@
         "firebase-debug.*.log",
         "*.local"
       ],
+      "include": [".env"],
       "predeploy": ["cd frontend && npm run build"]
     }
   ],
@@ -37,9 +38,12 @@
     "public": "frontend/.next",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
+      { "source": "/api/**", "function": "Familia_Viva_Recife" },
+      { "source": "/projeto/id/items/**", "function": "Familia_Viva_Recife" },
+      { "source": "/redes/id/items/**", "function": "Familia_Viva_Recife" },
       {
         "source": "**",
-        "function": "nextssr"
+        "function": "Familia_Viva_Recife"
       }
     ]
   },

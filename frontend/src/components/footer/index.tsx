@@ -36,7 +36,6 @@ export function Footer() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/footer`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("Dados do footer:", data); // 👈 veja aqui se telefone vem
         setFooterData(data);
       })
       .catch((err) => console.error("Erro ao buscar footer:", err));

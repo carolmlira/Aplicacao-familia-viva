@@ -26,6 +26,38 @@ let ScheduleService = class ScheduleService {
         await this.collection.doc(id).set(newSchedule);
         return newSchedule;
     }
+    async findAvailableByMinistry(userId) {
+        const userDoc = await firebase_config_1.firestore.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            return [];
+        }
+        const userData = userDoc.data();
+        const ministry = userData?.ministry;
+        if (!ministry) {
+            return [];
+        }
+        const snapshot = await this.collection
+            .where('confirmed', '==', false)
+            .where('ministry', '==', ministry)
+            .get();
+        return snapshot.docs.map((doc) => doc.data());
+    }
+    async findConfirmedByMinistry(userId) {
+        const userDoc = await firebase_config_1.firestore.collection('users').doc(userId).get();
+        if (!userDoc.exists) {
+            return [];
+        }
+        const userData = userDoc.data();
+        const ministry = userData?.ministry;
+        if (!ministry) {
+            return [];
+        }
+        const snapshot = await this.collection
+            .where('confirmed', '==', true)
+            .where('ministry', '==', ministry)
+            .get();
+        return snapshot.docs.map((doc) => doc.data());
+    }
     async findAll() {
         const snapshot = await this.collection.get();
         return snapshot.docs.map((doc) => doc.data());
@@ -73,13 +105,6 @@ let ScheduleService = class ScheduleService {
     }
     async findAllConfirmed() {
         const snapshot = await this.collection.where('confirmed', '==', true).get();
-        return snapshot.docs.map((doc) => doc.data());
-    }
-    async findConfirmedByMinistry(ministryId) {
-        const snapshot = await this.collection
-            .where('confirmed', '==', true)
-            .where('ministryId', '==', ministryId)
-            .get();
         return snapshot.docs.map((doc) => doc.data());
     }
 };

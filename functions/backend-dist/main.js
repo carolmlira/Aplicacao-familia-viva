@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createNestServer = createNestServer;
 const core_1 = require("@nestjs/core");
 const platform_express_1 = require("@nestjs/platform-express");
-const express = require("express");
 const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
@@ -12,10 +11,11 @@ async function createNestServer(expressInstance) {
     const app = expressInstance
         ? await core_1.NestFactory.create(app_module_1.AppModule, new platform_express_1.ExpressAdapter(expressInstance))
         : await core_1.NestFactory.create(app_module_1.AppModule);
-    app.use(express.json());
     app.enableCors({
         origin: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
+        allowedHeaders: 'Content-Type, Accept, Authorization',
     });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Familia Viva Project')

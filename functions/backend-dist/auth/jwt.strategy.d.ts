@@ -9,7 +9,7 @@ export declare class JwtStrategy extends JwtStrategy_base {
         email: any;
         role: Role;
         ministryId: any;
-        photo: any;
+        photoURL: any;
     }>;
 }
 export {};

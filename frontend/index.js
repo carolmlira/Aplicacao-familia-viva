@@ -9,60 +9,44 @@ const dev = false; // Sempre false em produção (Firebase)
 const nextApp = next({
   dev,
   conf: {
-    distDir: ".next", // Ou o diretório de build do seu Next.js
+    distDir: ".next",
   },
 });
 
-process.env.NEXT_PUBLIC_FIREBASE_API_KEY =
-  process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-  "AIzaSyCQNt0wHVINKz3Ia0-oSg4bcgyo-00du1E";
-process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN =
-  process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
-  "familia-viva-recife.firebaseapp.com";
-process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID =
-  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "familia-viva-recife";
-process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET =
-  process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
-  "familia-viva-recife.firebasestorage.app";
-process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID =
-  process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "698056339313";
-process.env.NEXT_PUBLIC_FIREBASE_APP_ID =
-  process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
-  "1:698056339313:web:20a804d35012ef96bfd0d0";
-process.env.NEXT_PUBLIC_API_URL = "https://nestapi-7xc53kzq6a-uc.a.run.app/";
-process.env.NEXT_PUBLIC_API_URL_NEXT =
-  process.env.NEXT_PUBLIC_API_URL_NEXT ||
-  "https://familia-viva-recife.web.app/";
-process.env.NEXTAUTH_URL =
-  process.env.NEXTAUTH_URL || "https://familia-viva-recife.web.app/";
-
 const handle = nextApp.getRequestHandler();
 const expressApp = express();
+expressApp.set("trust proxy", true);
 
-// Configurações do Express antes do handler do Next.js
-expressApp.use(cors()); // cors() deve ser chamado como função
-expressApp.use(express.json()); // Para parsing de JSON
-expressApp.use(express.urlencoded({ extended: true })); // Para parsing de forms
-
-// Servir arquivos estáticos do Next.js
 expressApp.use(
-  "/_next/static",
-  express.static(path.join(__dirname, ".next/static"))
+  cors({
+    origin: true, // Permite todas as origens (em desenvolvimento)
+    credentials: true, // Permite cookies
+  })
 );
 
+// Servir arquivos estáticos do Next.js
+
 // 2. Configuração do NextAuth.js (exemplo)
-expressApp.all("/api/auth/*", (req, res) => {
-  // Seu código NextAuth.js aqui
-  return handle(req, res); // Ou manipulação customizada
-});
+const staticPath = path.join(__dirname, ".next/static");
+console.log("Serving static files from:", staticPath);
+expressApp.use("/_next/static", express.static(staticPath));
 
 // 3. Todas outras rotas vão para o Next.js
 expressApp.all("*", (req, res) => {
+  console.log("[NEXT] Handling request:", req.method, req.url);
   return handle(req, res);
 });
 
+// Prepare uma vez
+let isPrepared = false;
+const prepareApp = async () => {
+  if (!isPrepared) {
+    await nextApp.prepare();
+    isPrepared = true;
+  }
+};
 // Inicialização
-exports.nextssr = onRequest(
+exports.Familia_Viva_Recife = onRequest(
   {
     region: "us-central1",
     timeoutSeconds: 60,
@@ -71,8 +55,9 @@ exports.nextssr = onRequest(
     concurrency: 80,
   },
   async (req, res) => {
+    console.log(`Request to: ${req.url} `);
     try {
-      await nextApp.prepare(); // Prepara o Next.js
+      await prepareApp(); // Prepara o Next.js
       return expressApp(req, res);
     } catch (err) {
       console.error("Error:", err);

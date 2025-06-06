@@ -10,6 +10,8 @@ export declare class ScheduleService {
         confirmed?: boolean;
         id: string;
     }>;
+    findAvailableByMinistry(userId: string): Promise<FirebaseFirestore.DocumentData[]>;
+    findConfirmedByMinistry(userId: string): Promise<FirebaseFirestore.DocumentData[]>;
     findAll(): Promise<FirebaseFirestore.DocumentData[]>;
     findOne(id: string): Promise<FirebaseFirestore.DocumentData | null | undefined>;
     update(id: string, updateDto: Partial<CreateScheduleDto>): Promise<FirebaseFirestore.DocumentData | undefined>;
@@ -21,5 +23,4 @@ export declare class ScheduleService {
     findAllAvailable(): Promise<FirebaseFirestore.DocumentData[]>;
     findAvailableByMyMinistry(ministryId: String): Promise<FirebaseFirestore.DocumentData[]>;
     findAllConfirmed(): Promise<FirebaseFirestore.DocumentData[]>;
-    findConfirmedByMinistry(ministryId: string): Promise<FirebaseFirestore.DocumentData[]>;
 }

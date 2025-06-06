@@ -13,6 +13,8 @@ export declare class ScheduleController {
         id: string;
     }>;
     findAll(): Promise<FirebaseFirestore.DocumentData[]>;
+    findConfirmedByMinistry(req: any): Promise<FirebaseFirestore.DocumentData[]>;
+    findAvailableByMyMinistry(req: any): Promise<FirebaseFirestore.DocumentData[]>;
     findOne(id: string): Promise<FirebaseFirestore.DocumentData | null | undefined>;
     update(id: string, dto: CreateScheduleDto): Promise<FirebaseFirestore.DocumentData | undefined>;
     remove(id: string): Promise<{
@@ -21,7 +23,5 @@ export declare class ScheduleController {
     findByUser(userId: string): Promise<FirebaseFirestore.DocumentData[]>;
     findByUser2(userId: string): Promise<FirebaseFirestore.DocumentData[]>;
     findAllAvailable(): Promise<FirebaseFirestore.DocumentData[]>;
-    findAvailableByMyMinistry(req: any): Promise<FirebaseFirestore.DocumentData[]>;
     findAllConfirmed(): Promise<FirebaseFirestore.DocumentData[]>;
-    findConfirmedByMyMinistry(req: any): Promise<FirebaseFirestore.DocumentData[]>;
 }

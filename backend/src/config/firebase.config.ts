@@ -21,7 +21,7 @@ if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
     databaseURL: 'https://familia-viva-recife-default-rtdb.firebaseio.com',
-    storageBucket: 'gs://familia-viva-recife.firebasestorage.app',
+    storageBucket: 'familia-viva-recife.firebasestorage.app',
   });
 }
 

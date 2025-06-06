@@ -12,7 +12,7 @@ export default function LayoutWrapper({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const noLayoutRoutes = ["/login", "/esqueceu-senha", "/redefinir-senha"];
 
-  const hideLayout = noLayoutRoutes.includes(pathname);
+  const hideLayout = noLayoutRoutes.includes(pathname || "");
 
   if (hideLayout) {
     return <>{children}</>;

@@ -28,12 +28,18 @@
 }
 
 .botaoEditar:hover .iconeEditar {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoEditar:hover{
+.botaoEditar:hover {
   background-color: #fff;
   color: #0a0a0a;
+}
+
+@media (max-width: 768px) {
+  .botaoEditar span {
+    display: none;
+  }
 }
 
 /* Modal do banner */
@@ -44,7 +50,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,7 +71,7 @@
   margin-top: 1rem;
 }
 
-.modalSectionBanner img{
+.modalSectionBanner img {
   border: 2px solid rgb(255, 94, 0);
   border-radius: 8px;
   margin-top: 10px;
@@ -82,14 +88,42 @@
   background-color: #e5e5e5;
   border-radius: 5px;
   box-shadow: 0 4px 4px -2px rgba(0, 0, 0, 0.3);
-
 }
 
 .modalActionsBanner {
   display: flex;
-  justify-content:center;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .modalContentBanner {
+    padding: 1rem 1.5rem;
+    max-width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modalSectionBanner img {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .inputText {
+    font-size: 0.95rem;
+  }
+
+  .modalActionsBanner {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .modalActionsBanner button {
+    width: 100%;
+  }
 }
 
 /* BANNER */
@@ -122,6 +156,32 @@
   font-weight: bold;
 }
 
+@media (max-width: 768px) {
+  .logoPrincipal {
+    height: 450px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .logoPrincipal h1 {
+    font-size: 30px;
+    margin-top: 10px;
+  }
+
+  .logoPrincipal img {
+    max-width: 330px;
+    height: auto;
+  }
+
+  .banner {
+    height: 200px;
+  }
+}
+
 /* SOBRE */
 .botaoEditarSobre {
   position: absolute;
@@ -140,10 +200,10 @@
 }
 
 .botaoEditarSobre:hover .iconeEditar {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoEditarSobre:hover{
+.botaoEditarSobre:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -177,14 +237,14 @@
   max-width: 700px;
   object-fit: contain;
   height: auto;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
 .textContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center; 
+  justify-content: center;
   max-width: 500px;
   margin-left: 10%;
   flex: 1 1 300px;
@@ -230,22 +290,49 @@
   gap: 12px;
 }
 
-
 /* Responsividade */
 @media (max-width: 768px) {
   .conteudoSobre {
     flex-direction: column;
+    gap: 2rem;
+    padding: 0 20px;
   }
-  .textContainer, .imageContainer {
+
+  .textContainer,
+  .imageContainer {
     order: unset;
     width: 100%;
+    margin-left: 0;
+    padding: 0 10px;
   }
+
+  .textContainer h2 {
+    font-size: 2rem;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .textContainer p {
+    font-size: 1rem;
+    text-indent: 1.5em;
+  }
+
   .sobreImagem {
     width: 100%;
+    max-width: 100%;
+    height: auto;
     margin: 0 auto;
+    padding: 0 10px;
+  }
+
+  .botaoEditarSobre span {
+    display: none;
+  }
+
+  .botaoEditarSobre {
+    top: 76%;
   }
 }
-
 
 /* BOTÕES DA ÁREA DE PROGRAMAÇÃO */
 
@@ -273,10 +360,10 @@
 }
 
 .botaoAdd:hover .iconeAdd {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoAdd:hover{
+.botaoAdd:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -290,7 +377,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
-  gap: 20px; 
+  gap: 20px;
 }
 
 .botaoEditarProgramacao {
@@ -322,10 +409,10 @@
 }
 
 .botaoEditarProgramacao:hover .iconeEditar {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
-.botaoEditarProgramacao:hover{
+.botaoEditarProgramacao:hover {
   background-color: #fff;
   color: #0a0a0a;
 }
@@ -334,6 +421,7 @@
   background-color: #ffffff;
   color: #0a0a0a;
 }
+
 .iconeExcluir {
   width: 20px;
   height: 20px;
@@ -342,7 +430,7 @@
 }
 
 .botaoExcluirEvento:hover .iconeExcluir {
-  filter: invert(0); 
+  filter: invert(0);
 }
 
 .modalOverlayEvent {
@@ -370,6 +458,15 @@
   gap: 12px;
 }
 
+@media (max-width: 768px) {
+  .botaoAdd span {
+    display: none;
+  }
+
+  .botaoAdd {
+    top: 221%;
+  }
+}
 
 /*PROGRAMAÇÃO*/
 
@@ -388,7 +485,6 @@
   text-align: center;
   width: 100%;
 }
-
 
 .dias {
   background: linear-gradient(to right, #fe8719, #fe3012);
@@ -420,7 +516,7 @@
   display: inline-block;
   margin: 8px;
 }
-  
+
 .tooltipText {
   visibility: hidden;
   background: linear-gradient(to right, #fe8719, #fe3012);
@@ -436,45 +532,45 @@
   box-sizing: border-box;
   cursor: pointer;
 }
-  
+
 .tooltip:hover .tooltipText {
   visibility: visible;
   opacity: 1;
 }
 
-  
-/* PROJETOS */
-
+/* Responsivo para telas menores que 768px */
 @media (max-width: 768px) {
-  .fotoProjeto {
-    width: 500px;
-    height: 140px;
-    object-fit: contain;
-    border-radius: 10px;
-    margin-left: 1rem;
-    background-color: #0a0a0a;
-    border: 1px solid rgba(255, 234, 0, 0.927);
-  }
-  .projetoTexto h2 {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 0.5rem;
+  .programacao {
+    margin-top: 10vh;
+    padding: 0 20px;
   }
 
-  .projetoTexto p {
-    font-size: 0.8rem;
-    color: #cccccc;
-    max-width: 900px;
-    text-align: justify;
+  .programacao h2 {
+    font-size: 28px;
+  }
+
+  .botoesDias {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0;
+    gap: 30px;
+  }
+
+  .dias {
+    width: 100%;
+    max-width: 300px;
+    font-size: 24px;
   }
 }
 
+/* PROJETOS */
+
 .projetos {
   padding: 2rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   max-width: 1300px;
-  margin: 0 auto; 
+  margin: 0 auto;
   margin-top: 100px;
 }
 
@@ -498,7 +594,7 @@
   color: #fe3012;
 }
 
-.projetos h1 {
+.projetosHeader h2 {
   font-size: 2.5rem;
   font-weight: bold;
   text-align: left;
@@ -570,6 +666,35 @@
   text-align: justify;
 }
 
+@media (max-width: 768px) {
+  .fotoProjeto {
+    width: 500px;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-left: 1rem;
+    background-color: #0a0a0a;
+    border: 1px solid rgba(255, 234, 0, 0.927);
+  }
+  .projetoTexto h2 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+  }
+
+  .projetosHeader h2 {
+    font-size: 28px;
+  }
+
+  .projetoTexto p {
+    font-size: 0.8rem;
+    color: #cccccc;
+    max-width: 900px;
+    text-align: justify;
+  }
+}
+
 /* GALERIA */
 
 .galeria {
@@ -579,17 +704,13 @@
   margin-bottom: 10vh;
   position: relative;
 }
+
 .galeriaHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 0px 60px 20px;
-}
-
-.cultosImages {
-  display: flex;
   gap: 20px;
-  overflow: hidden;
 }
 
 .galeriaHeader h2 {
@@ -619,31 +740,6 @@
   border-radius: 10px;
 }
 
-.fotoGaleriaPlaceholder img {
-  width: 250px;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.carouselWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-.carouselContainer {
-  width: 1170px; /* 4 imagens de 250px */
-  overflow: hidden;
-  border-radius: 10px;
-}
-
-.carouselTrack {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-}
-
 .carouselItem {
   min-width: 250px;
   height: 250px;
@@ -654,15 +750,23 @@
   margin: 10px;
 }
 
-/* Setas (ícone esquerda e direita) */
-.iconLeft,
-.iconRight {
-  font-size: 40px;
-  cursor: pointer;
-  color: #fe3012;
-  user-select: none;
-}
+/* Responsivo para telas menores que 768px */
+@media (max-width: 768px) {
+  .galeria {
+    margin: 5% 4vh 8vh;
+  }
 
-.iconRight {
-  transform: rotate(180deg);
+  .galeriaHeader {
+    align-items: center;
+    margin: 0px 20px 20px;
+    gap: 10px;
+  }
+
+  .galeriaHeader h2 {
+    font-size: 28px;
+  }
+
+  .linkGaleria {
+    font-size: 1rem;
+  }
 }

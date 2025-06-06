@@ -14,8 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FirebaseController = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
-const platform_express_2 = require("@nestjs/platform-express");
+const file_interceptor_1 = require("./file.interceptor");
 const firebase_service_1 = require("./firebase.service");
 const uuid_1 = require("uuid");
 let FirebaseController = class FirebaseController {
@@ -109,9 +108,9 @@ let FirebaseController = class FirebaseController {
             throw new common_1.BadRequestException('Categoria não informada');
         }
         const snapshot = await this.firebaseService.getCollectionByPath(`pages/${category}/items`);
-        const pages = snapshot.docs.map(doc => ({
+        const pages = snapshot.docs.map((doc) => ({
             id: doc.id,
-            ...doc.data()
+            ...doc.data(),
         }));
         return { pages };
     }
@@ -120,7 +119,6 @@ let FirebaseController = class FirebaseController {
             throw new common_1.BadRequestException('Parâmetros obrigatórios: category e filename');
         }
         let fullPath;
-        console.log(`category: ${category}, subgrup: ${subgrup}, pageId: ${pageId}, filename: ${filename}`);
         if (subgrup && pageId) {
             fullPath = `${category}/${subgrup}/${pageId}/${filename}`;
         }
@@ -133,7 +131,6 @@ let FirebaseController = class FirebaseController {
         else {
             fullPath = `${category}/${filename}`;
         }
-        console.log(`Caminho completo do arquivo a ser deletado: ${fullPath}`);
         try {
             await this.firebaseService.deleteFile(fullPath);
             return { message: `Arquivo ${fullPath} deletado com sucesso.` };
@@ -154,6 +151,20 @@ let FirebaseController = class FirebaseController {
         await this.firebaseService.deleteFolder(folderPath);
         return { message: `Pasta ${folderPath} deletada com sucesso.` };
     }
+    async deleteUserPhoto(id) {
+        const userData = await this.firebaseService.getUserById(id);
+        if (!userData?.filename) {
+            throw new common_1.BadRequestException('Usuário não possui imagem cadastrada.');
+        }
+        try {
+            await this.firebaseService.deleteFile(userData.filename);
+            await this.firebaseService.updateUserImage(id, '', '');
+            return { message: 'Foto do usuário deletada com sucesso.' };
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(`Erro ao deletar foto: ${error.message}`);
+        }
+    }
     async listFiles(category) {
         const prefix = `${category}/`;
         const files = await this.firebaseService.listFiles(prefix);
@@ -170,7 +181,11 @@ let FirebaseController = class FirebaseController {
 exports.FirebaseController = FirebaseController;
 __decorate([
     (0, common_1.Post)('upload-gallery'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('files', 5, {
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.UploadedFiles)()),
     __param(1, (0, common_1.Query)('category')),
     __param(2, (0, common_1.Query)('pageId')),
@@ -180,7 +195,11 @@ __decorate([
 ], FirebaseController.prototype, "uploadMultipleFiles", null);
 __decorate([
     (0, common_1.Post)('upload'),
-    (0, common_1.UseInterceptors)((0, platform_express_2.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('file', 2, {
+        limits: {
+            fileSize: 3 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Query)('category')),
     __param(2, (0, common_1.Query)('pageId')),
@@ -190,7 +209,11 @@ __decorate([
 ], FirebaseController.prototype, "uploadFile", null);
 __decorate([
     (0, common_1.Post)('upload/sobre'),
-    (0, common_1.UseInterceptors)((0, platform_express_2.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('files', 4, {
+        limits: {
+            fileSize: 3 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -198,7 +221,11 @@ __decorate([
 ], FirebaseController.prototype, "uploadSobreImage", null);
 __decorate([
     (0, common_1.Post)('upload/logo'),
-    (0, common_1.UseInterceptors)((0, platform_express_2.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('file', 1, {
+        limits: {
+            fileSize: 1 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -206,7 +233,11 @@ __decorate([
 ], FirebaseController.prototype, "uploadLogoImage", null);
 __decorate([
     (0, common_1.Post)('upload/user/:id'),
-    (0, common_1.UseInterceptors)((0, platform_express_2.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('file', 1, {
+        limits: {
+            fileSize: 2 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
@@ -222,7 +253,7 @@ __decorate([
 ], FirebaseController.prototype, "getFile", null);
 __decorate([
     (0, common_1.Put)('update'),
-    (0, common_1.UseInterceptors)((0, platform_express_2.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('file')),
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Query)('category')),
     __param(2, (0, common_1.Query)('subgrup')),
@@ -272,6 +303,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], FirebaseController.prototype, "deleteFolder", null);
+__decorate([
+    (0, common_1.Delete)('delete/user/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], FirebaseController.prototype, "deleteUserPhoto", null);
 __decorate([
     (0, common_1.Get)('list'),
     __param(0, (0, common_1.Query)('category')),

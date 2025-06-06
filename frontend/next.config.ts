@@ -15,14 +15,17 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "storage.googleapis.com",
-        pathname: "**",
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "firebasestorage.googleapis.com",
-        pathname: "**",
+        pathname: "/**",
       },
     ],
+  },
+  experimental: {
+    optimizeCss: true,
   },
 };
 

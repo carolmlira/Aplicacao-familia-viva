@@ -19,7 +19,6 @@ interface User {
   oldSenha?: string;
 }
 
-
 interface ValidationErrors {
   [key: string]: string | undefined;
   name?: string;
@@ -37,7 +36,7 @@ export default function Usuarios() {
   const [, setLoading] = useState(true);
   const [formErrors, setFormErrors] = useState<ValidationErrors>({});
   const [editFormErrors, setEditFormErrors] = useState<ValidationErrors>({});
-  const accessToken = (session as { accessToken?: string })?.accessToken;
+  const accessToken = session?.accessToken;
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // Estado para o modal de editar
 
@@ -58,6 +57,7 @@ export default function Usuarios() {
     phone: "",
     photo: "",
     level: "VOLUNT",
+    photoURL: "",
     active: true,
     ministryId: "",
     resetToken: null,
@@ -68,23 +68,49 @@ export default function Usuarios() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || (session.user).role !== "ADMIN") {
+    if (!session || session.user.role !== "ADMIN") {
       router.push("/");
       return;
     }
 
     const fetchUsers = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${accessToken || ''}`,
-        },
-        
-      });
-      console.log("Access token para get:", accessToken);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+        });
 
-      const data = await res.json();
-      setUsers(data);
-      setLoading(false);
+        if (!res.ok) {
+          // If the response is not OK (e.g., 4xx or 5xx status)
+          const errorData = await res.json(); // Try to parse the error message
+          console.error("Failed to fetch users:", res.status, errorData);
+          // Optionally, set an error message in state to display to the user
+          // setErrorMessage("Erro ao carregar dados dos usuários.");
+          setUsers([]); // Ensure users is always an empty array on error
+          setLoading(false);
+          return; // Stop execution here
+        }
+
+        const data = await res.json();
+        // Validate if the data received is actually an array
+        if (Array.isArray(data)) {
+          setUsers(data);
+        } else {
+          console.error("API returned non-array data for users:", data);
+          // Handle unexpected data format, e.g., set to empty array
+          // setErrorMessage("Formato de dados inesperado ao carregar usuários.");
+          setUsers([]); // Ensure users is an empty array if data is not an array
+        }
+        setLoading(false);
+      } catch (error) {
+        // Handle network errors or issues during JSON parsing
+        console.error("Error during fetchUsers:", error);
+        // setErrorMessage("Erro de rede ao carregar dados dos usuários.");
+        setUsers([]); // Ensure users is an empty array on network error
+        setLoading(false);
+      }
     };
 
     fetchUsers();
@@ -94,22 +120,31 @@ export default function Usuarios() {
     if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
 
     try {
-      const resApi = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken || ''}`,
-        },
-      });
+      const resApi = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+        }
+      );
       console.log("Access token para delete:", accessToken);
 
-      if (!resApi.ok) throw new Error("Erro ao deletar o usuário na API principal.");
+      if (!resApi.ok)
+        throw new Error("Erro ao deletar o usuário na API principal.");
 
-      const resFirebase = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete/user/${id}`, {
-        method: 'DELETE',
-      });
+      const resFirebase = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/firebase/delete/user/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!resFirebase.ok) {
-        console.warn("Usuário excluído da API, mas houve erro ao deletar do Firebase.");
+        console.warn(
+          "Usuário excluído da API, mas houve erro ao deletar do Firebase."
+        );
         // Aqui você pode notificar o usuário ou registrar para correção posterior.
       }
 
@@ -120,7 +155,6 @@ export default function Usuarios() {
     }
   };
 
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -128,7 +162,6 @@ export default function Usuarios() {
     const val = type === "radio" ? value === "true" : value;
     setNewUser({ ...newUser, [name]: val });
   };
-
 
   const parseValidationErrors = (messages: string[]): ValidationErrors => {
     const errors: ValidationErrors = {}; // Tipagem correta
@@ -159,7 +192,7 @@ export default function Usuarios() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ''}`,
+          Authorization: `Bearer ${accessToken || ""}`,
         },
         body: JSON.stringify(newUser),
       });
@@ -195,6 +228,7 @@ export default function Usuarios() {
         oldSenha: "",
         phone: "",
         photo: "",
+        photoURL: "",
         level: "VOLUNT",
         active: true,
         ministryId: "",
@@ -242,22 +276,25 @@ export default function Usuarios() {
 
   const handleEditUser = async () => {
     if (editUser) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken || ''}`,
-        },
-        
-        body: JSON.stringify(
-          Object.fromEntries(
-            Object.entries(editUser).filter(
-              ([value]) =>
-                value !== "" && value !== null && value !== undefined
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken || ""}`,
+          },
+
+          body: JSON.stringify(
+            Object.fromEntries(
+              Object.entries(editUser).filter(
+                ([value]) =>
+                  value !== "" && value !== null && value !== undefined
+              )
             )
-          )
-        ),
-      });
+          ),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -286,11 +323,7 @@ export default function Usuarios() {
     setShowEditModal(true);
   };
 
-  if (
-    status === "loading" ||
-    !session ||
-    (session.user).role !== "ADMIN"
-  ) {
+  if (status === "loading" || !session || session.user.role !== "ADMIN") {
     return <p className="text-center mt-10">Carregando...</p>;
   }
 
@@ -545,7 +578,7 @@ export default function Usuarios() {
                 className="border text-black p-2 rounded"
                 placeholder="password"
               />
-  
+
               <input
                 name="oldSenha"
                 type="password"

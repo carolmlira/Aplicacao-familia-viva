@@ -5,16 +5,18 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { initializeApp, getApps } from 'firebase-admin/app';
+import * as bodyParser from 'body-parser';
 
 export async function createNestServer(expressInstance?: express.Express) {
   const app = expressInstance
     ? await NestFactory.create(AppModule, new ExpressAdapter(expressInstance))
     : await NestFactory.create(AppModule);
 
-  app.use(express.json());
   app.enableCors({
     origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   const config = new DocumentBuilder()

@@ -100,7 +100,7 @@ export default function FirebaseGallery() {
       setLoading(false);
     }
   }
-  
+
   const deleteFile = async (filename: string) => {
      const confirmDelete = window.confirm('Tem certeza que deseja excluir esta imagem?');
     if (!confirmDelete) return; // Não faz nada se o usuário cancelar.

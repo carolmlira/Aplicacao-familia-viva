@@ -40,6 +40,9 @@ export declare class FirebaseController {
     deleteFolder(category: string, subgrup: string, pageId: string): Promise<{
         message: string;
     }>;
+    deleteUserPhoto(id: string): Promise<{
+        message: string;
+    }>;
     listFiles(category: string): Promise<{
         files: string[];
     }>;

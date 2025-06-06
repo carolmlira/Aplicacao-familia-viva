@@ -31,7 +31,6 @@ exports.AuthModule = AuthModule = __decorate([
                     const secret = config.get('JWT_SECRET');
                     return {
                         secret,
-                        signOptions: { expiresIn: '30m' },
                     };
                 },
             }),

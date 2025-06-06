@@ -7,6 +7,12 @@ export declare class AuthController {
         password: string;
     }): Promise<{
         access_token: string;
+        id: any;
+        name: any;
+        email: any;
+        role: any;
+        ministryId: any;
+        photoURL: any;
     }>;
     forgotPassword(body: {
         email: string;

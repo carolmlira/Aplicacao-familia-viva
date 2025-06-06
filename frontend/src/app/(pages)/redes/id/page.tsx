@@ -1,44 +1,38 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from "react";
-import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useEffect, useState, useRef } from 'react';
+import { useSession } from 'next-auth/react';
+import {  useParams } from 'next/navigation';
 import "slick-carousel/slick/slick-theme.css";
-import styles from "./projetoId.module.css";
+import styles from './redeId.module.css';
 import "slick-carousel/slick/slick.css";
-import { v4 as uuidv4 } from "uuid";
-import Image from "next/image";
+import { v4 as uuidv4 } from 'uuid';
+import Image from 'next/image';
 import Slider from "react-slick";
 
-export default function Projeto() {
-  const rawParams = useParams();
-  const id = typeof rawParams?.id === "string" ? rawParams.id : undefined;
+export default function Rede() {
+  const { id } = useParams<{ id: string }>();
   const { data: session } = useSession();
-  const [project, setProject] = useState<Project | null>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    active: true,
-  });
+  const [rede, setRede] = useState<Rede | null>(null);
+  const [formData, setFormData] = useState({ title: '', content: '', active: true });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const fileInputs = useRef<HTMLInputElement[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
-  const [category] = useState("pages");
+  const [category] = useState('pages');
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(false); 
   const [isMobile, setIsMobile] = useState(false);
 
-  interface Project {
+  interface Rede {
     id: string;
     title: string;
     content: string;
     images: string[]; // URLs das imagens
     active: boolean;
   }
-
-  interface ProjectUpdate {
+  interface RedeUpdate {
     title: string;
     content: string;
     images: string[]; // URLs das imagens
@@ -56,30 +50,30 @@ export default function Projeto() {
   }, []);
 
   useEffect(() => {
-    if (typeof id === "string") {
-      fetchProject(id);
+    if (typeof id === 'string') {
+      fetchRede(id);
     }
   }, [id]);
 
-  async function fetchProject(id: string) {
+  async function fetchRede(id: string) {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`);
       const data = await res.json();
-      setProject(data);
-      setFormData({
-        title: data.title,
-        content: data.content,
-        active: data.active === "true" || data.active === true,
+      setRede(data);
+      setFormData({ 
+        title: data.title, 
+        content: data.content, 
+        active: data.active === 'true' || data.active === true,
+
       });
 
-      // Se as imagens vierem do Firestore (array de URLs)
+      // Se imagens não vierem do Firestore, usa o fallback do Storage
       if (Array.isArray(data.imageUrls) && data.imageUrls.length > 0) {
         setImageUrls(data.imageUrls);
-      }
+      } 
+
     } catch (err) {
-      console.error("Erro ao buscar projeto:", err);
+      console.error("Erro ao buscar rede:", err);
     } finally {
       setLoading(false);
     }
@@ -87,110 +81,90 @@ export default function Projeto() {
 
   async function uploadImage(file: File, pageId: string): Promise<string> {
     const formData = new FormData();
-    formData.append("file", file);
-
-    const categoryWithId = `pages/projects/${pageId}`;
-
+    formData.append('file', file);
+  
+    const categoryWithId = `pages/redes/${pageId}`;
+  
     const response = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_API_URL
-      }/firebase/upload?category=${encodeURIComponent(categoryWithId)}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/firebase/upload?category=${encodeURIComponent(categoryWithId)}`,
       {
-        method: "POST",
+        method: 'POST',
         body: formData,
       }
     );
-    if (!response.ok) throw new Error("Erro no upload da imagem");
+    if (!response.ok) throw new Error('Erro no upload da imagem');
     const data = await response.json();
     return data.url;
   }
 
-  async function updateProject(
-    id: string,
-    projectData: ProjectUpdate
-  ): Promise<void> {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(projectData),
-      }
-    );
+  async function updateRede(id: string, redeData: RedeUpdate): Promise<void> {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/redes/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(redeData, imageUrls),
+    });
+
+    console.log('Update response body:', await response.text());
 
     if (!response.ok) {
-      throw new Error("Erro ao atualizar o projeto");
+      throw new Error('Erro ao atualizar a rede');
     }
   }
+
   // Função para substituir a imagem no Firebase Storage (usando PUT)
   const updateImage = async (file: File, imageId: string): Promise<string> => {
     const formData = new FormData();
-    formData.append("file", file);
-    const cleanImageId = imageId.replace(/\.png$/, "");
+    formData.append('file', file);
+    const cleanImageId = imageId.replace(/\.png$/, '');
     const newName = `${uuidv4()}.png`;
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=projects&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=redes&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
       {
-        method: "PUT",
+        method: 'PUT',
         body: formData,
       }
     );
 
-    if (!response.ok) throw new Error("Erro ao atualizar a imagem");
+    if (!response.ok) throw new Error('Erro ao atualizar a imagem');
     const data = await response.json();
     return data.url;
   };
 
-  const deleteImage = async (
-    category: string,
-    pageId: string,
-    imageId: string
-  ) => {
+  const deleteImage = async (category: string, pageId: string, imageId: string) => {
     const filename = `${imageId}.png`;
     const params = new URLSearchParams({
-      category,
-      subgrup: "projects",
-      pageId,
-      filename,
+      category,      
+      subgrup: 'redes',
+      pageId,        
+      filename,       
     });
-
+  
     try {
-      const res = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL
-        }/firebase/delete?${params.toString()}`,
-        { method: "DELETE" }
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/delete?${params.toString()}`,
+        { method: 'DELETE' }
       );
-
+  
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(`Erro ao deletar imagem: ${errorText}`);
       }
-
+  
       const data = await res.json();
-      console.log("Imagem deletada com sucesso:", data);
-
+      console.log('Imagem deletada com sucesso:', data);
+  
       // Atualiza o estado para remover a imagem da lista
-      setImageUrls((prev) =>
-        prev.filter((url) => {
-          return !url.includes(filename);
-        })
-      );
+      setImageUrls((prev) => prev.filter((url) => {
+        return !url.includes(filename);
+      }));
     } catch (err) {
-      console.error("Erro ao deletar imagem:", err);
+      console.error('Erro ao deletar imagem:', err);
     }
   };
 
   // Função para salvar as imagens e os dados
   const handleSave = async () => {
-    if (!id) {
-      console.error("ID do projeto está indefinido.");
-      return;
-    }
     setLoading(true);
 
     try {
@@ -201,20 +175,19 @@ export default function Projeto() {
         uploadedUrls.push(url);
       }
 
-      //const updatedImageUrls = [...imageUrls, ...uploadedUrls];
-
-      await updateProject(id, {
+      await updateRede(id, {
         ...formData,
         images: [...imageUrls, ...uploadedUrls],
-        active: !!formData.active,
+        active: !!formData.active, 
       });
 
       // Atualiza imagens exibidas (não é enviado para backend)
       setImageUrls((prev) => [...prev, ...uploadedUrls]);
       setNewImages([]);
       setEditing(false);
+
     } catch (err) {
-      console.error("Erro ao atualizar projeto:", err);
+      console.error("Erro ao atualizar rede:", err);
     } finally {
       setLoading(false);
     }
@@ -223,29 +196,23 @@ export default function Projeto() {
   const handleImageClick = (index: number) => {
     const inputElement = fileInputs.current[index];
     if (inputElement) {
-      inputElement.click();
+      inputElement.click(); 
     } else {
       console.log("Input não encontrado no índice", index);
     }
   };
-
+  
   // Função para substituir a imagem na interface
-  const handleReplaceImage = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleReplaceImage = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       // Se estivermos substituindo uma imagem existente, usaremos o `updateImage`
       const imageUrl = imageUrls[index];
-      const imageId = imageUrl.split("/").pop()?.split("?")[0];
+      const imageId = imageUrl.split('/').pop()?.split('?')[0];
       let updatedUrl: string;
-      if (!id) {
-        console.error("ID do projeto está indefinido.");
-        return;
-      }
+
       if (imageId) {
         // Atualiza a imagem existente
         updatedUrl = await updateImage(file, imageId);
@@ -257,40 +224,33 @@ export default function Projeto() {
       // Atualiza a URL da imagem no estado
       setImageUrls((prev) => {
         const updated = [...prev];
-        updated[index] = `${updatedUrl}?t=${Date.now()}`;
+        updated[index] = `${updatedUrl}?t=${Date.now()}`
         return updated;
       });
     } catch (err) {
       console.error("Erro ao substituir imagem:", err);
     }
   };
-
+  
   const handleDeleteImage = async (index: number) => {
     const imageUrl = imageUrls[index];
     if (!imageUrl) return;
-
+  
     try {
       // Extrair o nome do arquivo da URL
-      const urlParts = imageUrl.split("/");
+      const urlParts = imageUrl.split('/');
       const filenameWithToken = urlParts[urlParts.length - 1];
-      const filename = filenameWithToken.split("?")[0];
-      const filenameWithoutExtension = filename.split(".")[0]; // Remove extensão .png ou outra
-      const confirmed = window.confirm(
-        "Tem certeza que deseja excluir esta imagem?"
-      );
-
-      if (!id) {
-        console.error("ID do projeto está indefinido.");
-        return;
-      }
+      const filename = filenameWithToken.split('?')[0]; 
+      const filenameWithoutExtension = filename.split('.')[0]; // Remove extensão .png ou outra
+      const confirmed = window.confirm('Tem certeza que deseja excluir esta imagem?');
       if (confirmed) {
         await deleteImage(category, id, filenameWithoutExtension);
       }
-
+  
       // Atualizar estado removendo a imagem
       setImageUrls((prev) => prev.filter((_, i) => i !== index));
     } catch (err) {
-      console.error("Erro ao deletar imagem:", err);
+      console.error('Erro ao deletar imagem:', err);
     }
   };
 
@@ -298,7 +258,7 @@ export default function Projeto() {
     setPreviewImages((prev) => prev.filter((_, i) => i !== index));
     setNewImages((prev) => prev.filter((_, i) => i !== index));
   };
-
+  
   function moveImage(fromIndex: number, toIndex: number) {
     setImageUrls((prev) => {
       const updated = [...prev];
@@ -308,22 +268,15 @@ export default function Projeto() {
     });
   }
 
-  if (loading) return <div style={{ textAlign: "center" }}>Carregando...</div>;
-  if (!project)
-    return <div style={{ textAlign: "center" }}>Projeto não encontrado.</div>;
+
+  if (loading) return <div style={{ textAlign:"center" }}>Carregando...</div>;
+  if (!rede) return <div style={{ textAlign: "center" }} >Rede não encontrado.</div>;
 
   return (
-    <div
-      className={`${
-        editing ? "bg-neutral-800 my-8 mx-4 md:mx-32 p-4 rounded" : "p-4"
-      }`}
-    >
-      {session?.user?.role === "ADMIN" && (
+    <div className={`${editing ? "bg-neutral-800 my-8 mx-4 md:mx-32 p-4 rounded" : "p-4"}`}>
+      {(session?.user)?.role === 'ADMIN' && (
         <div>
-          <div
-            className={styles.botaoEditar}
-            onClick={() => setEditing(!editing)}
-          >
+          <div className={styles.botaoEditar} onClick={() => setEditing(!editing)}>
             <Image
               src="/images/pen.svg"
               alt="Editar"
@@ -335,32 +288,30 @@ export default function Projeto() {
           </div>
         </div>
       )}
-
-      {/* VISUALIZAÇÃO */}
+  
       {!editing && (
         <div className="my-4 space-y-4">
           <span className="text-3xl font-bold bg-gradient-to-r from-[#FE3012] via-[#FE6116] via-[#FE8719] via-[#FEA819] to-[#FEC31A] bg-clip-text text-transparent mt-8">
-            {project.title}
+            {rede.title}
           </span>
 
-          {/* Imagem principal (primeira da lista) */}
+          {/* LOGO (só se tiver imagem) */}
           {imageUrls.length > 0 && (
             <div className={styles.logoContainer}>
               <Image
                 src={imageUrls[0]}
-                alt="Imagem principal do projeto"
+                alt="Logo da Rede"
                 className={styles.logoImage}
-                width={250}
-                height={250}
+                width={400}
+                height={400}
               />
             </div>
           )}
 
-          {/* Texto com parágrafos */}
           <div className="p-4 mx-auto text-justify max-w-5xl">
-            {project.content
-              .split("\n")
-              .filter((paragraph: string) => paragraph.trim() !== "")
+            {rede.content
+              .split('\n')
+              .filter((paragraph: string) => paragraph.trim() !== '')
               .map((paragraph: string, index: number) => (
                 <p key={index} className="mb-4 indent-8">
                   {paragraph}
@@ -368,7 +319,7 @@ export default function Projeto() {
               ))}
           </div>
 
-          {/* Carrossel com imagens adicionais */}
+          {/* CARROSSEL (se tiver + de uma imagem) */}
           {imageUrls.length > 1 && (
             <Slider
               dots={true}
@@ -400,41 +351,30 @@ export default function Projeto() {
         </div>
       )}
 
-      {/* EDIÇÃO */}
-      {editing && (
-        <div className="mt-4 space-y-2">
-          <h1
-            style={{
-              color: "orange",
-              fontWeight: "bold",
-              fontSize: "32px",
-              textAlign: "center",
-            }}
-          >
-            Edição do Projeto:
-          </h1>
+      {editing ? (
+        <div className={editing ? "bg-neutral-800 my-8 mx-4 md:mx-8 p-4 rounded" : "p-4"}>
+          <h1 style={{ color:"orange", fontWeight:"bold", fontSize:"32px", textAlign:"center" }}>Edição da Rede:</h1>
           <label>Título:</label>
           <input
             type="text"
             className="border p-2 w-full"
             value={formData.title}
-            style={{ color: "black" }}
+            style={{ color:"black" }}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
             placeholder="Título"
           />
-          <label className="block my-2">Conteúdo:</label>
-          <textarea
-            className="w-full rounded-md border p-2"
-            rows={10}
-            style={{ color: "black" }}
-            value={formData.content}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, content: e.target.value }))
-            }
-          />
-
+          <label className='block my-2'>Conteúdo:</label>  
+            <textarea
+              className="w-full rounded-md border p-2"
+              rows={10}
+              style={{ color: "black" }}
+              value={formData.content}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, content: e.target.value }))
+              }
+            />
           <label style={{ display: "none" }}>
             <input
               type="checkbox"
@@ -446,7 +386,6 @@ export default function Projeto() {
             Página ativa
           </label>
 
-          {/* Upload de novas imagens */}
           <div className="mt-2">
             <label className="block font-medium mb-1">Adicionar Imagens:</label>
             <input
@@ -458,14 +397,13 @@ export default function Projeto() {
                 if (e.target.files) {
                   const filesArray = Array.from(e.target.files);
                   setNewImages((prev) => [...prev, ...filesArray]);
-                  const previews = filesArray.map((file) =>
-                    URL.createObjectURL(file)
-                  );
+
+                  // Gera previews
+                  const previews = filesArray.map((file) => URL.createObjectURL(file));
                   setPreviewImages((prev) => [...prev, ...previews]);
                 }
               }}
             />
-
             {previewImages.length > 0 && (
               <div className="bg-neutral-900 p-4 rounded">
                 {isMobile ? (
@@ -480,28 +418,22 @@ export default function Projeto() {
                     {previewImages.map((url, index) => (
                       <div key={index} className="px-2">
                         <div
-                          className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow bg-black-100"
+                          className="h-[200px] flex justify-center items-center overflow-hidden rounded shadow"
                           style={{ width: 200, height: 200 }}
                         >
                           <Image
                             src={url}
                             alt={`Nova imagem ${index + 1}`}
                             className="object-contain w-full h-full"
-                            width={250}
-                            height={250}
+                            width={200}
+                            height={200}
                           />
                           <button
                             onClick={() => handleRemovePreviewImage(index)}
                             className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                             aria-label="Remover imagem"
                           >
-                            <Image
-                              src="/images/x.svg"
-                              alt="Remover"
-                              className="w-4 h-4"
-                              width={10}
-                              height={10}
-                            />
+                            <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" width={10} height={10}/>
                           </button>
                         </div>
                       </div>
@@ -512,24 +444,22 @@ export default function Projeto() {
                     {previewImages.map((url, index) => (
                       <div
                         key={index}
-                        className="relative rounded shadow bg-black-100 overflow-hidden"
+                        className="relative rounded shadow overflow-hidden"
                         style={{ width: 200, height: 200 }}
                       >
                         <Image
                           src={url}
                           alt={`Nova imagem ${index + 1}`}
                           className="w-full h-full object-contain"
+                          width={200}
+                          height={200}
                         />
                         <button
                           onClick={() => handleRemovePreviewImage(index)}
                           className="absolute top-1 right-1 p-1 bg-white rounded-full shadow"
                           aria-label="Remover imagem"
                         >
-                          <Image
-                            src="/images/x.svg"
-                            alt="Remover"
-                            className="w-4 h-4"
-                          />
+                          <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" width={10} height={10} />
                         </button>
                       </div>
                     ))}
@@ -537,12 +467,11 @@ export default function Projeto() {
                 )}
               </div>
             )}
-          </div>
 
-          {/* Imagens existentes */}
-          {imageUrls &&
-            imageUrls.length > 0 &&
-            (isMobile ? (
+
+          </div>
+          {imageUrls && imageUrls.length > 0 && (
+            isMobile ? (
               <Slider
                 dots
                 infinite
@@ -559,13 +488,15 @@ export default function Projeto() {
                         alt={`Imagem ${index + 1}`}
                         className="object-contain w-full h-full rounded"
                         onClick={() => handleImageClick(index)}
+                        width={200}
+                        height={200}
                       />
 
                       {/* Substituir imagem */}
                       <input
                         type="file"
                         accept="image/*"
-                        style={{ display: "none" }}
+                        style={{ display: 'none' }}
                         ref={(el) => {
                           if (el) fileInputs.current[index] = el;
                         }}
@@ -583,7 +514,9 @@ export default function Projeto() {
                               src="/images/arrow-left-circle-fill.svg"
                               alt="Mover para esquerda"
                               className="w-6 h-6"
-                              style={{ filter: "invert(1)" }}
+                              style={{ filter: 'invert(1)' }}
+                              width={10}
+                              height={10}
                             />
                           </button>
                         )}
@@ -596,7 +529,9 @@ export default function Projeto() {
                               src="/images/arrow-right-circle-fill.svg"
                               alt="Mover para direita"
                               className="w-6 h-6"
-                              style={{ filter: "invert(1)" }}
+                              style={{ filter: 'invert(1)' }}
+                              width={10}
+                              height={10}
                             />
                           </button>
                         )}
@@ -608,11 +543,7 @@ export default function Projeto() {
                         className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
                         aria-label="Remover imagem"
                       >
-                        <Image
-                          src="/images/x.svg"
-                          alt="Remover"
-                          className="w-4 h-4"
-                        />
+                        <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" width={10} height={10} />
                       </button>
                     </div>
                   </div>
@@ -631,13 +562,15 @@ export default function Projeto() {
                       alt={`Imagem ${index + 1}`}
                       className="w-full h-full object-contain cursor-pointer"
                       onClick={() => handleImageClick(index)}
+                      width={200}
+                      height={200}
                     />
 
                     {/* Substituir imagem */}
                     <input
                       type="file"
                       accept="image/*"
-                      style={{ display: "none" }}
+                      style={{ display: 'none' }}
                       ref={(el) => {
                         if (el) fileInputs.current[index] = el;
                       }}
@@ -655,7 +588,9 @@ export default function Projeto() {
                             src="/images/arrow-left-circle-fill.svg"
                             alt="Mover para esquerda"
                             className="w-6 h-6"
-                            style={{ filter: "invert(1)" }}
+                            style={{ filter: 'invert(1)' }}
+                            width={10}
+                            height={10}
                           />
                         </button>
                       )}
@@ -668,9 +603,9 @@ export default function Projeto() {
                             src="/images/arrow-right-circle-fill.svg"
                             alt="Mover para direita"
                             className="w-6 h-6"
-                            style={{ filter: "invert(1)" }}
-                            width={400}
-                            height={400}
+                            style={{ filter: 'invert(1)' }}
+                            width={10}
+                            height={10}
                           />
                         </button>
                       )}
@@ -682,16 +617,14 @@ export default function Projeto() {
                       className="absolute top-1 right-1 bg-red-600 p-1 rounded-full shadow"
                       aria-label="Remover imagem"
                     >
-                      <Image
-                        src="/images/x.svg"
-                        alt="Remover"
-                        className="w-4 h-4"
-                      />
+                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" width={10} height={10} />
                     </button>
                   </div>
                 ))}
               </div>
-            ))}
+            )
+          )}
+
 
           <button
             onClick={handleSave}
@@ -708,7 +641,9 @@ export default function Projeto() {
             Cancelar
           </button>
         </div>
-      )}
+      ) : ( null)}
     </div>
+    
   );
 }
+  

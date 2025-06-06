@@ -41,8 +41,13 @@ let FirebaseService = class FirebaseService {
         return new Promise((resolve, reject) => {
             blobStream.on('error', reject);
             blobStream.on('finish', async () => {
-                await blob.makePublic();
-                resolve(`https://storage.googleapis.com/${this.bucket.name}/${blob.name}`);
+                try {
+                    await blob.makePublic();
+                    resolve(`https://storage.googleapis.com/${this.bucket.name}/${blob.name}`);
+                }
+                catch (err) {
+                    reject(err);
+                }
             });
             blobStream.end(file.buffer);
         });
@@ -64,8 +69,22 @@ let FirebaseService = class FirebaseService {
     }
     async deleteFile(filename) {
         const file = this.bucket.file(filename);
-        await file.delete();
-        console.log(`Arquivo ${filename} deletado com sucesso.`);
+        try {
+            await file.delete();
+            console.log(`Arquivo ${filename} deletado com sucesso.`);
+        }
+        catch (error) {
+            if (error &&
+                typeof error === 'object' &&
+                'code' in error &&
+                error.code === 404) {
+                console.warn(`Arquivo ${filename} não encontrado para exclusão (já pode ter sido excluído ou não existia). Prosseguindo.`);
+            }
+            else {
+                console.error(`Erro inesperado ao tentar deletar arquivo ${filename}:`, error);
+                throw error;
+            }
+        }
     }
     async deleteFolder(folderPath) {
         const [files] = await this.bucket.getFiles({ prefix: folderPath });

@@ -12,8 +12,6 @@ export default function Header() {
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false);
   const [showLogoUploader, setShowLogoUploader] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [imgUserUrl, setImgUserUrl] = useState<string | null>(null);
-  const id = session?.user?.id
 
   useEffect(() => {
     const checkMobile = () => {
@@ -36,27 +34,8 @@ export default function Header() {
       .catch((err) => console.error("Erro ao carregar logo:", err));
   }, []);
 
-  useEffect(() => {
-    if (!id) return 
-
-    async function fetchUser() {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/${id}`, {
-          credentials: 'include',
-        })
-        if (!res.ok) throw new Error('Erro ao carregar dados do usuário')
-        const user = await res.json()
-        setImgUserUrl(user.photo || null)
-      } catch (err) {
-        console.error(err)
-        alert('Não foi possível carregar os dados do perfil')
-      }
-    }
-
-    fetchUser()
-  }, [id]) 
-
   const handleLogoClick = () => {
+    const role = session?.user?.role;
     if (!session || role !== "ADMIN") {
       window.location.href = "/";
     } else {
@@ -74,7 +53,11 @@ export default function Header() {
       footer.scrollIntoView({ behavior: "smooth" });
     }
   }
-
+  console.log(
+    "Header rendering, session.user.photoURL:",
+    session?.user?.photoURL,
+    session?.user?.name
+  );
   const renderMenuItems = () => (
     <>
       <li>
@@ -149,12 +132,16 @@ export default function Header() {
 
   async function uploadSobreImage(file: File): Promise<string | null> {
     const formData = new FormData();
-    formData.append("file", file); 
+    formData.append("file", file);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/logo`, {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/logo`,
+      {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      }
+    );
 
     if (!res.ok) {
       throw new Error("Erro ao fazer upload da imagem da logo");
@@ -170,14 +157,26 @@ export default function Header() {
         <button
           onClick={handleLogoClick}
           className={!showDropdown ? "" : styles.logoHidden}
-          style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
         >
-          <Image src={logoUrl || "/logo.svg"} alt="Logo" width={70} height={70} />
+          <Image
+            src={logoUrl || "/logo.svg"}
+            alt="Logo"
+            width={70}
+            height={70}
+          />
         </button>
         {showLogoUploader && (
           <div className={styles.logoModal}>
             <div className={styles.logoModalContent}>
-              <h3 style={{ fontWeight: "bold", color: "orangered" }}>Enviar nova logo</h3>
+              <h3 style={{ fontWeight: "bold", color: "orangered" }}>
+                Enviar nova logo
+              </h3>
               <input
                 type="file"
                 style={{ boxShadow: "0 4px 4px -2px rgba(0, 0, 0, 0.3)" }}
@@ -187,13 +186,18 @@ export default function Header() {
                   if (file) {
                     const url = await uploadSobreImage(file);
                     if (url) {
-                      setLogoUrl(url);
+                      setLogoUrl(`${url}?t=${Date.now()}`);
                       setShowLogoUploader(false);
                     }
                   }
                 }}
               />
-              <button className={styles.buttonCancele} onClick={() => setShowLogoUploader(false)}>Cancelar</button>
+              <button
+                className={styles.buttonCancele}
+                onClick={() => setShowLogoUploader(false)}
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         )}
@@ -213,58 +217,74 @@ export default function Header() {
               style={{ filter: "invert(1)" }}
             />
 
-          {showDropdown && (
-            <div className={styles.dropdownMenu}>
-              <div className={styles.dropdownMenuContent}>
-                {renderMenuItems()}
+            {showDropdown && (
+              <div className={styles.dropdownMenu}>
+                <div className={styles.dropdownMenuContent}>
+                  {renderMenuItems()}
 
-                {session ? (
-                  <>
-                    <button
-                      onClick={() => setShowMobileUserMenu(!showMobileUserMenu)}
-                      style={{ marginTop: 10, color: "#fff" }}
+                  {session ? (
+                    <>
+                      <button
+                        onClick={() =>
+                          setShowMobileUserMenu(!showMobileUserMenu)
+                        }
+                        style={{ marginTop: 10, color: "#fff" }}
+                      >
+                        {session.user?.name}
+                      </button>
+
+                      {showMobileUserMenu && (
+                        <ul
+                          style={{
+                            listStyle: "none",
+                            padding: 0,
+                            marginTop: 10,
+                            width: "100%",
+                          }}
+                        >
+                          <li>
+                            <Link
+                              href="/perfil"
+                              onClick={() => {
+                                setShowDropdown(false);
+                                setShowMobileUserMenu(false);
+                              }}
+                            >
+                              Editar Perfil
+                            </Link>
+                          </li>
+                          <li>
+                            <button
+                              onClick={() => {
+                                setShowDropdown(false);
+                                setShowMobileUserMenu(false);
+                                signOut({ redirect: false }).then(() => {
+                                  window.location.href = `${process.env.NEXT_PUBLIC_API_URL_NEXT}`;
+                                });
+                              }}
+                            >
+                              Sair
+                            </button>
+                          </li>
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href="/login"
+                      onClick={() => setShowDropdown(false)}
+                      style={{
+                        marginTop: 10,
+                        textAlign: "center",
+                        display: "block",
+                      }}
                     >
-                      {session.user?.name}
-                    </button>
-
-                    {showMobileUserMenu && (
-                      <ul style={{ listStyle: "none", padding: 0, marginTop: 10, width: "100%" }}>
-                        <li>
-                          <Link
-                            href="/perfil"
-                            onClick={() => {
-                              setShowDropdown(false);
-                              setShowMobileUserMenu(false);
-                            }}
-                          >
-                            Editar Perfil
-                          </Link>
-                        </li>
-                        <li>
-                          <button
-                            onClick={() => {
-                              setShowDropdown(false);
-                              setShowMobileUserMenu(false);
-                              signOut({ redirect: false }).then(() => {
-                                window.location.href = `${process.env.NEXT_PUBLIC_API_URL_NEXT}`;
-                              });
-                            }}
-                          >
-                            Sair
-                          </button>
-                        </li>
-                      </ul>
-                    )}
-                  </>
-                ) : (
-                  <Link href="/login" onClick={() => setShowDropdown(false)} style={{ marginTop: 10 }}>
-                    Login
-                  </Link>
-                )}
+                      Login
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-
+            )}
           </div>
         ) : (
           <>
@@ -274,7 +294,7 @@ export default function Header() {
               {session ? (
                 <div className={styles.userMenu}>
                   <Image
-                    src={imgUserUrl || "/images/icon-user.svg"}
+                    src={session.user?.photoURL || "/images/icon-user.svg"}
                     alt="Foto do usuário"
                     width={40}
                     height={40}
@@ -292,17 +312,17 @@ export default function Header() {
                       >
                         Editar Perfil
                       </Link>
-                        <button
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            signOut({ redirect: false }).then(() => {
-                              window.location.href = `${process.env.NEXT_PUBLIC_API_URL_NEXT}`;
-                            });
-                          }}
-                          className={styles.userLink}
-                        >
-                          Sair
-                        </button>
+                      <button
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          signOut({ redirect: false }).then(() => {
+                            window.location.href = `${process.env.NEXT_PUBLIC_API_URL_NEXT}`;
+                          });
+                        }}
+                        className={styles.userLink}
+                      >
+                        Sair
+                      </button>
                     </div>
                   )}
                 </div>

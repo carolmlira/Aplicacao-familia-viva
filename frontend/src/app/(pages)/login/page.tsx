@@ -24,11 +24,10 @@ export default function LoginPage() {
     imagemBannerFile?: File;
   };   
    
-
   useEffect(() => {
     fetchBanner();
     setImgTimestamp(Date.now().toString());
-  }, [banner]);
+  }, []); 
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/firebase/logo`)

@@ -22,7 +22,11 @@ let AuthController = class AuthController {
     }
     async login(body) {
         const user = await this.authService.validateUser(body.email, body.password);
-        return this.authService.login(user);
+        if (!user) {
+            throw new common_1.UnauthorizedException('Usuário ou senha inválidos');
+        }
+        const loginResponse = await this.authService.login(user);
+        return loginResponse;
     }
     async forgotPassword(body) {
         const token = await this.authService.generateResetToken(body.email);

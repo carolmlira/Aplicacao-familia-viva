@@ -8,7 +8,7 @@ import {
   Matches,
   IsEnum,
   Length,
-  IsEmpty,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/auth/role.enum';
@@ -23,6 +23,11 @@ export class CreateUserDto {
   @IsEmail({}, { message: 'O email deve ser válido' })
   @IsNotEmpty({ message: 'O email é obrigatório' })
   email: string; // E-mail do usuário (deve ser válido)
+
+  @ValidateIf((o) => o.password !== undefined && o.oldSenha === undefined)
+  @IsOptional()
+  @IsString()
+  oldSenha?: string;
 
   @ApiProperty({ description: 'A senha do do Usuario' })
   @IsString({ message: 'A senha deve ser uma string' })
@@ -43,6 +48,11 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   photo?: string; // URL da foto de perfil do usuário (opcional)
+
+  @ApiProperty({ description: 'photo com URL' })
+  @IsOptional()
+  @IsString()
+  photoURL?: string; // URL da foto de perfil do usuário (opcional)
 
   @ApiProperty({ description: 'O Numero do Usuario' })
   @Matches(/^\+\d{1,3}\d{7,14}$/, {

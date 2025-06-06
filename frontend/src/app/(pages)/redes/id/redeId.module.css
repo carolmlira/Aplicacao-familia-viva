@@ -1,0 +1,57 @@
+.logoContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.logoImage {
+  width: 400px;      
+  height: 400px;
+  object-fit: cover;  
+  border-radius: 50%;  
+  box-shadow: 0 2px 8px rgba(209, 208, 208, 0.397);
+}
+
+.carousel {
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+.carouselSlide {
+  padding: 10px;
+}
+
+.carouselImage {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.iconeEditar{
+  filter: invert(1);
+}
+
+.botaoEditar {
+  position: absolute;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: red;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.botaoEditar:hover .iconeEditar {
+  filter: invert(0); 
+}
+
+.botaoEditar:hover{
+  background-color: #fff;
+  color: #0a0a0a;
+}

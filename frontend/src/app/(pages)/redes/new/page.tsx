@@ -148,7 +148,7 @@ export default function NewRede() {
                       onClick={() => handleRemovePreviewImage(index)}
                       className="absolute top-1 right-1 bg-white rounded-full shadow p-1"
                     >
-                      <Image src="/images/x.svg" alt="Remover" className="w-4 h-4" />
+                      <Image src="/images/x.svg" alt="Remover" width={10} height={10} className="w-4 h-4" />
                     </button>
                   </div>
                 ))}

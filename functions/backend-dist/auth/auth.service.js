@@ -42,10 +42,16 @@ let AuthService = class AuthService {
             role: user.level,
             name: user.name,
             ministryId: user.ministryId,
-            photo: user.photo,
+            photoURL: user.photoURL,
         };
         return {
             access_token: this.jwtService.sign(payload),
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.level,
+            ministryId: user.ministryId,
+            photoURL: user.photoURL,
         };
     }
     async generateResetToken(email) {

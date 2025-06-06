@@ -7,7 +7,7 @@ declare module "next-auth" {
       id: string;
       name: string;
       email: string;
-      photo?: string;
+      photoURL?: string;
       ministryId?: string;
       role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
     } & DefaultSession["user"];
@@ -17,7 +17,7 @@ declare module "next-auth" {
     id: string;
     name: string;
     email: string;
-    photo?: string;
+    photoURL?: string;
     ministryId?: string;
     role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
     accessToken?: string;
@@ -29,7 +29,7 @@ declare module "next-auth/jwt" {
     id: string;
     email: string;
     name: string;
-    photo?: string;
+    photoURL?: string;
     ministryId?: string;
     role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
     accessToken?: string;

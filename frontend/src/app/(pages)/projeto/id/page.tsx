@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import "slick-carousel/slick/slick-theme.css";
-import styles from "./projetoId.module.css";
+import styles from "./items/[id]/projetoId.module.css";
 import "slick-carousel/slick/slick.css";
 import { v4 as uuidv4 } from "uuid";
 import Image from "next/image";
@@ -246,6 +246,7 @@ export default function Projeto() {
         console.error("ID do projeto está indefinido.");
         return;
       }
+
       if (imageId) {
         // Atualiza a imagem existente
         updatedUrl = await updateImage(file, imageId);
@@ -268,6 +269,10 @@ export default function Projeto() {
   const handleDeleteImage = async (index: number) => {
     const imageUrl = imageUrls[index];
     if (!imageUrl) return;
+    if (!id) {
+      console.error("ID do projeto está indefinido.");
+      return;
+    }
 
     try {
       // Extrair o nome do arquivo da URL
@@ -278,11 +283,6 @@ export default function Projeto() {
       const confirmed = window.confirm(
         "Tem certeza que deseja excluir esta imagem?"
       );
-
-      if (!id) {
-        console.error("ID do projeto está indefinido.");
-        return;
-      }
       if (confirmed) {
         await deleteImage(category, id, filenameWithoutExtension);
       }
@@ -519,6 +519,8 @@ export default function Projeto() {
                           src={url}
                           alt={`Nova imagem ${index + 1}`}
                           className="w-full h-full object-contain"
+                          width={200}
+                          height={200}
                         />
                         <button
                           onClick={() => handleRemovePreviewImage(index)}
@@ -527,6 +529,8 @@ export default function Projeto() {
                         >
                           <Image
                             src="/images/x.svg"
+                            width={10}
+                            height={10}
                             alt="Remover"
                             className="w-4 h-4"
                           />
@@ -557,6 +561,8 @@ export default function Projeto() {
                       <Image
                         src={url}
                         alt={`Imagem ${index + 1}`}
+                        width={200}
+                        height={200}
                         className="object-contain w-full h-full rounded"
                         onClick={() => handleImageClick(index)}
                       />
@@ -583,6 +589,8 @@ export default function Projeto() {
                               src="/images/arrow-left-circle-fill.svg"
                               alt="Mover para esquerda"
                               className="w-6 h-6"
+                              width={10}
+                              height={10}
                               style={{ filter: "invert(1)" }}
                             />
                           </button>
@@ -596,6 +604,8 @@ export default function Projeto() {
                               src="/images/arrow-right-circle-fill.svg"
                               alt="Mover para direita"
                               className="w-6 h-6"
+                              width={10}
+                              height={10}
                               style={{ filter: "invert(1)" }}
                             />
                           </button>
@@ -610,6 +620,8 @@ export default function Projeto() {
                       >
                         <Image
                           src="/images/x.svg"
+                          width={10}
+                          height={10}
                           alt="Remover"
                           className="w-4 h-4"
                         />
@@ -629,6 +641,8 @@ export default function Projeto() {
                     <Image
                       src={url}
                       alt={`Imagem ${index + 1}`}
+                      width={200}
+                      height={200}
                       className="w-full h-full object-contain cursor-pointer"
                       onClick={() => handleImageClick(index)}
                     />
@@ -655,6 +669,8 @@ export default function Projeto() {
                             src="/images/arrow-left-circle-fill.svg"
                             alt="Mover para esquerda"
                             className="w-6 h-6"
+                            width={10}
+                            height={10}
                             style={{ filter: "invert(1)" }}
                           />
                         </button>
@@ -684,6 +700,8 @@ export default function Projeto() {
                     >
                       <Image
                         src="/images/x.svg"
+                        width={10}
+                        height={10}
                         alt="Remover"
                         className="w-4 h-4"
                       />

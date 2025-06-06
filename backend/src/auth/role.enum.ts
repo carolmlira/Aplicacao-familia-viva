@@ -3,5 +3,4 @@ export enum Role {
   VOLUNT = 'VOLUNT', // Voluntario altera Escala
   ADMIN = 'ADMIN', // ADMIN GERAL
   LIDER = 'LIDER', // Lideres
-  USER = 'USER', // Usuario COMUM
 }
