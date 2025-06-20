@@ -83,8 +83,6 @@ export default function PerfilPage() {
 
     const user = await res.json();
     setImgUserUrl(`${user.photoURL}?t=${Date.now()}`);
-    // atualiza preview
-    // aqui pode atualizar também o estado do usuário com o novo link, etc.
   }
 
   async function handleChangePassword(e: React.FormEvent) {
@@ -112,6 +110,7 @@ export default function PerfilPage() {
           method: "PATCH",
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
         }

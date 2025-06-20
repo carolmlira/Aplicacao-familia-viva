@@ -35,39 +35,38 @@ export class SobreService {
     return newSobre;
   }
 
-  async update(id: string, data: any, images?: Express.Multer.File[]) {
+  async update(id: string, data: any, images?: Express.Multer.File) {
     const docRef = this.collection.doc(id);
     const doc = await docRef.get();
 
     if (!doc.exists) {
-      throw new NotFoundException(`Documento 'sobre' com ID ${id} não encontrado`);
+      throw new NotFoundException(
+        `Documento 'sobre' com ID ${id} não encontrado`,
+      );
     }
 
     const existingData = doc.data();
     if (!existingData) {
-      throw new NotFoundException(`Dados do documento 'sobre' com ID ${id} não encontrados`);
+      throw new NotFoundException(
+        `Dados do documento 'sobre' com ID ${id} não encontrados`,
+      );
     }
 
-    let imageUrl: string = existingData.imageUrl || null;
+    let imagem: string = existingData.imagem || null;
 
-    if (images && images.length > 0) {
-      // Remove a imagem anterior, se existir
-      if (imageUrl) {
-        const path = decodeURIComponent(imageUrl.split('/o/')[1].split('?')[0]);
-        await this.firebaseService.deleteFile(path);
-      }
+    // Remove a imagem anterior, se existir
+    // usa apenas a nova imagem
 
-      const file = images[0]; // usa apenas a nova imagem
-      const ext = file.originalname.split('.').pop();
-      const imageId = uuidv4();
-      const filename = `sobre/${id}/${imageId}.${ext}`;
-      imageUrl = await this.firebaseService.uploadFile(file, filename);
+    if (images) {
+      const ext = images.originalname.split('.').pop();
+      const filename = `sobre.${ext}`;
+      imagem = await this.firebaseService.uploadFile(images, filename);
     }
 
     const updatedData = {
       ...existingData,
       ...data,
-      imageUrl,
+      imagem,
       updatedAt: new Date(),
     };
 
@@ -75,17 +74,16 @@ export class SobreService {
     return updatedData;
   }
 
-    async findAll() {
+  async findAll() {
     const snapshot = await this.collection.get();
 
-    const sobreList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+    const sobreList = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
     }));
 
     return sobreList;
-    }
-
+  }
 
   async remove(id: string) {
     const docRef = this.collection.doc(id);
@@ -96,7 +94,9 @@ export class SobreService {
     const data = doc.data();
 
     if (data?.imageUrl) {
-      const path = decodeURIComponent(data.imageUrl.split('/o/')[1].split('?')[0]);
+      const path = decodeURIComponent(
+        data.imageUrl.split('/o/')[1].split('?')[0],
+      );
       await this.firebaseService.deleteFile(path);
     }
 

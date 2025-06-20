@@ -29,7 +29,7 @@ export class ScheduleController {
   }
 
   @Get()
-  @Roles(Role.ADMIN, Role.VOLUNT)
+  @Roles(Role.ADMIN, Role.LIDER)
   findAll() {
     return this.scheduleService.findAll();
   }

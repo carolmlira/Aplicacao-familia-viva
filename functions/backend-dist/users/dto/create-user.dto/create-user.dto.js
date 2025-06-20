@@ -16,14 +16,11 @@ const role_enum_1 = require("../../../auth/role.enum");
 class CreateUserDto {
     name;
     email;
-    oldSenha;
     password;
     level;
     active;
-    photo;
     photoURL;
     phone;
-    whatsappOptIn;
     ministryId;
     resetToken;
     resetExpires;
@@ -41,12 +38,6 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'O email é obrigatório' }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
-__decorate([
-    (0, class_validator_1.ValidateIf)((o) => o.password !== undefined && o.oldSenha === undefined),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateUserDto.prototype, "oldSenha", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'A senha do do Usuario' }),
     (0, class_validator_1.IsString)({ message: 'A senha deve ser uma string' }),
@@ -66,12 +57,6 @@ __decorate([
     __metadata("design:type", Boolean)
 ], CreateUserDto.prototype, "active", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Photo do Usuario' }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateUserDto.prototype, "photo", void 0);
-__decorate([
     (0, swagger_1.ApiProperty)({ description: 'photo com URL' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
@@ -84,11 +69,6 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "phone", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ description: 'Notificao wpp do Usuario' }),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], CreateUserDto.prototype, "whatsappOptIn", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ description: 'id do ministerio' }),
     (0, class_validator_1.IsString)(),

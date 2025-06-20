@@ -12,6 +12,8 @@ export default function Header() {
   const [showMobileUserMenu, setShowMobileUserMenu] = useState(false);
   const [showLogoUploader, setShowLogoUploader] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [imgUserUrl, setImgUserUrl] = useState<string | null>(null);
+  const id = session?.user?.id;
 
   useEffect(() => {
     const checkMobile = () => {
@@ -34,6 +36,31 @@ export default function Header() {
       .catch((err) => console.error("Erro ao carregar logo:", err));
   }, []);
 
+  useEffect(() => {
+    if (!id) return;
+
+    async function fetchUser() {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/users/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.accessToken || ""}`,
+            },
+          }
+        );
+        if (!res.ok) throw new Error("Erro ao carregar dados do usuário");
+        const user = await res.json();
+        setImgUserUrl(user.photoURL || null);
+      } catch (err) {
+        console.error(err);
+        alert("Não foi possível carregar os dados do perfil");
+      }
+    }
+
+    fetchUser();
+  }, [id, session]);
+
   const handleLogoClick = () => {
     const role = session?.user?.role;
     if (!session || role !== "ADMIN") {
@@ -53,11 +80,7 @@ export default function Header() {
       footer.scrollIntoView({ behavior: "smooth" });
     }
   }
-  console.log(
-    "Header rendering, session.user.photoURL:",
-    session?.user?.photoURL,
-    session?.user?.name
-  );
+
   const renderMenuItems = () => (
     <>
       <li>
@@ -294,7 +317,7 @@ export default function Header() {
               {session ? (
                 <div className={styles.userMenu}>
                   <Image
-                    src={session.user?.photoURL || "/images/icon-user.svg"}
+                    src={imgUserUrl || "/images/icon-user.svg"}
                     alt="Foto do usuário"
                     width={40}
                     height={40}

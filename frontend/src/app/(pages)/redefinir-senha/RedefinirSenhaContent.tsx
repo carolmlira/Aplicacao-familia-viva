@@ -7,9 +7,9 @@ import { useEffect, useState } from "react";
 
 // (mesmo conteúdo que você já tem dentro do RedefinirSenha)
 export default function RedefinirSenhaContent() {
-    const router = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = searchParams?.get("token");
 
   const [erroSenha, setErroSenha] = useState("");
   const [senhaCoincidem, setSenhaCoincidem] = useState("");
@@ -111,5 +111,4 @@ export default function RedefinirSenhaContent() {
       </div>
     </div>
   );
-
 }

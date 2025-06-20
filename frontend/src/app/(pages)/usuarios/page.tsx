@@ -12,11 +12,10 @@ interface User {
   level: string;
   active: boolean;
   phone?: string;
-  photo?: string;
+  photoURL?: string;
   ministryId: string;
   resetToken?: null;
   resetExpires?: null;
-  oldSenha?: string;
 }
 
 interface ValidationErrors {
@@ -25,7 +24,6 @@ interface ValidationErrors {
   email?: string;
   password?: string;
   phone?: string;
-  photo?: string;
   general?: string;
 }
 
@@ -36,7 +34,7 @@ export default function Usuarios() {
   const [, setLoading] = useState(true);
   const [formErrors, setFormErrors] = useState<ValidationErrors>({});
   const [editFormErrors, setEditFormErrors] = useState<ValidationErrors>({});
-  const accessToken = session?.accessToken;
+  const accessToken = (session as { accessToken?: string })?.accessToken;
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false); // Estado para o modal de editar
 
@@ -53,11 +51,9 @@ export default function Usuarios() {
     name: "",
     email: "",
     password: "",
-    oldSenha: "",
     phone: "",
-    photo: "",
-    level: "VOLUNT",
     photoURL: "",
+    level: "VOLUNT",
     active: true,
     ministryId: "",
     resetToken: null,
@@ -74,43 +70,15 @@ export default function Usuarios() {
     }
 
     const fetchUsers = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken || ""}`,
-          },
-        });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users`, {
+        headers: {
+          Authorization: `Bearer ${accessToken || ""}`,
+        },
+      });
 
-        if (!res.ok) {
-          // If the response is not OK (e.g., 4xx or 5xx status)
-          const errorData = await res.json(); // Try to parse the error message
-          console.error("Failed to fetch users:", res.status, errorData);
-          // Optionally, set an error message in state to display to the user
-          // setErrorMessage("Erro ao carregar dados dos usuários.");
-          setUsers([]); // Ensure users is always an empty array on error
-          setLoading(false);
-          return; // Stop execution here
-        }
-
-        const data = await res.json();
-        // Validate if the data received is actually an array
-        if (Array.isArray(data)) {
-          setUsers(data);
-        } else {
-          console.error("API returned non-array data for users:", data);
-          // Handle unexpected data format, e.g., set to empty array
-          // setErrorMessage("Formato de dados inesperado ao carregar usuários.");
-          setUsers([]); // Ensure users is an empty array if data is not an array
-        }
-        setLoading(false);
-      } catch (error) {
-        // Handle network errors or issues during JSON parsing
-        console.error("Error during fetchUsers:", error);
-        // setErrorMessage("Erro de rede ao carregar dados dos usuários.");
-        setUsers([]); // Ensure users is an empty array on network error
-        setLoading(false);
-      }
+      const data = await res.json();
+      setUsers(data);
+      setLoading(false);
     };
 
     fetchUsers();
@@ -225,9 +193,7 @@ export default function Usuarios() {
         name: "",
         email: "",
         password: "",
-        oldSenha: "",
         phone: "",
-        photo: "",
         photoURL: "",
         level: "VOLUNT",
         active: true,
@@ -275,50 +241,57 @@ export default function Usuarios() {
   };
 
   const handleEditUser = async () => {
-    if (editUser) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken || ""}`,
-          },
+    if (!editUser) return;
 
-          body: JSON.stringify(
-            Object.fromEntries(
-              Object.entries(editUser).filter(
-                ([value]) =>
-                  value !== "" && value !== null && value !== undefined
-              )
-            )
-          ),
-        }
-      );
+    // Clona o objeto editUser
+    const userToUpdate = { ...editUser };
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        const messages = errorData.message || [
-          errorData.error || "Erro desconhecido",
-        ];
-        const errors = parseEditValidationErrors(
-          Array.isArray(messages) ? messages : [messages]
-        );
-        setEditFormErrors(errors);
-        return;
-      }
-
-      const updatedUser = await res.json();
-      setUsers(
-        users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
-      );
-      setShowEditModal(false);
-      setEditFormErrors({}); // limpar erros ao fechar
+    // Remove o campo de senha se estiver vazio (ou só com espaços)
+    if (!userToUpdate.password || userToUpdate.password.trim() === "") {
+      delete userToUpdate.password;
     }
+
+    // Filtra os campos para não enviar valores vazios, nulos ou indefinidos
+    const filteredUser = Object.fromEntries(
+      Object.entries(userToUpdate).filter(
+        ([_, value]) => value !== "" && value !== null && value !== undefined
+      )
+    );
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/users/${editUser.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken || ""}`,
+        },
+        body: JSON.stringify(filteredUser),
+      }
+    );
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      const messages = errorData.message || [
+        errorData.error || "Erro desconhecido",
+      ];
+      const errors = parseEditValidationErrors(
+        Array.isArray(messages) ? messages : [messages]
+      );
+      setEditFormErrors(errors);
+      return;
+    }
+
+    const updatedUser = await res.json();
+    setUsers(
+      users.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+    setShowEditModal(false);
+    setEditFormErrors({});
   };
 
   const handleEditClick = (user: User) => {
-    setEditUser(user);
+    setEditUser({ ...user, password: "" });
     setEditFormErrors({});
     setShowEditModal(true);
   };
@@ -567,7 +540,7 @@ export default function Usuarios() {
                 <p className="text-red-600 text-sm">{editFormErrors.email}</p>
               )}
 
-              <input
+              {/* <input
                 name="password"
                 type="password"
                 onChange={(e) =>
@@ -575,11 +548,11 @@ export default function Usuarios() {
                 }
                 minLength={6}
                 maxLength={64}
-                className="border text-black p-2 rounded"
+                className="border text-black p-2 rounded hidden"
                 placeholder="password"
-              />
+              /> */}
 
-              <input
+              {/* <input
                 name="oldSenha"
                 type="password"
                 onChange={(e) =>
@@ -587,7 +560,7 @@ export default function Usuarios() {
                 }
                 minLength={6}
                 maxLength={64}
-                className="border text-black p-2 rounded"
+                className="border text-black p-2 rounded hidden"
                 placeholder="Senha Atual"
               />
 
@@ -595,7 +568,7 @@ export default function Usuarios() {
                 <p className="text-red-600 text-sm">
                   {editFormErrors.password}
                 </p>
-              )}
+              )} */}
               <input
                 name="phone"
                 value={editUser.phone || ""}
@@ -629,7 +602,7 @@ export default function Usuarios() {
               >
                 <option value="ADMIN">ADMIN</option>
                 <option value="LIDER">Líder</option>
-                <option value="VOLUNT">Voluntario</option>
+                <option value="VOLUNT">Voluntário</option>
                 <option value="COMUNIC">Comunicação</option>
               </select>
 

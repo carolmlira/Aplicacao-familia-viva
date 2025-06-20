@@ -85,64 +85,121 @@ export default function Projeto() {
     }
   }
 
-  async function uploadImage(file: File, pageId: string): Promise<string> {
-    const formData = new FormData();
-    formData.append("file", file);
+  async function uploadImage(files: File[], pageId: string): Promise<string[]> {
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("files", file));
 
-    const categoryWithId = `pages/projects/${pageId}`;
+      const categoryWithId = `pages/projects/${pageId}`;
 
-    const response = await fetch(
-      `${
-        process.env.NEXT_PUBLIC_API_URL
-      }/firebase/upload?category=${encodeURIComponent(categoryWithId)}`,
-      {
-        method: "POST",
-        body: formData,
+      const response = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_URL
+        }/firebase/upload-gallery?category=${encodeURIComponent(
+          categoryWithId
+        )}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message ||
+            "Erro no upload da imagem - Status: " + response.status
+        );
       }
-    );
-    if (!response.ok) throw new Error("Erro no upload da imagem");
-    const data = await response.json();
-    return data.url;
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        return data.map((item: { url: string }) => item.url);
+      }
+      return [data.url];
+    } catch (error) {
+      console.error("Erro no uploadImage:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Falha ao fazer upload da imagem"
+      );
+    }
   }
 
   async function updateProject(
     id: string,
     projectData: ProjectUpdate
   ): Promise<void> {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(projectData),
-      }
-    );
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/pages/projects/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(projectData),
+        }
+      );
 
-    if (!response.ok) {
-      throw new Error("Erro ao atualizar o projeto");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message ||
+            "Erro ao atualizar projeto - Status: " + response.status
+        );
+      }
+    } catch (error) {
+      console.error("Erro no updateProject:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Falha ao atualizar o projeto"
+      );
     }
   }
   // Função para substituir a imagem no Firebase Storage (usando PUT)
-  const updateImage = async (file: File, imageId: string): Promise<string> => {
-    const formData = new FormData();
-    formData.append("file", file);
-    const cleanImageId = imageId.replace(/\.png$/, "");
-    const newName = `${uuidv4()}.png`;
+  const updateImage = async (
+    files: File[],
+    imageId: string
+  ): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=projects&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
-      {
-        method: "PUT",
-        body: formData,
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const cleanImageId = imageId.replace(/\.png$/, "");
+        const newName = `${uuidv4()}.png`;
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/firebase/update?category=pages&subgrup=projects&filename=${cleanImageId}.png&newName=${newName}&pageId=${id}`,
+          {
+            method: "PUT",
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.message ||
+              "Erro ao atualizar imagem - Status: " + response.status
+          );
+        }
+
+        const data = await response.json();
+        uploadedUrls.push(data.url);
       }
-    );
 
-    if (!response.ok) throw new Error("Erro ao atualizar a imagem");
-    const data = await response.json();
-    return data.url;
+      return uploadedUrls;
+    } catch (error) {
+      console.error("Erro no updateImage:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Falha ao atualizar a imagem"
+      );
+    }
   };
 
   const deleteImage = async (
@@ -194,27 +251,33 @@ export default function Projeto() {
     setLoading(true);
 
     try {
-      const uploadedUrls: string[] = [];
+      let uploadedUrls: string[] = [];
 
-      for (const file of newImages) {
-        const url = await uploadImage(file, id);
-        uploadedUrls.push(url);
+      if (newImages.length > 0) {
+        // Faz upload de todas as imagens de uma vez
+        uploadedUrls = await uploadImage(newImages, id);
       }
 
-      //const updatedImageUrls = [...imageUrls, ...uploadedUrls];
-
-      await updateProject(id, {
-        ...formData,
+      // Prepara os dados para atualização
+      const updateData: ProjectUpdate = {
+        title: formData.title,
+        content: formData.content,
         images: [...imageUrls, ...uploadedUrls],
-        active: !!formData.active,
-      });
+        active: formData.active,
+      };
 
-      // Atualiza imagens exibidas (não é enviado para backend)
+      console.log("Enviando para atualização:", updateData); // Para debug
+
+      await updateProject(id, updateData);
+
+      // Atualiza estados locais
       setImageUrls((prev) => [...prev, ...uploadedUrls]);
       setNewImages([]);
+      setPreviewImages([]);
       setEditing(false);
     } catch (err) {
       console.error("Erro ao atualizar projeto:", err);
+      // Adicione feedback visual para o usuário
     } finally {
       setLoading(false);
     }
@@ -234,24 +297,29 @@ export default function Projeto() {
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     try {
-      // Se estivermos substituindo uma imagem existente, usaremos o `updateImage`
+      const fileArray = Array.from(files);
       const imageUrl = imageUrls[index];
       const imageId = imageUrl.split("/").pop()?.split("?")[0];
-      let updatedUrl: string;
+
       if (!id) {
         console.error("ID do projeto está indefinido.");
         return;
       }
+
+      let updatedUrl: string;
+
       if (imageId) {
-        // Atualiza a imagem existente
-        updatedUrl = await updateImage(file, imageId);
+        // Atualiza a imagem existente - updateImage retorna string[]
+        const [firstUrl] = await updateImage(fileArray, imageId); // Pega a primeira URL do array
+        updatedUrl = firstUrl;
       } else {
-        // Se não encontrarmos um ID, consideramos como nova imagem e fazemos upload
-        updatedUrl = await uploadImage(file, id);
+        // Faz upload como nova imagem - uploadImage retorna string[]
+        const [firstUrl] = await uploadImage(fileArray, id); // Pega a primeira URL do array
+        updatedUrl = firstUrl;
       }
 
       // Atualiza a URL da imagem no estado

@@ -8,10 +8,10 @@ import {
   Patch,
   Param,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { BannerService } from './banner.service';
 import { CreateBannerDto } from './dto/create-banner/create-banner';
 import { UpdateBannerDto } from './dto/update-banner/update-banner';
+import { MultiFileInterceptor } from './multi-file.interceptor';
 
 @Controller('banner')
 export class BannerController {
@@ -19,20 +19,19 @@ export class BannerController {
 
   @Post()
   @UseInterceptors(
-    FileFieldsInterceptor([
+    new MultiFileInterceptor([
       { name: 'imagemLogo', maxCount: 1 },
       { name: 'imagemBanner', maxCount: 1 },
-    ])
+    ]),
   )
   async create(
-    @UploadedFiles()
-     files: { imagemLogo?: Express.Multer.File; imagemBanner?: Express.Multer.File },
+    @UploadedFiles() files: Record<string, Express.Multer.File[]>,
     @Body() body: CreateBannerDto,
   ) {
     return this.bannerService.create(
       {
-        imagemLogo: files.imagemLogo?.[0],
-        imagemBanner: files.imagemBanner?.[0],
+        imagemLogo: files['imagemLogo']?.[0],
+        imagemBanner: files['imagemBanner']?.[0],
       },
       body,
     );
@@ -40,25 +39,21 @@ export class BannerController {
 
   @Patch(':id')
   @UseInterceptors(
-    FileFieldsInterceptor([
+    new MultiFileInterceptor([
       { name: 'imagemLogo', maxCount: 1 },
       { name: 'imagemBanner', maxCount: 1 },
     ]),
   )
   async update(
     @Param('id') id: string,
-    @UploadedFiles()
-    files: {
-      imagemLogo?: Express.Multer.File[];
-      imagemBanner?: Express.Multer.File[];
-    },
+    @UploadedFiles() files: Record<string, Express.Multer.File[]>,
     @Body() body: UpdateBannerDto,
   ) {
     return this.bannerService.update(
       id,
       {
-        imagemLogo: files.imagemLogo?.[0],
-        imagemBanner: files.imagemBanner?.[0],
+        imagemLogo: files['imagemLogo']?.[0],
+        imagemBanner: files['imagemBanner']?.[0],
       },
       body,
     );

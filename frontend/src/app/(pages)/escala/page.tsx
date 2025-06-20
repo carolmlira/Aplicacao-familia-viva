@@ -54,6 +54,7 @@ export default function Escala() {
   const [addDate, setAddDate] = useState<string>(selectedDate || "");
   const [addDescription, setAddDescription] = useState<string>("");
   const [addTime, setAddTime] = useState<string>(""); // novo estado para a hora
+  const [newTime, setNewTime] = useState<string>("");
 
   const [, setDescription] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -386,7 +387,8 @@ export default function Escala() {
             description: confirmedDescription,
             date: newDate.split("T")[0],
             available: schedulee.available, // Garantir que a disponibilidade seja mantida
-            confirmed: schedulee.confirmed, // Garantir que o status de confirmado seja mantido
+            confirmed: schedulee.confirmed,
+            time: newTime.split("T")[0], // Garantir que o status de confirmado seja mantido
             ministryId: schedulee.ministryId, // Garantir que o ministryId seja mantido
             userId: schedulee.userId,
           }),
@@ -438,6 +440,7 @@ export default function Escala() {
           body: JSON.stringify({
             userId: schedule.userId,
             date: schedule.date,
+            time: schedule.time,
             available: schedule.available,
             description: availableDescription,
             confirmed: true,
@@ -795,12 +798,26 @@ export default function Escala() {
                         <label htmlFor="date" className="block mb-2">
                           Data
                         </label>
+
                         <input
                           type="date"
                           id="date"
                           value={newDate}
                           onChange={(e) => setNewDate(e.target.value)}
                           className="w-full border p-2 rounded mb-4"
+                        />
+                        <label
+                          htmlFor="addTime"
+                          className="block mb-2 text-black"
+                        >
+                          Hora da Escala
+                        </label>
+                        <input
+                          type="time"
+                          id="addTime"
+                          value={newTime}
+                          onChange={(e) => setNewTime(e.target.value)}
+                          className="w-full border p-2 rounded mb-4 text-black"
                         />
                         <label
                           htmlFor="description"

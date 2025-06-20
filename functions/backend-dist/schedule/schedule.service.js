@@ -13,10 +13,11 @@ const uuid_1 = require("uuid");
 let ScheduleService = class ScheduleService {
     collection = firebase_config_1.firestore.collection('schedules');
     async create(createScheduleDto) {
-        const { userId, date } = createScheduleDto;
+        const { userId, date, time } = createScheduleDto;
         const snapshot = await this.collection
             .where('userId', '==', userId)
             .where('date', '==', date)
+            .where('time', '==', time)
             .get();
         if (!snapshot.empty) {
             throw new common_1.BadRequestException(`A data ${date} já foi marcada por você.`);

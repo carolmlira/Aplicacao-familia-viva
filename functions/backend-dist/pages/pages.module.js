@@ -18,7 +18,7 @@ exports.PagesModule = PagesModule = __decorate([
     (0, common_1.Module)({
         controllers: [pages_controller_1.PagesController],
         providers: [pages_service_1.PagesService, firebase_service_1.FirebaseService],
-        exports: [pages_service_1.PagesService]
+        exports: [pages_service_1.PagesService],
     })
 ], PagesModule);
 //# sourceMappingURL=pages.module.js.map

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { firestore, storage } from '../config/firebase.config';
+import { extname } from 'path';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class FirebaseService {

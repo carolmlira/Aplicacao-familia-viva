@@ -58,13 +58,7 @@ export class FirebaseController {
   }
 
   @Post('upload')
-  @UseInterceptors(
-    new FileInterceptor('file', 2, {
-      limits: {
-        fileSize: 3 * 1024 * 1024, // 2MB
-      },
-    }),
-  )
+  @UseInterceptors(new FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('category') category: string,
@@ -102,13 +96,18 @@ export class FirebaseController {
 
   @Post('upload/sobre')
   @UseInterceptors(
-    new FileInterceptor('files', 4, {
+    new FileInterceptor('imagemSobre', 1, {
       limits: {
-        fileSize: 3 * 1024 * 1024, // 3MB
+        fileSize: 2 * 1024 * 1024,
       },
     }),
   )
   async uploadSobreImage(@UploadedFile() file: Express.Multer.File) {
+    console.log('Arquivo recebido:', {
+      originalname: file?.originalname,
+      size: file?.buffer?.length,
+      mimetype: file?.mimetype,
+    });
     const url = await this.firebaseService.uploadFile(file, 'sobre');
     return { url };
   }

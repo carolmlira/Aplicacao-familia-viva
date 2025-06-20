@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const pages_service_1 = require("./pages.service");
 const create_page_dto_1 = require("./dto/create-page.dto/create-page.dto");
 const update_page_dto_1 = require("./dto/update-page.dto/update-page.dto");
-const platform_express_1 = require("@nestjs/platform-express");
+const file_interceptor_1 = require("../firebase/file.interceptor");
 let PagesController = class PagesController {
     pagesService;
     constructor(pagesService) {
@@ -46,7 +46,11 @@ let PagesController = class PagesController {
 exports.PagesController = PagesController;
 __decorate([
     (0, common_1.Post)(':category'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('images')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('images', 10, {
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.Param)('category')),
     __param(1, (0, common_1.UploadedFiles)()),
     __param(2, (0, common_1.Body)()),

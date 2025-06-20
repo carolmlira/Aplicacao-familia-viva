@@ -5,7 +5,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { initializeApp, getApps } from 'firebase-admin/app';
-import * as bodyParser from 'body-parser';
 
 export async function createNestServer(expressInstance?: express.Express) {
   const app = expressInstance

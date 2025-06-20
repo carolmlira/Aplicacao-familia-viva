@@ -6,6 +6,7 @@ export declare class ScheduleService {
         userId: string;
         date: string;
         description: string;
+        time: string;
         available: boolean;
         confirmed?: boolean;
         id: string;

@@ -51,22 +51,16 @@ let SobreService = class SobreService {
         if (!existingData) {
             throw new common_1.NotFoundException(`Dados do documento 'sobre' com ID ${id} não encontrados`);
         }
-        let imageUrl = existingData.imageUrl || null;
-        if (images && images.length > 0) {
-            if (imageUrl) {
-                const path = decodeURIComponent(imageUrl.split('/o/')[1].split('?')[0]);
-                await this.firebaseService.deleteFile(path);
-            }
-            const file = images[0];
-            const ext = file.originalname.split('.').pop();
-            const imageId = (0, uuid_1.v4)();
-            const filename = `sobre/${id}/${imageId}.${ext}`;
-            imageUrl = await this.firebaseService.uploadFile(file, filename);
+        let imagem = existingData.imagem || null;
+        if (images) {
+            const ext = images.originalname.split('.').pop();
+            const filename = `sobre.${ext}`;
+            imagem = await this.firebaseService.uploadFile(images, filename);
         }
         const updatedData = {
             ...existingData,
             ...data,
-            imageUrl,
+            imagem,
             updatedAt: new Date(),
         };
         await docRef.set(updatedData);
@@ -74,7 +68,7 @@ let SobreService = class SobreService {
     }
     async findAll() {
         const snapshot = await this.collection.get();
-        const sobreList = snapshot.docs.map(doc => ({
+        const sobreList = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
         }));

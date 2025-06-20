@@ -7,10 +7,8 @@ export interface UserEntity {
   password: string;
   level: Role;
   active: boolean;
-  photo?: string;
   photoURL?: string;
   phone?: string;
-  whatsappOptIn: boolean;
   ministryId: string;
   resetToken?: string | null; // Token de reset
   resetExpires?: string | null;

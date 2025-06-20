@@ -5,7 +5,7 @@ export declare class SobreService {
     private collection;
     constructor(firebaseService: FirebaseService);
     create(data: any, images?: Express.Multer.File[]): Promise<any>;
-    update(id: string, data: any, images?: Express.Multer.File[]): Promise<any>;
+    update(id: string, data: any, images?: Express.Multer.File): Promise<any>;
     findAll(): Promise<{
         id: string;
     }[]>;

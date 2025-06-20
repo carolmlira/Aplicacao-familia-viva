@@ -7,8 +7,9 @@ const { createNestServer } = require("../backend-dist/main");
 const server = express();
 let nestApp: any = null;
 
-process.env.EMAIL_USER = process.env.EMAIL_USER || "daniell.18sa@gmail.com";
-process.env.EMAIL_PASS = process.env.EMAIL_PASS || "jeswinrbqbibyylw";
+process.env.EMAIL_USER =
+  process.env.EMAIL_USER || "recifefamiliaviva@gmail.com";
+process.env.EMAIL_PASS = process.env.EMAIL_PASS || "familiaviva4567";
 
 process.env.JWT_SECRET =
   "d646f7e030173ec33d28790690a7091c70cdc32ff363ee7bc341ff86849bcdd26ef48ac2814ea4553bece2ef63fb612f8015637f75950ae14563bfe43a490957";

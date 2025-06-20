@@ -83,7 +83,7 @@ export class AuthService {
   }
 
   async sendResetEmail(email: string, token: string) {
-    const link = `http://localhost:3001/redefinir-senha?token=${token}`;
+    const link = `https://familia-viva-recife-7xc53kzq6a-uc.a.run.app/redefinir-senha?token=${token}`;
     await this.emailService.sendMail(
       email,
       'Familia Viva, Recuperação de Senha',

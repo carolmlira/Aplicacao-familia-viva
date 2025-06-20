@@ -4,16 +4,6 @@ import type { NextAuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
 
-interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
-  ministryId?: string;
-  photoURL?: string;
-  accessToken?: string;
-}
-
 const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -34,7 +24,7 @@ const authOptions: NextAuthOptions = {
           });
 
           const user = await res.json();
-
+          console.log("Authorize Callback - API Response User:", user);
           if (!res.ok || !user?.id) {
             console.error(
               "Falha ao autenticar:",
@@ -59,9 +49,22 @@ const authOptions: NextAuthOptions = {
       },
     }),
   ],
-
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user?: AuthUser }) {
+    async jwt({
+      token,
+      user,
+    }: {
+      token: JWT;
+      user?: {
+        id: string;
+        email: string;
+        name: string;
+        role: "ADMIN" | "COMUNIC" | "VOLUNT" | "LIDER";
+        photoURL?: string;
+        ministryId?: string;
+        accessToken?: string;
+      };
+    }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -71,6 +74,7 @@ const authOptions: NextAuthOptions = {
         token.ministryId = user.ministryId;
         token.accessToken = user.accessToken;
       }
+
       return token;
     },
 

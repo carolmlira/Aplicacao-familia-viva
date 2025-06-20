@@ -14,10 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SobreController = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
 const sobre_service_1 = require("./sobre.service");
 const create_sobre_1 = require("./dto/create-sobre.dto/create-sobre");
 const update_sobre_1 = require("./dto/update-sobre.dto/update-sobre");
+const file_interceptor_1 = require("../firebase/file.interceptor");
 let SobreController = class SobreController {
     sobreService;
     constructor(sobreService) {
@@ -27,7 +27,7 @@ let SobreController = class SobreController {
         return this.sobreService.create(body, file ? [file] : []);
     }
     async update(id, file, body) {
-        return this.sobreService.update(id, body, file ? [file] : []);
+        return this.sobreService.update(id, body, file);
     }
     async findAll() {
         return this.sobreService.findAll();
@@ -39,7 +39,7 @@ let SobreController = class SobreController {
 exports.SobreController = SobreController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('imagem')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('imagem')),
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -48,7 +48,11 @@ __decorate([
 ], SobreController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('imagem')),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('imagemSobre', 1, {
+        limits: {
+            fileSize: 2 * 1024 * 1024,
+        },
+    })),
     __param(0, (0, common_1.Param)('id', new common_1.ParseUUIDPipe())),
     __param(1, (0, common_1.UploadedFile)()),
     __param(2, (0, common_1.Body)()),

@@ -56,6 +56,11 @@ let FirebaseController = class FirebaseController {
         return { url, filename };
     }
     async uploadSobreImage(file) {
+        console.log('Arquivo recebido:', {
+            originalname: file?.originalname,
+            size: file?.buffer?.length,
+            mimetype: file?.mimetype,
+        });
         const url = await this.firebaseService.uploadFile(file, 'sobre');
         return { url };
     }
@@ -195,11 +200,7 @@ __decorate([
 ], FirebaseController.prototype, "uploadMultipleFiles", null);
 __decorate([
     (0, common_1.Post)('upload'),
-    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('file', 2, {
-        limits: {
-            fileSize: 3 * 1024 * 1024,
-        },
-    })),
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('file')),
     __param(0, (0, common_1.UploadedFile)()),
     __param(1, (0, common_1.Query)('category')),
     __param(2, (0, common_1.Query)('pageId')),
@@ -209,9 +210,9 @@ __decorate([
 ], FirebaseController.prototype, "uploadFile", null);
 __decorate([
     (0, common_1.Post)('upload/sobre'),
-    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('files', 4, {
+    (0, common_1.UseInterceptors)(new file_interceptor_1.FileInterceptor('imagemSobre', 1, {
         limits: {
-            fileSize: 3 * 1024 * 1024,
+            fileSize: 2 * 1024 * 1024,
         },
     })),
     __param(0, (0, common_1.UploadedFile)()),

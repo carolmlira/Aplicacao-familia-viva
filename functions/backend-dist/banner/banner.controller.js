@@ -14,10 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BannerController = void 0;
 const common_1 = require("@nestjs/common");
-const platform_express_1 = require("@nestjs/platform-express");
 const banner_service_1 = require("./banner.service");
 const create_banner_1 = require("./dto/create-banner/create-banner");
 const update_banner_1 = require("./dto/update-banner/update-banner");
+const multi_file_interceptor_1 = require("./multi-file.interceptor");
 let BannerController = class BannerController {
     bannerService;
     constructor(bannerService) {
@@ -25,14 +25,14 @@ let BannerController = class BannerController {
     }
     async create(files, body) {
         return this.bannerService.create({
-            imagemLogo: files.imagemLogo?.[0],
-            imagemBanner: files.imagemBanner?.[0],
+            imagemLogo: files['imagemLogo']?.[0],
+            imagemBanner: files['imagemBanner']?.[0],
         }, body);
     }
     async update(id, files, body) {
         return this.bannerService.update(id, {
-            imagemLogo: files.imagemLogo?.[0],
-            imagemBanner: files.imagemBanner?.[0],
+            imagemLogo: files['imagemLogo']?.[0],
+            imagemBanner: files['imagemBanner']?.[0],
         }, body);
     }
     async findOne() {
@@ -42,7 +42,7 @@ let BannerController = class BannerController {
 exports.BannerController = BannerController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
+    (0, common_1.UseInterceptors)(new multi_file_interceptor_1.MultiFileInterceptor([
         { name: 'imagemLogo', maxCount: 1 },
         { name: 'imagemBanner', maxCount: 1 },
     ])),
@@ -54,7 +54,7 @@ __decorate([
 ], BannerController.prototype, "create", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileFieldsInterceptor)([
+    (0, common_1.UseInterceptors)(new multi_file_interceptor_1.MultiFileInterceptor([
         { name: 'imagemLogo', maxCount: 1 },
         { name: 'imagemBanner', maxCount: 1 },
     ])),

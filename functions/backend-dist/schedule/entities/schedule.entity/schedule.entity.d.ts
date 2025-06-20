@@ -5,5 +5,6 @@ export declare class ScheduleEntity {
     available: boolean;
     confirmed?: boolean;
     ministryId: string;
+    time: string;
     userId: string;
 }

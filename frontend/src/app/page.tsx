@@ -325,26 +325,22 @@ export default function Home() {
 
   async function handleSaveSobre(id: string) {
     try {
-      let imageUrl = editSobre.imagem;
+      const formData = new FormData();
 
+      // Campos normais
+      formData.append("titulo", editSobre.titulo);
+      formData.append("content", editSobre.content);
+
+      // Se tiver imagem nova, envia o arquivo
       if (sobreImageFile) {
-        const url = await uploadSobreImage(sobreImageFile);
-        console.log("data image: ", url);
-        if (url) imageUrl = url;
+        formData.append("imagemSobre", sobreImageFile); // nome do campo usado no backend
       }
-
-      const updatedData = {
-        titulo: editSobre.titulo,
-        content: editSobre.content,
-        imagem: imageUrl,
-      };
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/sobre/${id}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedData),
+          body: formData, // sem o "Content-Type"! Deixe o browser setar automaticamente
         }
       );
 
@@ -352,7 +348,6 @@ export default function Home() {
 
       const updatedSobre = await res.json();
 
-      // Atualiza a lista no estado
       setSobreList((prev) =>
         prev.map((item) => (item.id === id ? updatedSobre : item))
       );
@@ -364,26 +359,26 @@ export default function Home() {
     }
   }
 
-  async function uploadSobreImage(file: File): Promise<string | null> {
-    const formData = new FormData();
-    formData.append("file", file); // nome do campo esperado no backend
+  // async function uploadSobreImage(file: File): Promise<string | null> {
+  //   const formData = new FormData();
+  //   formData.append("imagemSobre", file); // nome do campo esperado no backend
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/sobre`,
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+  //   const res = await fetch(
+  //     `${process.env.NEXT_PUBLIC_API_URL}/firebase/upload/sobre`,
+  //     {
+  //       method: "POST",
+  //       body: formData,
+  //     }
+  //   );
 
-    if (!res.ok) {
-      throw new Error("Erro ao fazer upload da imagem do Sobre");
-    }
+  //   if (!res.ok) {
+  //     throw new Error("Erro ao fazer upload da imagem do Sobre");
+  //   }
 
-    const data = await res.json();
-    console.log("data ", data.url);
-    return data.url; // supondo que o backend retorna { url: string }
-  }
+  //   const data = await res.json();
+  //   console.log("data ", data.url);
+  //   return data.url; // supondo que o backend retorna { url: string }
+  // }
 
   function openEditModal(event: Event) {
     setSelectedEvent(event);

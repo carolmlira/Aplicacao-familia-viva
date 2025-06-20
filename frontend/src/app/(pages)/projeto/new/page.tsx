@@ -41,28 +41,48 @@ export default function NewProjeto() {
     setLoading(true);
 
     try {
-      const data = new FormData();
-      data.append("title", formData.title);
-      data.append("content", formData.content);
-      data.append("active", String(formData.active));
-      data.append("icon", "project");
-      data.append("updatedBy", session?.user?.name || "admin");
-      data.append("createdAt", new Date().toISOString());
-      data.append("updatedAt", new Date().toISOString());
+      let body: FormData | string;
+      const headers: Record<string, string> = {};
+      const token = session?.accessToken || ""; // ajuste conforme onde seu token está
 
-      const images = imageFiles.length > 0 ? imageFiles : [];
-      images.forEach(({ file }) => {
-        data.append("images", file);
-      });
+      if (imageFiles.length > 0) {
+        const formDataToSend = new FormData();
+        formDataToSend.append("title", formData.title);
+        formDataToSend.append("content", formData.content);
+        formDataToSend.append("active", String(formData.active));
+        formDataToSend.append("icon", "project");
+        formDataToSend.append("updatedBy", session?.user?.name || "admin");
+        formDataToSend.append("createdAt", new Date().toISOString());
+        formDataToSend.append("updatedAt", new Date().toISOString());
+
+        imageFiles.forEach(({ file }) => {
+          formDataToSend.append("images", file);
+        });
+
+        body = formDataToSend;
+        // Authorization deve ser incluído mesmo sem Content-Type
+        headers["Authorization"] = `Bearer ${token}`;
+      } else {
+        body = JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+          active: formData.active,
+          icon: "project",
+          updatedBy: session?.user?.name || "admin",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+
+        headers["Content-Type"] = "application/json";
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/pages/projetos`,
+        `${process.env.NEXT_PUBLIC_API_URL}/pages/projects`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${session?.accessToken}`,
-          },
-          body: data,
+          headers: Object.keys(headers).length > 0 ? headers : undefined,
+          body,
         }
       );
 

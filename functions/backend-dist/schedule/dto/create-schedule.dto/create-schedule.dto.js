@@ -17,43 +17,52 @@ class CreateScheduleDto {
     userId;
     date;
     description;
+    time;
     available;
     confirmed;
 }
 exports.CreateScheduleDto = CreateScheduleDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "id do ministerio" }),
+    (0, swagger_1.ApiProperty)({ description: 'id do ministerio' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.Length)(0, 100),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "ministryId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "id do user" }),
+    (0, swagger_1.ApiProperty)({ description: 'id do user' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.Length)(3, 100),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "userId", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "Data" }),
+    (0, swagger_1.ApiProperty)({ description: 'Data' }),
     (0, class_validator_1.IsDateString)(),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "date", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "Descrição" }),
+    (0, swagger_1.ApiProperty)({ description: 'Descrição' }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.Length)(0, 1000),
     __metadata("design:type", String)
 ], CreateScheduleDto.prototype, "description", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "Disponibilidade" }),
+    (0, swagger_1.ApiProperty)({ description: 'Time' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+        message: 'O horário deve estar no formato HH:mm (ex: 19:30)',
+    }),
+    __metadata("design:type", String)
+], CreateScheduleDto.prototype, "time", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Disponibilidade' }),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], CreateScheduleDto.prototype, "available", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ description: "Confirmado" }),
+    (0, swagger_1.ApiProperty)({ description: 'Confirmado' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)

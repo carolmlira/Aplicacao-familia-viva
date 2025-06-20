@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { GrLocation } from "react-icons/gr";
-import { useSession } from "next-auth/react"; 
+import { useSession } from "next-auth/react";
 import { FaInstagram } from "react-icons/fa";
 import styles from "./footer.module.css";
 import Image from "next/image";
 
 type FooterData = {
-  contato:string;
+  contato: string;
   localizacao: string;
   telefone: string;
 };
 
 export function Footer() {
-  const { data: session } = useSession(); 
+  const { data: session } = useSession();
   const [isMobile, setIsMobile] = useState(false);
   const [footerData, setFooterData] = useState<FooterData | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -41,13 +41,14 @@ export function Footer() {
       .catch((err) => console.error("Erro ao buscar footer:", err));
   }, []);
 
-
   // Atualizar dados (exemplo: PATCH)
   const updateFooter = async (data: Partial<FooterData>) => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/footer`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       });
       const updated = await res.json();
@@ -76,7 +77,9 @@ export function Footer() {
             <div className={styles.info}>
               <a
                 className={styles.info}
-                href={`https://www.instagram.com/${footerData?.contato || "Não informado"}`}
+                href={`https://www.instagram.com/${
+                  footerData?.contato || "Não informado"
+                }`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -111,13 +114,11 @@ export function Footer() {
                 <GrLocation className={styles.icon} />
                 {footerData?.localizacao || "Não informado"}
               </a>
-              
             </div>
-            
           </li>
         </ul>
         {/* Botão para abrir o modal */}
-        {(session?.user)?.role === "ADMIN" && (
+        {session?.user?.role === "ADMIN" && (
           <button
             className={styles.editButton}
             onClick={() => {
@@ -125,7 +126,7 @@ export function Footer() {
                 setFormData({
                   contato: footerData.contato,
                   localizacao: footerData.localizacao,
-                  telefone: footerData.telefone
+                  telefone: footerData.telefone,
                 });
               }
               setShowModal(true);
@@ -146,7 +147,9 @@ export function Footer() {
       {showModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
-            <h2 style={{ fontWeight:"bold", color: "orangered" }}>Editar Footer</h2>
+            <h2 style={{ fontWeight: "bold", color: "orangered" }}>
+              Editar Footer
+            </h2>
             <form onSubmit={handleSubmit}>
               <label>
                 Instagram:
@@ -180,10 +183,23 @@ export function Footer() {
                 />
               </label>
               <div className={styles.modalActions}>
-                <button style={{ backgroundColor: 'green', borderRadius: '5px', padding: '8px 12px' }} type="submit">Salvar</button>
+                <button
+                  style={{
+                    backgroundColor: "green",
+                    borderRadius: "5px",
+                    padding: "8px 12px",
+                  }}
+                  type="submit"
+                >
+                  Salvar
+                </button>
                 <button
                   type="button"
-                  style={{ backgroundColor: 'red', borderRadius: '5px', padding: '8px 12px' }}
+                  style={{
+                    backgroundColor: "red",
+                    borderRadius: "5px",
+                    padding: "8px 12px",
+                  }}
                   onClick={() => setShowModal(false)}
                   className={styles.cancelButton}
                 >

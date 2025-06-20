@@ -8,12 +8,13 @@ export class ScheduleService {
   private collection = firestore.collection('schedules');
 
   async create(createScheduleDto: CreateScheduleDto) {
-    const { userId, date } = createScheduleDto;
+    const { userId, date, time } = createScheduleDto;
 
     // Verificar se já existe uma disponibilidade para o mesmo usuário e data
     const snapshot = await this.collection
       .where('userId', '==', userId)
       .where('date', '==', date)
+      .where('time', '==', time)
       .get();
 
     if (!snapshot.empty) {

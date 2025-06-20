@@ -8,6 +8,7 @@ class ScheduleEntity {
     available;
     confirmed;
     ministryId;
+    time;
     userId;
 }
 exports.ScheduleEntity = ScheduleEntity;

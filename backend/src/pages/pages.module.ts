@@ -5,7 +5,7 @@ import { FirebaseService } from 'src/firebase/firebase.service'; // <-- importar
 
 @Module({
   controllers: [PagesController],
-  providers: [PagesService, FirebaseService], 
-  exports: [PagesService]
+  providers: [PagesService, FirebaseService],
+  exports: [PagesService],
 })
 export class PagesModule {}

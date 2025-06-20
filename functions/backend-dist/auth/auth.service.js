@@ -76,7 +76,7 @@ let AuthService = class AuthService {
         return 'Senha redefinida com sucesso';
     }
     async sendResetEmail(email, token) {
-        const link = `http://localhost:3001/redefinir-senha?token=${token}`;
+        const link = `https://familia-viva-recife-7xc53kzq6a-uc.a.run.app/redefinir-senha?token=${token}`;
         await this.emailService.sendMail(email, 'Familia Viva, Recuperação de Senha', `Esse Link expira em 1h. Clique aqui para redefinir sua senha : ${link}`);
     }
 };
